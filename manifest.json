@@ -1,0 +1,29 @@
+{
+    "manifest_version" : 2,
+    "name" : "LeetHub",
+    "description" : "Automatically integrate your code with LeetCode and GitHub",
+    "homepage_url": "https://github.com/QasimWani/LeetHub",
+    "version" : "0.0.1",
+    "author" : "Qasim Wani",
+    "browser_action": {
+        "default_icon": "assets/thumbnail.png",
+        "default_popup": "popup.html"
+    },
+    "icons": {
+        "16": "assets/thumbnail.png",
+        "48": "assets/thumbnail.png",
+        "128": "assets/thumbnail.png"
+      },
+    "permissions": [
+        "https://leetcode.com/*"
+     ],
+     "content_scripts": [
+        {
+          "matches": [
+            "https://leetcode.com/*"
+          ],
+          "js": ["scripts/index.js"]
+        }
+      ],
+      "content_security_policy": "script-src 'self' https://code.jquery.com/jquery-3.3.1.min.js https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js; object-src 'self'"
+}
