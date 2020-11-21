@@ -1,2 +1,4 @@
-# LeetHub
-Automatically sync your leetcode solutions to your github account
+![](assets/logo.png)
+--------------------------------------------------------------------------------
+
+### LeetHub is a chrome extension Automatically sync your leetcode solutions to your github account:
