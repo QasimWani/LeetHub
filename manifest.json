@@ -19,7 +19,6 @@
         "persistent": false
       },
     "permissions": [
-        "https://leetcode.com/*",
         "identity",
         "tabs",
         "activeTab",
