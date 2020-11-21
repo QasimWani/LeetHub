@@ -21,6 +21,22 @@ body {
     margin-top: 3px !important;
     /* margin-bottom: 0px; */
   }
+  #error
+  {
+    font-family: "Norwester", "Helvetica Neue", "Lucida Grande", sans-serif;
+    font-weight: normal !important;
+    color: red !important;
+    margin-bottom: 0px;
+  }
+  
+  #success
+  {
+    font-family: "Norwester", "Helvetica Neue", "Lucida Grande", sans-serif;
+    font-size: 1.1em;
+    font-weight: normal !important;
+    color: green !important;
+    margin-bottom: 0px;
+  }
 
   p
   {
@@ -32,4 +48,9 @@ body {
     border-top: solid white 1px;
     font-weight: 500;
     font-size: medium;
+  }
+
+  a
+  {
+    color:  white !important;
   }
