@@ -14,16 +14,25 @@
         "48": "assets/thumbnail.png",
         "128": "assets/thumbnail.png"
       },
+      "background": {
+        "scripts": ["scripts/background.js"],
+        "persistent": false
+      },
     "permissions": [
-        "https://leetcode.com/*"
+        "https://leetcode.com/*",
+        "identity",
+        "tabs",
+        "activeTab",
+        "storage"
      ],
      "content_scripts": [
         {
           "matches": [
-            "https://leetcode.com/*"
+            "https://leetcode.com/*", "https://github.com/*"
           ],
-          "js": ["scripts/index.js"]
+          "js": ["scripts/leetcode.js", "scripts/authorize.js"],
+          "run_at": "document_start"
         }
       ],
-      "content_security_policy": "script-src 'self' https://code.jquery.com/jquery-3.3.1.min.js https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js; object-src 'self'"
+      "content_security_policy": "script-src 'self' https://code.jquery.com/jquery-3.3.1.min.js https://github.com/login/oauth/authorize https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js; object-src 'self'"
 }
