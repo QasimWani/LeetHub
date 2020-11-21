@@ -1,33 +1,35 @@
 body {
-    width: 350px;
-    background-color: #dfd9d99d !important;
+    background-color: #000000 !important;
     padding: 10px;
     text-align:center;
     transition: background-color .75s ease;
-    font-size:13px;
-    
     font-family: "Helvetica Neue", "Lucida Grande", sans-serif;
   }
 
   #title {
     font-family: "Norwester", "Helvetica Neue", "Lucida Grande", sans-serif;
-    font-size: 30px;
+    font-size: 5em;
     font-weight: bold;
     margin-bottom: 0px;
     margin-top: 10px;
   }
   
-  #caption {
+  .caption {
     font-family: "Norwester", "Helvetica Neue", "Lucida Grande", sans-serif;
-    font-size: 14px;
-    font-weight: normal;
-    margin-bottom: 0px;
+    font-size: 1.5em;
+    font-weight: normal !important;
+    margin-top: 3px !important;
+    /* margin-bottom: 0px; */
   }
 
+  p
+  {
+    color: white !important;
+  }
   .onboarding
   {
     font-family: sans-serif;
-    border-top: solid black 1px;
+    border-top: solid white 1px;
     font-weight: 500;
     font-size: medium;
   }
