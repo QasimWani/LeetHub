@@ -56,4 +56,4 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
 # Let's see you ACE that coding interview!
 
 
-<img src="assets/extension/leetcode.jpg" height=500 width=800>
+![leetcode view](assets/extension/leetcode.jpg)
