@@ -205,6 +205,14 @@ var link_repo = (token, name)=>{
                 /* Set Repo Hook */
                 chrome.storage.sync.set({"leethub_hook": res['full_name']}, data=>{
                     console.log("Successfully set new repo hook");
+                    /* Get problems solved count */
+                    chrome.storage.sync.get("stats", psolved=>{
+                        psolved = psolved.stats;
+                        if(psolved && psolved["solved"])
+                        {
+                            $("#p_solved").text(psolved["solved"]); 
+                        }
+                    });
                 });
             }
         }
