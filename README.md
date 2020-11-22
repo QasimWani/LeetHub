@@ -2,8 +2,19 @@
 --------------------------------------------------------------------------------
 # LeetHub - Automatically sync your code to GitHub.
 
-### Install it from Chrome [webstore](https://temp.com)
 
+<table style="border-collapse: separate;"><tr>
+  <td style="border-spacing:2em 0"> 
+      <a href="https://github.com/QasimWani">
+        <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimg.talkandroid.com%2Fuploads%2F2014%2F10%2Fchrome_web_store_logo_new.png&f=1&nofb=1" alt="Chrome WebStore" height=200 width=300/>
+      </a>  
+  </td>
+  <td style="border-spacing:2em 0"> 
+      <a href="https://github.com/QasimWani">
+        <img src="https://venturebeat.com/wp-content/uploads/2017/07/product_hunt_logo.png" alt="Product Hunt" height=200 width=300/>
+      </a> 
+  </td>
+</tr></table>
 
 ## What is LeetHub?
 <p>A chrome extension that automatically pushes your code to GitHub when you pass all tests on a Leetcode problem. </p>
@@ -24,7 +35,8 @@ Moreover, pushing code manually to GitHub from Leetcode is very time consuming. 
   <li>Setup an existing/new repository with LeetHub (private by default) by clicking "Get Started" button.</li>
   <li>Begin Leetcoding! To view your progress, simply click on the extension!</li>
 </ol>
-### BONUS: Star [this repository](https://github.com/QasimWani/LeetHub) for further development of features. If you want a particular feature, simply [request](https://github.com/QasimWani/LeetHub/labels/feature) for it!
+
+#### BONUS: Star [this repository](https://github.com/QasimWani/LeetHub) for further development of features. If you want a particular feature, simply [request](https://github.com/QasimWani/LeetHub/labels/feature) for it!
 
 
 ## Why did I build LeetHub?
