@@ -31,7 +31,7 @@
                         To get started with LeetHub
                     </p>
                 </div>
-                <div class="six wide left aligned column">
+                <div class="four wide left aligned column">
                     <div class="ui form">
                         <div class="field">
                           <select id="type">
@@ -42,7 +42,7 @@
                         </div>
                       </div>
                 </div>
-                <div class="four wide column">
+                <div class="six wide column">
                     <div class="ui form">
                         <div class="field">
                           <input autocomplete="off" id="name" placeholder="Repository Name" type="text">
@@ -53,14 +53,21 @@
                 
                 <div class="sixteen wide right aligned column">
                     <br>
-                    <button id="hook_button" class="positive ui button">Get Started</button>
+                    <button id="hook_button" disabled class="positive ui button">Get Started</button>
                 </div>
 
             </div>
             
             <!-- Show stats -->
-            <div style="display: none;" id="commit_mode">
-                <p>You're in commit mode!</p>
+            <div style="display: none;" id="commit_mode" class="ui grid container">
+                <div class="eight wide center aligned column">
+                    <br><br><br><br>
+                    <div class="ui inverted large header">Problems Solved: <span id="p_solved">0</span></div>
+                </div>
+                <div class="eight wide center aligned column">
+                    <br><br><br><br>
+                    <div class="ui inverted large header">Leaderboard Rank: <span id="rank">0</span></div>
+                </div>
             </div>
 
         </div>
