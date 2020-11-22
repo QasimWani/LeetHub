@@ -115,7 +115,6 @@ chrome.storage.sync.get("mode_type", data=>{
                     else
                     {
                         /* Username exists, at least in storage. Confirm this */
-                        // console.log(token, repo_name);
                         link_repo(token, repo_name);
                     }
                 });
@@ -178,7 +177,6 @@ var link_repo = (token, name)=>{
         if(xhr.readyState == 4) {
             const res = JSON.parse(xhr.responseText);
             var bool = link_status_code(res, xhr.status, name);
-            console.log(bool);
             if(!bool) //unable to gain access to repo in commit mode. Must switch to hook mode.
             {
                 /* Set mode type to hook */
@@ -256,7 +254,6 @@ var link_status_code = (res, status, name)=>{
 /* Status codes for creating of repo */
 
 var status_code = (res, status, name)=>{
-    console.log(res);
     switch (status) {
         case 304:
             $("#success").hide();

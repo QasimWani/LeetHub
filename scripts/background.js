@@ -4,13 +4,11 @@ function handleMessage(request, sender, sendResponse) {
         /* Set username */
         chrome.storage.sync.set({"leethub_username": request.username}, (data)=>{
             window['localStorage']['leethub_username'] = request.username;
-            console.log("Username", request.username);
         });
         
         /* Set token */
         chrome.storage.sync.set({"leethub_token": request.token}, (data)=>{
             window['localStorage'][request.KEY] = request.token;
-            console.log("Token", request.token);
         });
 
         /* Close pipe */

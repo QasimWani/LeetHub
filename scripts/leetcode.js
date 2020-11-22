@@ -75,7 +75,7 @@ function upload_git(code, filename) {
                             chrome.storage.sync.get("stats", stats=>{
                                 stats = stats.stats;
                                 let sha = null;
-                                console.log("debug stats", stats);
+
                                 if(stats != undefined && stats["sha"] != undefined && stats["sha"][filename] != undefined)
                                 {
                                     sha = stats["sha"][filename];
@@ -113,24 +113,20 @@ var upload = (token, hook, code, filename, sha)=>{
     var xhr = new XMLHttpRequest();
     xhr.addEventListener('readystatechange', function(event) {
         if(xhr.readyState == 4) {
-            console.log("STATUS", xhr.status);
+
             if(xhr.status == 200 || xhr.status == 201) {
                 sha = JSON.parse(xhr.responseText)["commit"]["sha"]; //get updated SHA.
-                console.log("temp debug", JSON.parse(xhr.responseText));
-                console.log("SHA", sha);
+
                 chrome.storage.sync.get("stats", data=>{
-                    console.log(data, data.stats);
                     let stats = data.stats;
                     if(stats == null || stats == {} || stats == undefined) //create stats object
                     {
                         stats = {};
                         stats["solved"] = 0;
                         stats["sha"] = {};
-                        console.log(stats);
                     }
                     stats["solved"] += 1;
                     stats["sha"][filename] = sha; //update sha key.
-                    console.log(stats);
                     chrome.storage.sync.set({"stats" : stats}, m_data=>{
                         console.log(`Successfully committed ${filename} to github`);
                     });
