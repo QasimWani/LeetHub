@@ -3,15 +3,17 @@
 # LeetHub - Automatically sync your code to GitHub.
 
 
+### Available on:
+
 <table style="border-collapse: separate;"><tr>
   <td style="border-spacing:2em 0"> 
       <a href="https://github.com/QasimWani">
-        <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimg.talkandroid.com%2Fuploads%2F2014%2F10%2Fchrome_web_store_logo_new.png&f=1&nofb=1" alt="Chrome WebStore" height=200 width=300/>
+        <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimg.talkandroid.com%2Fuploads%2F2014%2F10%2Fchrome_web_store_logo_new.png&f=1&nofb=1" alt="Chrome WebStore" height=100 width=200/>
       </a>  
   </td>
   <td style="border-spacing:2em 0"> 
       <a href="https://github.com/QasimWani">
-        <img src="https://venturebeat.com/wp-content/uploads/2017/07/product_hunt_logo.png" alt="Product Hunt" height=200 width=300/>
+        <img src="https://venturebeat.com/wp-content/uploads/2017/07/product_hunt_logo.png" alt="Product Hunt" height=100 width=200/>
       </a> 
   </td>
 </tr></table>
