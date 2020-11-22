@@ -19,7 +19,6 @@
         "persistent": false
       },
     "permissions": [
-        "identity",
         "tabs",
         "activeTab",
         "storage"
