@@ -1,4 +1,7 @@
 ![](assets/logo.png)
 --------------------------------------------------------------------------------
 
-### LeetHub is a chrome extension Automatically sync your leetcode solutions to your github account:
+# LeetHub
+### Automatically sync your code between LeetCode and GitHub.
+
+##### Install it from Chrome [webstore](https://temp.com)
