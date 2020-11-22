@@ -1,11 +1,18 @@
 function handleMessage(request, sender, sendResponse) {
-    console.log(request, sendResponse);
     if(request && request.closeWebPage == true && request.isSuccess == true)
     {
-        chrome.storage.sync.set({"leethub_token": request.token}, (data)=>{
-            console.log("successfully set token for user");
-            window['localStorage'][this.KEY] = request.token;
+        /* Set username */
+        chrome.storage.sync.set({"leethub_username": request.username}, (data)=>{
+            window['localStorage']['leethub_username'] = request.username;
+            console.log("Username", request.username);
         });
+        
+        /* Set token */
+        chrome.storage.sync.set({"leethub_token": request.token}, (data)=>{
+            window['localStorage'][request.KEY] = request.token;
+            console.log("Token", request.token);
+        });
+
         /* Close pipe */
         chrome.storage.sync.set({"pipe_leethub": false}, data=>{
             console.log("Closed pipe.");
@@ -14,7 +21,8 @@ function handleMessage(request, sender, sendResponse) {
         chrome.tabs.getSelected(null, function(tab) {
             chrome.tabs.remove(tab.id);
         });
-        /* Create template for UX */
+
+        /* Go to onboarding for UX */
         let url_onboarding = "chrome-extension://oipbbaikfkcbnfcnjapepjlpfhpchedj/welcome.html";
         chrome.tabs.create({url: url_onboarding, selected: true}); //creates new tab
     }

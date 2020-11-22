@@ -1,3 +1,19 @@
+/* Check for value of select tag, Get Started disabled by default */
+
+$('#type').on('change', function (e) {
+    let valueSelected = this.value;
+    if(valueSelected)
+    {
+        $("#hook_button").attr("disabled", false);
+    }
+    else
+    {
+        $("#hook_button").attr("disabled", true);
+    }
+});
+
+
+
 $("#hook_button").on('click', ()=>{
     /* on click should generate: 1) option 2) repository name */
     if(!option())
@@ -8,6 +24,7 @@ $("#hook_button").on('click', ()=>{
     else if(!repository_name())
     {
         $("#error").text("No repository name added - Enter the name of your repository!");
+        $("#name").focus();
         $("#error").show();
     }
     else
@@ -40,7 +57,21 @@ $("#hook_button").on('click', ()=>{
                 }
                 else
                 {
-                    link_repo(token);
+                    chrome.storage.sync.get("leethub_username", (data)=>{
+                        let username = data.leethub_username;
+                        if(!username)
+                        {
+                            /* Improper authorization. */
+                            $("#error").text("Improper Authorization error - Grant LeetHub access to your GitHub account to continue (launch extension to proceed)");
+                            $("#error").show();
+                            $("#success").hide();
+                        }
+                        else
+                        {
+                            link_repo(token, username + "/" + repository_name(), false);
+                        }
+                    });
+
                 }
             }
         });
@@ -53,6 +84,43 @@ chrome.storage.sync.get("mode_type", data=>{
     const mode = data.mode_type;
     if(mode && mode == "commit")
     {
+        /* Check if still access to repo */
+        chrome.storage.sync.get("leethub_token", data=>{
+            const token = data.leethub_token;
+            if(token == null || token == undefined)
+            {
+                /* Not authorized yet. */
+                $("#error").text("Authorization error - Grant LeetHub access to your GitHub account to continue (click LeetHub extension on the top right to proceed)");
+                $("#error").show();
+                $("#success").hide();
+                /* Hide accordingly */
+                document.getElementById("hook_mode").style.display = "inherit";
+                document.getElementById("commit_mode").style.display = "none";
+            }
+            else
+            {
+                /* Get access to repo */
+                chrome.storage.sync.get("leethub_hook", repo_name=>{
+                    repo_name = repo_name.leethub_hook;
+                    if(!repo_name)
+                    {
+                        /* Not authorized yet. */
+                        $("#error").text("Improper Authorization error - Grant LeetHub access to your GitHub account to continue (click LeetHub extension on the top right to proceed)");
+                        $("#error").show();
+                        $("#success").hide();
+                        /* Hide accordingly */
+                        document.getElementById("hook_mode").style.display = "inherit";
+                        document.getElementById("commit_mode").style.display = "none";
+                    }
+                    else
+                    {
+                        /* Username exists, at least in storage. Confirm this */
+                        link_repo(token, repo_name);
+                    }
+                });
+            }
+        });
+
         document.getElementById("hook_mode").style.display = "none";
         document.getElementById("commit_mode").style.display = "inherit";
     }
@@ -77,7 +145,8 @@ var create_repo = (token, name)=>{
     var data = {
         'name': name,
         'private': true,
-        'auto_init': true
+        'auto_init': true,
+        'description': "Collection of LeetCode questions to ace the coding interview! - Created using [LeetHub](https://github.com/QasimWani/LeetHub)."
     }
     data = JSON.stringify(data);
 
@@ -94,18 +163,91 @@ var create_repo = (token, name)=>{
     xhr.send(data);
 }
 
-var link_repo = (token)=>{
-    console.log("in here");
+/* 
+    Method for linking hook with an existing repository 
+    Steps:
+    1. Check if existing repository exists and the user has write access to it.
+    2. Link Hook to it (chrome Storage).
+*/
+var link_repo = (token, name)=>{
+    const AUTHENTICATION_URL = "https://api.github.com/repos/" + name;
+    
+    var xhr = new XMLHttpRequest();
+    xhr.addEventListener('readystatechange', function(event) {
+        if(xhr.readyState == 4) {
+            const res = JSON.parse(xhr.responseText);
+            var bool = link_status_code(res, xhr.status, name);
+            console.log(bool);
+            if(!bool) //unable to gain access to repo in commit mode. Must switch to hook mode.
+            {
+                /* Set mode type to hook */
+                chrome.storage.sync.set({"mode_type": "hook"}, data=>{
+                    console.log(`Error linking ${name} to LeetHub`);
+                });
+                /* Set Repo Hook to NONE */
+                chrome.storage.sync.set({"leethub_hook": null}, data=>{
+                    console.log("Defaulted repo hook to NONE");
+                });
+
+                /* Hide accordingly */
+                document.getElementById("hook_mode").style.display = "inherit";
+                document.getElementById("commit_mode").style.display = "none";
+            }
+            else
+            {
+                /* Change mode type to commit */
+                chrome.storage.sync.set({"mode_type": "commit"}, data=>{
+                    $("#error").hide();
+                    $("#success").html(`Successfully linked <a target="blank" href="${res['html_url']}">${name}</a> to LeetHub. Start <a href="http://leetcode.com">LeetCoding</a> now!`);
+                    $("#success").show();
+                });
+                /* Set Repo Hook */
+                chrome.storage.sync.set({"leethub_hook": res['full_name']}, data=>{
+                    console.log("Successfully set new repo hook");
+                });
+            }
+        }
+    });
+
+    xhr.open('GET', AUTHENTICATION_URL, true);
+    xhr.setRequestHeader("Authorization", `token ${token}`);
+    xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
+    xhr.send();
 }
 
-/* REPOSITORY HAS BEEN CREATED */
-/* 
+/* Status codes for linking of repo */
+var link_status_code = (res, status, name)=>{
+    let bool = false;
+    switch (status)
+    {
+        case 301:
+            $("#success").hide();
+            $("#error").html(`Error linking <a target="blank" href="${'https://github.com/' + name}">${name}</a> to LeetHub. <br> This repository has been moved permenantly. Try creating a new one.`);
+            $("#error").show();
+            break;
+            
+        case 403:
+            $("#success").hide();
+            $("#error").html(`Error linking <a target="blank" href="${'https://github.com/' + name}">${name}</a> to LeetHub. <br> Forbidden action. Please make sure you have the right access to this repository.`);
+            $("#error").show();
+            break;
+        
+        case 404:
+            $("#success").hide();
+            $("#error").html(`Error linking <a target="blank" href="${'https://github.com/' + name}">${name}</a> to LeetHub. <br> Resource not found. Make sure you enter the right repository name.`);
+            $("#error").show();
+            break;
+        
+        default:
+            bool = true;
+            break;
+    }
+    return bool;
+}
+/* Status codes for creating of repo */
 
-let X = JSON.parse(xhr.responseText);
-console.log(X.length);
-
-*/
 var status_code = (res, status, name)=>{
+    console.log(res);
     switch (status) {
         case 304:
             $("#success").hide();
@@ -133,7 +275,7 @@ var status_code = (res, status, name)=>{
 
         case 422:
             $("#success").hide();
-            $("#error").text(`Error creating ${name} - Unprocessable Entity. Repository may have already been created`);
+            $("#error").text(`Error creating ${name} - Unprocessable Entity. Repository may have already been created. Try Linking instead (select 2nd option).`);
             $("#error").show();
             break;
 
@@ -141,11 +283,14 @@ var status_code = (res, status, name)=>{
             /* Change mode type to commit */
             chrome.storage.sync.set({"mode_type": "commit"}, data=>{
                 $("#error").hide();
-                $("#success").html(`Successfully created <a target="blank" href="${res['clone_url']}">${name}</a>. Start <a href="http://leetcode.com">LeetCoding</a>!`);
+                $("#success").html(`Successfully created <a target="blank" href="${res['html_url']}">${name}</a>. Start <a href="http://leetcode.com">LeetCoding</a>!`);
                 $("#success").show();
+                /* Show new layout */
+                document.getElementById("hook_mode").style.display = "none";
+                document.getElementById("commit_mode").style.display = "inherit";
             });
-            /* Get Repo Hook */
-            chrome.storage.sync.set({"leethub_hook": res['clone_url']}, data=>{
+            /* Set Repo Hook */
+            chrome.storage.sync.set({"leethub_hook": res['full_name']}, data=>{
                 console.log("Successfully set new repo hook");
             });
 

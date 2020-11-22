@@ -1,5 +1,5 @@
 /* 
-    NEEDS PATCH 
+    (needs patch) 
     IMPLEMENTATION OF AUTHENTICATION ROUTE AFTER REDIRECT FROM GITHUB.
 */
 
@@ -71,69 +71,33 @@ var local_auth = {
      * @param token The OAuth2 token given to the application from the provider.
      */
     finish: function(token) {
-        try {
-            chrome.storage.sync.set({"leethub_token": token}, (data)=>{
-                window['localStorage'][this.KEY] = token;
-            });
-        }
-        catch(error) {}
-        chrome.runtime.sendMessage({
-            closeWebPage: true,
-            isSuccess: true,
-            token: token
-          });
-    },
-    /**
-     * Get Token
-     * 
-     * @return OAuth2 access token if it exists, null if not.
-     */
-    getToken: function() {
-        try {
-            return window['localStorage'][this.KEY];
-        }
-        catch(error) {
-            return null;
-        }
-    },
-
-    /**
-     * Delete Token
-     * 
-     * @return True if token is removed from localStorage, false if not.
-     */
-    deleteToken: function() {
-        try {
-            delete window['localStorage'][this.KEY];
-            return true;
-        }
-        catch(error) {
-            return false;
-        }
-    },
+        /* Get username */
+        // To validate user, load user object from GitHub.
+        const AUTHENTICATION_URL = "https://api.github.com/user";
+        
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener('readystatechange', function(event) {
+            if(xhr.readyState == 4) {
+                if(xhr.status == 200) {
+                    let username = JSON.parse(xhr.responseText)['login'];
+                    chrome.runtime.sendMessage({
+                        closeWebPage: true,
+                        isSuccess: true,
+                        token: token,
+                        username: username,
+                        KEY: this.KEY
+                      });
+                }
+            }
+        });
+        xhr.open('GET', AUTHENTICATION_URL, true);
+        xhr.setRequestHeader("Authorization", `token ${token}`);
+        xhr.send();
+    }
 };
 
 local_auth.init(); //load params.
 var link = window.location.href;
-
-// if(local_auth.getToken() != null)
-// {
-//     // To validate user, load user object from GitHub.
-//     const AUTHENTICATION_URL = "https://api.github.com/user";
-
-//     var xhr = new XMLHttpRequest();
-//         xhr.addEventListener('readystatechange', function(event) {
-//             console.log(xhr);
-//             if(xhr.readyState == 4) {
-//                 if(xhr.status == 200) {
-//                     console.log(xhr.responseText);
-//                 }
-//             }
-//         });
-//         xhr.open('GET', AUTHENTICATION_URL, true);
-//         xhr.setRequestHeader("Authorization", local_auth.getToken());
-//         xhr.send();
-// }
 
 /* Check for open pipe */
 chrome.storage.sync.get("pipe_leethub", data=>{
