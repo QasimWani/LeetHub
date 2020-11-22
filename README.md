@@ -21,6 +21,12 @@
 ## What is LeetHub?
 <p>A chrome extension that automatically pushes your code to GitHub when you pass all tests on a Leetcode problem. </p>
 
+
+## How fast is it really?
+### THIS FAST!
+
+![](assets/extension/output.gif)
+
 ## Why LeetHub?
 <p> <strong>1.</strong> Recruiters <em>want</em> to see your contributions to the Open Source community, be it through side projects, solving algorithms/data-structures, or contributing to existing OS projects.<br>
 As of now, GitHub is developers' #1 portfolio. LeetHub just makes it much easier (autonomous) to keep track of progress and contributions on the largest network of engineering community, GitHub.</p>
@@ -48,3 +54,6 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
 </p>
 
 # Let's see you ACE that coding interview!
+
+
+<img src="assets/extension/leetcode.jpg" height=500 width=800>
