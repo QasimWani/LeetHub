@@ -19,7 +19,7 @@
 </tr></table>
 
 ## What is LeetHub?
-<p>A chrome extension that automatically pushes your code to GitHub when you pass all tests on a Leetcode problem. </p>
+<p>A chrome extension that automatically pushes your code to GitHub when you pass all tests on a <a href="http://leetcode.com/">Leetcode</a> problem. </p>
 
 
 ## How fast is it really?
