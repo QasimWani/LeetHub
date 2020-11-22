@@ -9,7 +9,7 @@ $("#authenticate").on('click', ()=>{
 
 chrome.storage.sync.get("leethub_token", (data)=>{
     const token = data.leethub_token;
-    if(token == null)
+    if(token == null || token == undefined)
     {
         action = true;
         $("#auth_mode").show();
@@ -21,7 +21,6 @@ chrome.storage.sync.get("leethub_token", (data)=>{
         
         var xhr = new XMLHttpRequest();
         xhr.addEventListener('readystatechange', function(event) {
-            console.log(xhr);
             if(xhr.readyState == 4) {
                 if(xhr.status == 200) {
                     /* Show MAIN FEATURES */
