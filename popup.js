@@ -28,6 +28,14 @@ chrome.storage.sync.get("leethub_token", (data)=>{
                         if(data && data.mode_type == "commit")
                         {
                             $("#commit_mode").show();
+                            /* Get problems solved count */
+                            chrome.storage.sync.get("stats", psolved=>{
+                                psolved = psolved.stats;
+                                if(psolved && psolved["solved"])
+                                {
+                                    $("#p_solved").text(psolved["solved"]); 
+                                }
+                            });
                         }
                         else
                         {
