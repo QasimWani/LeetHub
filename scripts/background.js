@@ -21,7 +21,7 @@ function handleMessage(request, sender, sendResponse) {
         });
 
         /* Go to onboarding for UX */
-        let url_onboarding = "chrome-extension://oipbbaikfkcbnfcnjapepjlpfhpchedj/welcome.html";
+        let url_onboarding = "chrome-extension://aciombdipochlnkbpcbgdpjffcfdbggi/welcome.html";
         chrome.tabs.create({url: url_onboarding, selected: true}); //creates new tab
     }
     else if(request && request.closeWebPage == true && request.isSuccess == true)
