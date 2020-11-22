@@ -100,10 +100,12 @@ local_auth.init(); //load params.
 var link = window.location.href;
 
 /* Check for open pipe */
-chrome.storage.sync.get("pipe_leethub", data=>{
-    console.log(data);
-    if(data && data.pipe_leethub)
-    {
-        local_auth.parseAccessCode(link);
-    }
-});
+if(window.location.host == "github.com")
+{
+    chrome.storage.sync.get("pipe_leethub", data=>{
+        if(data && data.pipe_leethub)
+        {
+            local_auth.parseAccessCode(link);
+        }
+    });
+}

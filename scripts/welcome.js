@@ -115,6 +115,7 @@ chrome.storage.sync.get("mode_type", data=>{
                     else
                     {
                         /* Username exists, at least in storage. Confirm this */
+                        // console.log(token, repo_name);
                         link_repo(token, repo_name);
                     }
                 });
