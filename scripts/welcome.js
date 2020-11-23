@@ -82,6 +82,7 @@ $("#hook_button").on('click', ()=>{
 /* Detect mode type */
 chrome.storage.sync.get("mode_type", data=>{
     const mode = data.mode_type;
+
     if(mode && mode == "commit")
     {
         /* Check if still access to repo */
@@ -171,47 +172,50 @@ var create_repo = (token, name)=>{
 */
 var link_repo = (token, name)=>{
     const AUTHENTICATION_URL = "https://api.github.com/repos/" + name;
-    
+
     var xhr = new XMLHttpRequest();
     xhr.addEventListener('readystatechange', function(event) {
         if(xhr.readyState == 4) {
             const res = JSON.parse(xhr.responseText);
-            var bool = link_status_code(res, xhr.status, name);
-            if(!bool) //unable to gain access to repo in commit mode. Must switch to hook mode.
+            var bool = link_status_code(xhr.status, name);
+            if(xhr.status == 200) //BUG FIX
             {
-                /* Set mode type to hook */
-                chrome.storage.sync.set({"mode_type": "hook"}, data=>{
-                    console.log(`Error linking ${name} to LeetHub`);
-                });
-                /* Set Repo Hook to NONE */
-                chrome.storage.sync.set({"leethub_hook": null}, data=>{
-                    console.log("Defaulted repo hook to NONE");
-                });
-
-                /* Hide accordingly */
-                document.getElementById("hook_mode").style.display = "inherit";
-                document.getElementById("commit_mode").style.display = "none";
-            }
-            else
-            {
-                /* Change mode type to commit */
-                chrome.storage.sync.set({"mode_type": "commit"}, data=>{
-                    $("#error").hide();
-                    $("#success").html(`Successfully linked <a target="blank" href="${res['html_url']}">${name}</a> to LeetHub. Start <a href="http://leetcode.com">LeetCoding</a> now!`);
-                    $("#success").show();
-                });
-                /* Set Repo Hook */
-                chrome.storage.sync.set({"leethub_hook": res['full_name']}, data=>{
-                    console.log("Successfully set new repo hook");
-                    /* Get problems solved count */
-                    chrome.storage.sync.get("stats", psolved=>{
-                        psolved = psolved.stats;
-                        if(psolved && psolved["solved"])
-                        {
-                            $("#p_solved").text(psolved["solved"]); 
-                        }
+                if(!bool) //unable to gain access to repo in commit mode. Must switch to hook mode.
+                {
+                    /* Set mode type to hook */
+                    chrome.storage.sync.set({"mode_type": "hook"}, data=>{
+                        console.log(`Error linking ${name} to LeetHub`);
                     });
-                });
+                    /* Set Repo Hook to NONE */
+                    chrome.storage.sync.set({"leethub_hook": null}, data=>{
+                        console.log("Defaulted repo hook to NONE");
+                    });
+
+                    /* Hide accordingly */
+                    document.getElementById("hook_mode").style.display = "inherit";
+                    document.getElementById("commit_mode").style.display = "none";
+                }
+                else
+                {
+                    /* Change mode type to commit */
+                    chrome.storage.sync.set({"mode_type": "commit"}, data=>{
+                        $("#error").hide();
+                        $("#success").html(`Successfully linked <a target="blank" href="${res['html_url']}">${name}</a> to LeetHub. Start <a href="http://leetcode.com">LeetCoding</a> now!`);
+                        $("#success").show();
+                    });
+                    /* Set Repo Hook */
+                    chrome.storage.sync.set({"leethub_hook": res['full_name']}, data=>{
+                        console.log("Successfully set new repo hook");
+                        /* Get problems solved count */
+                        chrome.storage.sync.get("stats", psolved=>{
+                            psolved = psolved.stats;
+                            if(psolved && psolved["solved"])
+                            {
+                                $("#p_solved").text(psolved["solved"]); 
+                            }
+                        });
+                    });
+                }
             }
         }
     });
@@ -223,7 +227,7 @@ var link_repo = (token, name)=>{
 }
 
 /* Status codes for linking of repo */
-var link_status_code = (res, status, name)=>{
+var link_status_code = (status, name)=>{
     let bool = false;
     switch (status)
     {
