@@ -215,6 +215,9 @@ var link_repo = (token, name)=>{
                             }
                         });
                     });
+                    /* Hide accordingly */
+                    document.getElementById("hook_mode").style.display = "none";
+                    document.getElementById("commit_mode").style.display = "inherit";
                 }
             }
         }
