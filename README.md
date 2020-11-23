@@ -1,4 +1,5 @@
-![](assets/logo.png)
+<img height=300 width=400 src="assets/octocode.png">
+
 --------------------------------------------------------------------------------
 # LeetHub - Automatically sync your code to GitHub.
 
