@@ -56,3 +56,14 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
 
 
 ![leetcode view](assets/extension/leetcode.jpg)
+
+
+### How to get LeetHub to work locally?
+
+<ol>
+  <li>Fork this repo</li>
+  <li>Go to chrome://extensions</li>
+  <li>Enable <a href="https://www.mstoic.com/enable-developer-mode-in-chrome/">Developer mode</a> by toggling the switch on top right corner</li>
+  <li>Click 'Load unpacked'</li>
+  <li>Select the entire LeetHub folder</li>
+</ol>
