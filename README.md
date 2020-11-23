@@ -7,14 +7,13 @@
 
 <table style="border-collapse: separate;"><tr>
   <td style="border-spacing:2em 0"> 
-      <a href="https://github.com/QasimWani">
+      <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbgg">
         <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimg.talkandroid.com%2Fuploads%2F2014%2F10%2Fchrome_web_store_logo_new.png&f=1&nofb=1" alt="Chrome WebStore" height=100 width=200/>
       </a>  
   </td>
   <td style="border-spacing:2em 0"> 
-      <a href="https://github.com/QasimWani">
-        <img src="https://venturebeat.com/wp-content/uploads/2017/07/product_hunt_logo.png" alt="Product Hunt" height=100 width=200/>
-      </a> 
+      <a href="https://www.producthunt.com/posts/leethub?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-leethub" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=275757&theme=light" alt="LeetHub - Automatically sync your code b/w Leetcode & GitHub. | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
   </td>
 </tr></table>
 
