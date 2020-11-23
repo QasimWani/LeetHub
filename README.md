@@ -58,7 +58,7 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
 ![leetcode view](assets/extension/leetcode.jpg)
 
 
-### How to get LeetHub to work locally?
+# How to get LeetHub to work locally?
 
 <ol>
   <li>Fork this repo</li>
