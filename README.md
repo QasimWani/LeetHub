@@ -67,3 +67,5 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
   <li>Click 'Load unpacked'</li>
   <li>Select the entire LeetHub folder</li>
 </ol>
+
+#### And that should be it! Get Hacking...
