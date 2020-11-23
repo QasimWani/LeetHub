@@ -7,6 +7,10 @@ $("#authenticate").on('click', ()=>{
     }
 });
 
+/* Get URL for welcome page */
+$("#welcome_URL").attr("href", `chrome-extension://${chrome.runtime.id}/welcome.html`);
+$("#hook_URL").attr("href", `chrome-extension://${chrome.runtime.id}/welcome.html`);
+
 chrome.storage.sync.get("leethub_token", (data)=>{
     const token = data.leethub_token;
     if(token == null || token == undefined)
