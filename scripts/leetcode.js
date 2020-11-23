@@ -17,7 +17,10 @@ const languages =
     "Scala"     : ".scala",
     "Rust"      : ".rs",
     "PHP"       : ".php",
-    "TypeScript" : ".ts"
+    "TypeScript" : ".ts",
+    "MySQL"     : ".sql",
+    "MS SQL Server" : ".sql",
+    "Oracle"    : ".sql"
 };
 
 var TimeoutHandle = null;
