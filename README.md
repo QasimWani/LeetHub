@@ -56,7 +56,7 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
 # Let's see you ACE that coding interview!
 
 
-![leetcode view](assets/extension/leetcode.jpg)
+![leetcode view](assets/extension/leetcode.png)
 
 
 # How to get LeetHub to work locally?
