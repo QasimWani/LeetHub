@@ -6,13 +6,13 @@
     "version" : "0.0.5",
     "author" : "Qasim Wani",
     "browser_action": {
-        "default_icon": "assets/octocode.png",
+        "default_icon": "assets/thumbnail.png",
         "default_popup": "popup.html"
     },
     "icons": {
-        "16": "assets/octocode.png",
-        "48": "assets/octocode.png",
-        "128": "assets/octocode.png"
+        "16": "assets/thumbnail.png",
+        "48": "assets/thumbnail.png",
+        "128": "assets/thumbnail.png"
       },
       "background": {
         "scripts": ["scripts/background.js"],
