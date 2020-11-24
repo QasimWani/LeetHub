@@ -13,8 +13,8 @@ var local_auth = {
         this.KEY = "leethub_token";
         this.ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token";
         this.AUTHORIZATION_URL = "https://github.com/login/oauth/authorize";
-        this.CLIENT_ID = "dfd9ce341261c6123142";
-        this.CLIENT_SECRET = "efc7bca92d585980323ee40822df077fec59882a";
+        this.CLIENT_ID = "YOUR CLIENT ID";
+        this.CLIENT_SECRET = "YOUR CLIENT SECRET";
         this.REDIRECT_URL = "https://github.com";
         this.SCOPES = ['repo'];
     },
