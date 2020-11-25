@@ -3,7 +3,7 @@
 --------------------------------------------------------------------------------
 # LeetHub - Automatically sync your code to GitHub. 
 
-### Top 10 Trending GitHub Repositories  &nbsp; &nbsp; &nbsp; [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Automatically%20sync%20your%20code%20to%20GitHub%20after%20solving%20any%20leetcode%20problems!4&url=https://github.com/QasimWani/LeetHub&hashtags=javascript,github,leetcode,coding,interview,chrome)
+### Top 10 Trending GitHub Repositories  &nbsp; [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=LeetHub%20-%20Automatically%20sync%20your%20code%20to%20GitHub%20after%20solving%20any%20leetcode%20problems!4&url=https://github.com/QasimWani/LeetHub&hashtags=javascript,github,leetcode,coding,interview,chrome)
 
 
 
