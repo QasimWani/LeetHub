@@ -3,6 +3,7 @@
 --------------------------------------------------------------------------------
 # LeetHub - Automatically sync your code to GitHub.
 
+## Top 10 Trending GitHub Repositories
 
 ### Available on:
 
