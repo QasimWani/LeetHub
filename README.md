@@ -1,7 +1,10 @@
 <img height=200 width=300 src="assets/octocode.png">
 
 --------------------------------------------------------------------------------
-# LeetHub - Automatically sync your code to GitHub.
+# LeetHub - Automatically sync your code to GitHub. 
+
+## Top 10 Trending GitHub Repositories  &nbsp; [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=LeetHub%20-%20Automatically%20sync%20your%20code%20to%20GitHub%20after%20solving%20any%20leetcode%20problems!&url=https://github.com/QasimWani/LeetHub&hashtags=javascript,github,leetcode,coding,interview,chrome)
+
 
 
 ### Available on:
@@ -34,7 +37,7 @@ As of now, GitHub is developers' #1 portfolio. LeetHub just makes it much easier
 <p> <strong>2.</strong> There's no easy way of accessing your leetcode problems in one place! <br>
 Moreover, pushing code manually to GitHub from Leetcode is very time consuming. So, why not just automate it entirely without spending a SINGLE additional second on it? </p>
 
-## How does LeetHub work?
+## How does LeetHub work?     
 
 <p>It's as simple as:</p>
 <ol>
