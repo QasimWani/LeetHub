@@ -6,7 +6,6 @@
   <br>
 </h1>
 
---------------------------------------------------------------------------------
 <p align="center">
   <a href="https://github.com/QasimWani/LeetHub/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/></a>
   <a href="https://discord.gg/42kzTWwk"><img src="https://img.shields.io/discord/781373810251137074" alt="discord"></a>
