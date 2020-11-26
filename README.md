@@ -76,13 +76,8 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
 
 <ol>
   <li>Fork this repo</li>
-  <li>Go to <a href="chrome://extensions">chrome://extensions</a> </li>
-  <li>Enable <a href="https://www.mstoic.com/enable-developer-mode-in-chrome/">Developer mode</a> by toggling the switch on top right corner</li>
-  <li>Click 'Load unpacked'</li>
-  <li>Select the entire LeetHub folder</li>
-</ol>
-
-Add dev credentials (note this is unstable and can be removed at any time. Create your own for stability, don't use in production!) in [oauth2.js](scripts/oauth2.js#L6) and [authorize.js](scripts/authorize.js#L13) to enable web auth using GitHub API.
+  <li>
+  Add dev credentials (note this is unstable and can be removed at any time. Create your own for stability, don't use in production!) in <a href="scripts/oauth2.js#L6">oauth2.js</a> and <a href="scripts/authorize.js#L13">authorize.js</a> to enable web auth using GitHub API.
 
 ```javascript
 
@@ -95,4 +90,12 @@ this.REDIRECT_URL = "https://github.com/"; //for example, https://github.com
 this.SCOPES = ['repo'];
 
 ```
+  </li>
+  <li>Go to <a href="chrome://extensions">chrome://extensions</a> </li>
+  <li>Enable <a href="https://www.mstoic.com/enable-developer-mode-in-chrome/">Developer mode</a> by toggling the switch on top right corner</li>
+  <li>Click 'Load unpacked'</li>
+  <li>Select the entire LeetHub folder</li>
+</ol>
+
+
 #### And that should be it! Get Hacking...
