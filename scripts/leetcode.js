@@ -30,15 +30,20 @@ const loader = setInterval(() => {
     if(success_tag != undefined && success_tag.length > 0 && success_tag[0].innerText.trim() == "Success")
     {
         code = parse_code();
+        probStatement = parse_question();
     }
-    if(code != null)
+    if(code != null && probStatement != null)
     {
+        console.log('SUCCESS');
         clearTimeout(loader);
         const problem_name = window.location.pathname.split("/")[2]; //must be true.
         let language = find_language();
         if(language != null)
         {
-            upload_git(btoa(unescape(encodeURIComponent(code))), problem_name + language); //Encode `code` to base64
+            upload_git(btoa(unescape(encodeURIComponent(code))), problem_name, problem_name+language); //Encode `code` to base64
+
+            /* @TODO: Change this setTimeout to Promise */
+            setTimeout(function(){upload_git(btoa(unescape(encodeURIComponent(probStatement))), problem_name, 'README.md')}, 2000);
         }
     }
 }, 1000);
@@ -59,7 +64,8 @@ function find_language() {
     }
 }
 
-function upload_git(code, filename) {
+function upload_git(code, problem_name, filename) {
+
     /* Get necessary payload data */
     chrome.storage.sync.get("leethub_token", token=>{
         token = token.leethub_token;
@@ -75,16 +81,19 @@ function upload_git(code, filename) {
                         if(hook)
                         {
                             /* Get SHA, if it exists */
+
+                            /* to get unique key */
+                            const filePath = problem_name+filename
                             chrome.storage.sync.get("stats", stats=>{
                                 stats = stats.stats;
                                 let sha = null;
 
-                                if(stats != undefined && stats["sha"] != undefined && stats["sha"][filename] != undefined)
+                                if(stats != undefined && stats["sha"] != undefined && stats["sha"][filePath] != undefined)
                                 {
-                                    sha = stats["sha"][filename];
+                                    sha = stats["sha"][filePath];
                                 }
                                 /* Upload to git. */
-                                upload(token, hook, code, filename, sha);
+                                upload(token, hook, code, problem_name, filename, sha);
                             });
                         }
                     });
@@ -96,10 +105,10 @@ function upload_git(code, filename) {
 
 
 /* Main function for uploading code to GitHub repo */
-var upload = (token, hook, code, filename, sha)=>{
+var upload = (token, hook, code, directory, filename, sha)=>{
 
     // To validate user, load user object from GitHub.
-    const URL = "https://api.github.com/repos/" + hook + "/contents/" + filename;
+    const URL = "https://api.github.com/repos/" + hook + "/contents/" +directory+'/'+ filename;
 
     /* Define Payload */
     var data = {
@@ -118,7 +127,7 @@ var upload = (token, hook, code, filename, sha)=>{
         if(xhr.readyState == 4) {
 
             if(xhr.status == 200 || xhr.status == 201) {
-                sha = JSON.parse(xhr.responseText)["commit"]["sha"]; //get updated SHA.
+                sha = JSON.parse(xhr.responseText)["content"]["sha"]; //get updated SHA.
 
                 chrome.storage.sync.get("stats", data=>{
                     let stats = data.stats;
@@ -128,8 +137,9 @@ var upload = (token, hook, code, filename, sha)=>{
                         stats["solved"] = 0;
                         stats["sha"] = {};
                     }
+                    const filePath = directory+filename;
                     stats["solved"] += 1;
-                    stats["sha"][filename] = sha; //update sha key.
+                    stats["sha"][filePath] = sha; //update sha key.
                     chrome.storage.sync.set({"stats" : stats}, m_data=>{
                         console.log(`Successfully committed ${filename} to github`);
                     });
@@ -143,7 +153,7 @@ var upload = (token, hook, code, filename, sha)=>{
     xhr.send(data);
 }
 
-/* Main parser function */
+/* Main parser function for the code */
 function parse_code()
 {
     elem = document.getElementsByClassName("CodeMirror-code");
@@ -159,4 +169,39 @@ function parse_code()
         return parsed_code;
     }
     return null;
+}
+
+/* Util function to check if an element exists */
+function checkElem(elem){
+    return (elem && elem.length>0);
+}
+
+/* Parser function for the question and tags */
+function parse_question(){
+    const questionElem = document.getElementsByClassName("content__u3I1 question-content__JfgR");
+    if(!checkElem(questionElem)){
+        return null;
+    }
+    const qbody = questionElem[0].innerHTML;
+
+    // Problem title.
+    const qtitlte = document.getElementsByClassName('css-v3d350')[0].innerHTML;
+
+    var difficulty = '';
+
+    // Problem difficulty, each problem difficulty has its own class.
+    const isHard = document.getElementsByClassName('css-t42afm');
+    const isMedium = document.getElementsByClassName('css-dcmtd5');
+    const isEasy = document.getElementsByClassName('css-14oi08n');
+
+    if(checkElem(isEasy)){
+        difficulty='Easy';
+    }else if(checkElem(isMedium)){
+        difficulty='Medium';
+    }else if(checkElem(isHard)){
+        difficulty='Hard'
+    }
+    // Final formatting of the contents of the README for each problem
+    const markdown = '<h2>' + qtitlte + '</h2><h3>' + difficulty + '</h3><hr>' + qbody;
+    return markdown;
 }
