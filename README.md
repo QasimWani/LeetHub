@@ -7,7 +7,7 @@
 </h1>
 
 <p align="center">
-  <a href="https://github.com/QasimWani/LeetHub/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/></a>
+  <a href="https://github.com/QasimWani/LeetHub/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/></a>
   <a href="https://discord.gg/42kzTWwk"><img src="https://img.shields.io/discord/781373810251137074" alt="discord"></a>
   <a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="Standard - JavaScript Style Guide"></a>
   <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/v/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="chrome-webstore"/></a>
