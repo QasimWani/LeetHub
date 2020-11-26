@@ -82,4 +82,17 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
   <li>Select the entire LeetHub folder</li>
 </ol>
 
+Add dev credentials (note this is unstable and can be removed at any time. Create your own for stability, don't use in production!) in [oauth2.js](scripts/oauth2.js#L6) and [authorize.js](scripts/authorize.js#L13) to enable web auth using GitHub API.
+
+```javascript
+
+this.KEY = "leethub_token";
+this.ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token";
+this.AUTHORIZATION_URL = "https://github.com/login/oauth/authorize";
+this.CLIENT_ID = "beb4f0aa19ab8faf5004";
+this.CLIENT_SECRET = "843f835609c7ef02ef0f2f1645bc49514c0e65a6";
+this.REDIRECT_URL = "https://github.com/"; //for example, https://github.com
+this.SCOPES = ['repo'];
+
+```
 #### And that should be it! Get Hacking...
