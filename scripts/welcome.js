@@ -82,7 +82,7 @@ $("#hook_button").on('click', ()=>{
 $("#unlink a").on('click', () => {
     unlink_repo();
     $("#unlink").hide();
-    $("#success").hide();
+    $("#success").text("Successfully unlinked your current git repo. Please create/link a new hook.");
 });
 
 /* Detect mode type */
