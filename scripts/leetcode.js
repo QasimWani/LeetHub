@@ -34,7 +34,6 @@ const loader = setInterval(() => {
     }
     if(code != null && probStatement != null)
     {
-        console.log('SUCCESS');
         clearTimeout(loader);
         const problem_name = window.location.pathname.split("/")[2]; //must be true.
         let language = find_language();
