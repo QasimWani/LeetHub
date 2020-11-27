@@ -79,6 +79,12 @@ $("#hook_button").on('click', ()=>{
     }
 });
 
+$("#unlink a").on('click', () => {
+    unlink_repo();
+    $("#unlink").hide();
+    $("#success").hide();
+});
+
 /* Detect mode type */
 chrome.storage.sync.get("mode_type", data=>{
     const mode = data.mode_type;
@@ -200,12 +206,9 @@ var link_repo = (token, name)=>{
                     /* Change mode type to commit */
                     chrome.storage.sync.set({"mode_type": "commit"}, data=>{
                         $("#error").hide();
-                        $("#success").html(`Successfully linked <a target="blank" href="${res['html_url']}">${name}</a> to LeetHub. Start <a href="http://leetcode.com">LeetCoding</a> now! <br /> Linked the wrong repo? <a id="unlink">Unlink</a>.`);
-                        $("#unlink").on('click', () => {
-                            unlink_repo();
-                            $("#success").hide();
-                        });
+                        $("#success").html(`Successfully linked <a target="blank" href="${res['html_url']}">${name}</a> to LeetHub. Start <a href="http://leetcode.com">LeetCoding</a> now!`);
                         $("#success").show();
+                        $("#unlink").show();
                     });
                     /* Set Repo Hook */
                     chrome.storage.sync.set({"leethub_hook": res['full_name']}, data=>{
@@ -315,12 +318,9 @@ var status_code = (res, status, name)=>{
             /* Change mode type to commit */
             chrome.storage.sync.set({"mode_type": "commit"}, data=>{
                 $("#error").hide();
-                $("#success").html(`Successfully created <a target="blank" href="${res['html_url']}">${name}</a>. Start <a href="http://leetcode.com">LeetCoding</a>! <br /> Linked the wrong repo? <a id="unlink">Unlink</a>.`);
-                $("#unlink").on('click', () => {
-                    unlink_repo();
-                    $("#success").hide();
-                });
+                $("#success").html(`Successfully created <a target="blank" href="${res['html_url']}">${name}</a>. Start <a href="http://leetcode.com">LeetCoding</a>!`);
                 $("#success").show();
+                $("#unlink").show();
                 /* Show new layout */
                 document.getElementById("hook_mode").style.display = "none";
                 document.getElementById("commit_mode").style.display = "inherit";
