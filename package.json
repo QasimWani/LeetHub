@@ -5,9 +5,10 @@
   "description": "Automatically integrate your code with LeetCode and GitHub",
   "scripts": {
     "setup": "npm i",
-    "test": "eslint **/*.{js,jsx,ts,tsx} --color && prettier --check **/*.{js,jsx,ts,tsx,css,html}",
     "format": "prettier --write **/*.{js,jsx,ts,tsx,css,html}",
-    "lint": "eslint **/*.{js,jsx,ts,tsx} --fix"
+    "format-test": "prettier --check **/*.{js,jsx,ts,tsx,css,html}",
+    "lint": "eslint **/*.{js,jsx,ts,tsx} --fix",
+    "lint-test": "eslint **/*.{js,jsx,ts,tsx} --color"
   },
   "devDependencies": {
     "eslint": "^7.2.0",
