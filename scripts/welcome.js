@@ -79,6 +79,12 @@ $("#hook_button").on('click', ()=>{
     }
 });
 
+$("#unlink a").on('click', () => {
+    unlink_repo();
+    $("#unlink").hide();
+    $("#success").text("Successfully unlinked your current git repo. Please create/link a new hook.");
+});
+
 /* Detect mode type */
 chrome.storage.sync.get("mode_type", data=>{
     const mode = data.mode_type;
@@ -202,6 +208,7 @@ var link_repo = (token, name)=>{
                         $("#error").hide();
                         $("#success").html(`Successfully linked <a target="blank" href="${res['html_url']}">${name}</a> to LeetHub. Start <a href="http://leetcode.com">LeetCoding</a> now!`);
                         $("#success").show();
+                        $("#unlink").show();
                     });
                     /* Set Repo Hook */
                     chrome.storage.sync.set({"leethub_hook": res['full_name']}, data=>{
@@ -227,6 +234,21 @@ var link_repo = (token, name)=>{
     xhr.setRequestHeader("Authorization", `token ${token}`);
     xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
     xhr.send();
+}
+
+var unlink_repo = () => {
+    /* Set mode type to hook */
+    chrome.storage.sync.set({ "mode_type": "hook" }, data => {
+        console.log(`Unlinking repo`);
+    });
+    /* Set Repo Hook to NONE */
+    chrome.storage.sync.set({ "leethub_hook": null }, data => {
+        console.log("Defaulted repo hook to NONE");
+    });
+
+    /* Hide accordingly */
+    document.getElementById("hook_mode").style.display = "inherit";
+    document.getElementById("commit_mode").style.display = "none";
 }
 
 /* Status codes for linking of repo */
@@ -298,6 +320,7 @@ var status_code = (res, status, name)=>{
                 $("#error").hide();
                 $("#success").html(`Successfully created <a target="blank" href="${res['html_url']}">${name}</a>. Start <a href="http://leetcode.com">LeetCoding</a>!`);
                 $("#success").show();
+                $("#unlink").show();
                 /* Show new layout */
                 document.getElementById("hook_mode").style.display = "none";
                 document.getElementById("commit_mode").style.display = "inherit";
