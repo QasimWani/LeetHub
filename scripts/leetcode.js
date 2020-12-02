@@ -137,7 +137,11 @@ var upload = (token, hook, code, directory, filename, sha)=>{
                         stats["sha"] = {};
                     }
                     const filePath = directory+filename;
-                    stats["solved"] += 1;
+                    // Only increment solved problems statistics once
+                    // New submission commits twice (README and problem)
+                    if (filename !== "README.md") {
+                        stats["solved"] += 1;
+                    }
                     stats["sha"][filePath] = sha; //update sha key.
                     chrome.storage.sync.set({"stats" : stats}, m_data=>{
                         console.log(`Successfully committed ${filename} to github`);
