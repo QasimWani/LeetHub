@@ -26,7 +26,6 @@ const languages =
 var TimeoutHandle = null;
 
 const loader = setInterval(() => {
-    console.log("looking for submission");
     success_tag = document.getElementsByClassName("success__3Ai7");
     if(success_tag != undefined && success_tag.length > 0 && success_tag[0].innerText.trim() == "Success")
     {
