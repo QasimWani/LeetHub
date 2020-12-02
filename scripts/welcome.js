@@ -181,7 +181,7 @@ const linkRepo = (token, name) => {
               console.log('Successfully set new repo hook');
               /* Get problems solved count */
               chrome.storage.sync.get('stats', (psolved) => {
-                const { stats } = psolved.stats;
+                const { stats } = psolved;
                 if (stats && stats.solved) {
                   $('#p_solved').text(stats.solved);
                 }

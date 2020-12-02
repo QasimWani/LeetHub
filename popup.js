@@ -1,3 +1,5 @@
+import oAuth2 from './scripts/oauth2';
+
 let action = false;
 
 $('#authenticate').on('click', () => {
@@ -18,7 +20,7 @@ $('#hook_URL').attr(
 
 chrome.storage.sync.get('leethub_token', (data) => {
   const token = data.leethub_token;
-  if (token == null || token == undefined) {
+  if (token === null || token === undefined) {
     action = true;
     $('#auth_mode').show();
   } else {
@@ -26,17 +28,17 @@ chrome.storage.sync.get('leethub_token', (data) => {
     const AUTHENTICATION_URL = 'https://api.github.com/user';
 
     const xhr = new XMLHttpRequest();
-    xhr.addEventListener('readystatechange', function (event) {
-      if (xhr.readyState == 4) {
-        if (xhr.status == 200) {
+    xhr.addEventListener('readystatechange', function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
           /* Show MAIN FEATURES */
-          chrome.storage.sync.get('mode_type', (data) => {
-            if (data && data.mode_type == 'commit') {
+          chrome.storage.sync.get('mode_type', (data2) => {
+            if (data2 && data2.mode_type === 'commit') {
               $('#commit_mode').show();
               /* Get problems solved count */
               chrome.storage.sync.get('stats', (psolved) => {
-                psolved = psolved.stats;
-                if (psolved && psolved.solved) {
+                const { stats } = psolved;
+                if (stats && stats.solved) {
                   $('#p_solved').text(psolved.solved);
                 }
               });
@@ -44,10 +46,10 @@ chrome.storage.sync.get('leethub_token', (data) => {
               $('#hook_mode').show();
             }
           });
-        } else if (xhr.status == 401) {
+        } else if (xhr.status === 401) {
           // bad oAuth
           // reset token and redirect to authorization process again!
-          chrome.storage.sync.set({ leethub_token: null }, (data) => {
+          chrome.storage.sync.set({ leethub_token: null }, () => {
             console.log(
               'BAD oAuth!!! Redirecting back to oAuth process',
             );

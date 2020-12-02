@@ -1,5 +1,3 @@
-let code = null;
-
 /* Enum for languages supported by LeetCode. */
 const languages = {
   Python: '.py',
@@ -22,106 +20,26 @@ const languages = {
   Oracle: '.sql',
 };
 
-const TimeoutHandle = null;
-
-const loader = setInterval(() => {
-  success_tag = document.getElementsByClassName('success__3Ai7');
-  if (
-    success_tag != undefined &&
-    success_tag.length > 0 &&
-    success_tag[0].innerText.trim() == 'Success'
-  ) {
-    code = parse_code();
-    probStatement = parse_question();
-  }
-  if (code != null && probStatement != null) {
-    clearTimeout(loader);
-    const problem_name = window.location.pathname.split('/')[2]; // must be true.
-    const language = find_language();
-    if (language != null) {
-      upload_git(
-        btoa(unescape(encodeURIComponent(code))),
-        problem_name,
-        problem_name + language,
-      ); // Encode `code` to base64
-
-      /* @TODO: Change this setTimeout to Promise */
-      setTimeout(function () {
-        upload_git(
-          btoa(unescape(encodeURIComponent(probStatement))),
-          problem_name,
-          'README.md',
-        );
-      }, 2000);
-    }
-  }
-}, 1000);
-
 /* Get file extension for submission */
-function find_language() {
+function findLanguage() {
   const tag = [
     ...document.getElementsByClassName(
       'ant-select-selection-selected-value',
     ),
   ];
   if (tag && tag.length > 0) {
-    for (let i = 0; i < tag.length; i++) {
+    for (let i = 0; i < tag.length; i += 1) {
       const elem = tag[i].textContent;
-      if (elem != undefined && languages[elem] != undefined) {
+      if (elem !== undefined && languages[elem] !== undefined) {
         return languages[elem]; // should generate respective file extension
       }
     }
-    return null;
   }
-}
-
-function upload_git(code, problem_name, filename) {
-  /* Get necessary payload data */
-  chrome.storage.sync.get('leethub_token', (token) => {
-    token = token.leethub_token;
-    if (token) {
-      chrome.storage.sync.get('mode_type', (mode) => {
-        mode = mode.mode_type;
-        if (mode == 'commit') {
-          /* Get hook */
-          chrome.storage.sync.get('leethub_hook', (hook) => {
-            hook = hook.leethub_hook;
-            if (hook) {
-              /* Get SHA, if it exists */
-
-              /* to get unique key */
-              const filePath = problem_name + filename;
-              chrome.storage.sync.get('stats', (stats) => {
-                stats = stats.stats;
-                let sha = null;
-
-                if (
-                  stats != undefined &&
-                  stats.sha != undefined &&
-                  stats.sha[filePath] != undefined
-                ) {
-                  sha = stats.sha[filePath];
-                }
-                /* Upload to git. */
-                upload(
-                  token,
-                  hook,
-                  code,
-                  problem_name,
-                  filename,
-                  sha,
-                );
-              });
-            }
-          });
-        }
-      });
-    }
-  });
+  return null;
 }
 
 /* Main function for uploading code to GitHub repo */
-var upload = (token, hook, code, directory, filename, sha) => {
+const upload = (token, hook, code, directory, filename, sha) => {
   // To validate user, load user object from GitHub.
   const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
 
@@ -130,21 +48,21 @@ var upload = (token, hook, code, directory, filename, sha) => {
     message: `working commit - Created using LeetHub`,
     content: code,
   };
-  if (sha != null) {
+  if (sha !== null) {
     data.sha = sha; // get sha for files that already exist in the gh file system.
   }
 
   data = JSON.stringify(data);
 
   const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function (event) {
-    if (xhr.readyState == 4) {
-      if (xhr.status == 200 || xhr.status == 201) {
-        sha = JSON.parse(xhr.responseText).content.sha; // get updated SHA.
+  xhr.addEventListener('readystatechange', function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200 || xhr.status === 201) {
+        const updatedSha = JSON.parse(xhr.responseText).content.sha; // get updated SHA.
 
-        chrome.storage.sync.get('stats', (data) => {
-          let { stats } = data;
-          if (stats == null || stats == {} || stats == undefined) {
+        chrome.storage.sync.get('stats', (data2) => {
+          let { stats } = data2;
+          if (stats === null || stats === {} || stats === undefined) {
             // create stats object
             stats = {};
             stats.solved = 0;
@@ -156,8 +74,8 @@ var upload = (token, hook, code, directory, filename, sha) => {
           if (filename !== 'README.md') {
             stats.solved += 1;
           }
-          stats.sha[filePath] = sha; // update sha key.
-          chrome.storage.sync.set({ stats }, (m_data) => {
+          stats.sha[filePath] = updatedSha; // update sha key.
+          chrome.storage.sync.set({ stats }, () => {
             console.log(
               `Successfully committed ${filename} to github`,
             );
@@ -172,17 +90,55 @@ var upload = (token, hook, code, directory, filename, sha) => {
   xhr.send(data);
 };
 
-/* Main parser function for the code */
-function parse_code() {
-  elem = document.getElementsByClassName('CodeMirror-code');
-  if (elem != undefined && elem.length > 0) {
-    elem = elem[0];
-    parsed_code = '';
-    text_arr = elem.innerText.split('\n');
-    for (let i = 1; i < text_arr.length; i += 2) {
-      parsed_code += `${text_arr[i]}\n`;
+function uploadGit(code, problemName, filename) {
+  /* Get necessary payload data */
+  chrome.storage.sync.get('leethub_token', (t) => {
+    const token = t.leethub_token;
+    if (token) {
+      chrome.storage.sync.get('mode_type', (m) => {
+        const mode = m.mode_type;
+        if (mode === 'commit') {
+          /* Get hook */
+          chrome.storage.sync.get('leethub_hook', (h) => {
+            const hook = h.leethub_hook;
+            if (hook) {
+              /* Get SHA, if it exists */
+
+              /* to get unique key */
+              const filePath = problemName + filename;
+              chrome.storage.sync.get('stats', (s) => {
+                const { stats } = s;
+                let sha = null;
+
+                if (
+                  stats !== undefined &&
+                  stats.sha !== undefined &&
+                  stats.sha[filePath] !== undefined
+                ) {
+                  sha = stats.sha[filePath];
+                }
+                /* Upload to git. */
+                upload(token, hook, code, problemName, filename, sha);
+              });
+            }
+          });
+        }
+      });
     }
-    return parsed_code;
+  });
+}
+
+/* Main parser function for the code */
+function parseCode() {
+  const e = document.getElementsByClassName('CodeMirror-code');
+  if (e !== undefined && e.length > 0) {
+    const elem = e[0];
+    let parsedCode = '';
+    const textArr = elem.innerText.split('\n');
+    for (let i = 1; i < textArr.length; i += 2) {
+      parsedCode += `${textArr[i]}\n`;
+    }
+    return parsedCode;
   }
   return null;
 }
@@ -193,7 +149,7 @@ function checkElem(elem) {
 }
 
 /* Parser function for the question and tags */
-function parse_question() {
+function parseQuestion() {
   const questionElem = document.getElementsByClassName(
     'content__u3I1 question-content__JfgR',
   );
@@ -224,3 +180,39 @@ function parse_question() {
   const markdown = `<h2>${qtitlte}</h2><h3>${difficulty}</h3><hr>${qbody}`;
   return markdown;
 }
+
+const loader = setInterval(() => {
+  let code = null;
+  let probStatement = null;
+
+  const successTag = document.getElementsByClassName('success__3Ai7');
+  if (
+    successTag !== undefined &&
+    successTag.length > 0 &&
+    successTag[0].innerText.trim() === 'Success'
+  ) {
+    code = parseCode();
+    probStatement = parseQuestion();
+  }
+  if (code !== null && probStatement !== null) {
+    clearTimeout(loader);
+    const problemName = window.location.pathname.split('/')[2]; // must be true.
+    const language = findLanguage();
+    if (language !== null) {
+      uploadGit(
+        btoa(unescape(encodeURIComponent(code))),
+        problemName,
+        problemName + language,
+      ); // Encode `code` to base64
+
+      /* @TODO: Change this setTimeout to Promise */
+      setTimeout(function () {
+        uploadGit(
+          btoa(unescape(encodeURIComponent(probStatement))),
+          problemName,
+          'README.md',
+        );
+      }, 2000);
+    }
+  }
+}, 1000);
