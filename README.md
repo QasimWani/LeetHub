@@ -1,10 +1,20 @@
-<img height=200 width=300 src="assets/octocode.png">
+<h1 align="center">
+  <a href="https://standardjs.com"><img src="assets/octocode.png" alt="LeetHub - Automatically sync your code to GitHub." width="400"></a>
+  <br>
+  LeetHub - Automatically sync your code to GitHub.
+  <br>
+  <br>
+</h1>
 
---------------------------------------------------------------------------------
-# LeetHub - Automatically sync your code to GitHub. 
+<p align="center">
+  <a href="https://github.com/QasimWani/LeetHub/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/></a>
+  <a href="https://discord.gg/42kzTWwk"><img src="https://img.shields.io/discord/781373810251137074" alt="discord"></a>
+  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/v/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="chrome-webstore"/></a>
+  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/d/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="users"></a>
+  <a href="https://twitter.com/intent/tweet?text=LeetHub%20-%20Automatically%20sync%20your%20code%20to%20GitHub%20after%20solving%20any%20leetcode%20problems!&url=https://github.com/QasimWani/LeetHub&hashtags=javascript,github,leetcode,coding,interview,chrome"> <img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social"> </a>
+</p>
 
-## Top 10 Trending GitHub Repositories  &nbsp; [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=LeetHub%20-%20Automatically%20sync%20your%20code%20to%20GitHub%20after%20solving%20any%20leetcode%20problems!&url=https://github.com/QasimWani/LeetHub&hashtags=javascript,github,leetcode,coding,interview,chrome)
-
+## Top 10 Trending JavaScript Repositories
 
 
 ### Available on:
@@ -66,10 +76,26 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
 
 <ol>
   <li>Fork this repo</li>
+  <li>
+  Add dev credentials (note this is unstable and can be removed at any time. Create your own for stability, don't use in production!) in <a href="scripts/oauth2.js#L6">oauth2.js</a> and <a href="scripts/authorize.js#L13">authorize.js</a> to enable web auth using GitHub API.
+
+```javascript
+
+this.KEY = "leethub_token";
+this.ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token";
+this.AUTHORIZATION_URL = "https://github.com/login/oauth/authorize";
+this.CLIENT_ID = "beb4f0aa19ab8faf5004";
+this.CLIENT_SECRET = "843f835609c7ef02ef0f2f1645bc49514c0e65a6";
+this.REDIRECT_URL = "https://github.com/"; //for example, https://github.com
+this.SCOPES = ['repo'];
+
+```
+  </li>
   <li>Go to <a href="chrome://extensions">chrome://extensions</a> </li>
   <li>Enable <a href="https://www.mstoic.com/enable-developer-mode-in-chrome/">Developer mode</a> by toggling the switch on top right corner</li>
   <li>Click 'Load unpacked'</li>
   <li>Select the entire LeetHub folder</li>
 </ol>
+
 
 #### And that should be it! Get Hacking...
