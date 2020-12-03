@@ -168,8 +168,13 @@ function parseQuestion() {
   const qbody = questionElem[0].innerHTML;
 
   // Problem title.
-  const qtitlte = document.getElementsByClassName('css-v3d350')[0]
-    .innerHTML;
+  let qtitlte = document.getElementsByClassName('css-v3d350')[0];
+  if(checkElem(qtitle)) {
+    qtitle = qtitle.innerHTML;
+  }
+  else {
+    qtitle = "unknown-problem";
+  }
 
   // Problem difficulty, each problem difficulty has its own class.
   const isHard = document.getElementsByClassName('css-t42afm');
