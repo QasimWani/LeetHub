@@ -166,14 +166,18 @@ const linkRepo = (token, name) => {
             'none';
         } else {
           /* Change mode type to commit */
-          chrome.storage.sync.set({ mode_type: 'commit' }, () => {
-            $('#error').hide();
-            $('#success').html(
-              `Successfully linked <a target="blank" href="${res.html_url}">${name}</a> to LeetHub. Start <a href="http://leetcode.com">LeetCoding</a> now!`,
-            );
-            $('#success').show();
-            $('#unlink').show();
-          });
+          /* Save repo url to chrome storage */
+          chrome.storage.sync.set(
+            { mode_type: 'commit', repo: res.html_url },
+            () => {
+              $('#error').hide();
+              $('#success').html(
+                `Successfully linked <a target="blank" href="${res.html_url}">${name}</a> to LeetHub. Start <a href="http://leetcode.com">LeetCoding</a> now!`,
+              );
+              $('#success').show();
+              $('#unlink').show();
+            },
+          );
           /* Set Repo Hook */
           chrome.storage.sync.set(
             { leethub_hook: res.full_name },
@@ -184,6 +188,9 @@ const linkRepo = (token, name) => {
                 const { stats } = psolved;
                 if (stats && stats.solved) {
                   $('#p_solved').text(stats.solved);
+                  $('#p_solved_easy').text(stats.easy);
+                  $('#p_solved_medium').text(stats.medium);
+                  $('#p_solved_hard').text(stats.hard);
                 }
               });
             },

@@ -36,13 +36,24 @@ chrome.storage.sync.get('leethub_token', (data) => {
           chrome.storage.sync.get('mode_type', (data2) => {
             if (data2 && data2.mode_type === 'commit') {
               $('#commit_mode').show();
-              /* Get problems solved count */
-              chrome.storage.sync.get('stats', (psolved) => {
-                const { stats } = psolved;
-                if (stats && stats.solved) {
-                  $('#p_solved').text(stats.solved);
-                }
-              });
+              /* Get problem stats and repo link */
+              chrome.storage.sync.get(
+                ['stats', 'repo'],
+                (psolved) => {
+                  const { stats, repo } = psolved;
+                  if (stats && stats.solved) {
+                    $('#p_solved').text(stats.solved);
+                    $('#p_solved_easy').text(stats.easy);
+                    $('#p_solved_medium').text(stats.medium);
+                    $('#p_solved_hard').text(stats.hard);
+                  }
+                  if (repo) {
+                    $('#repo_url').html(
+                      `<a target="blank" style="color: cadetblue !important" href="${repo}">Linked Repo</a>`,
+                    );
+                  }
+                },
+              );
             } else {
               $('#hook_mode').show();
             }

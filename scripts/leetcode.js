@@ -20,6 +20,9 @@ const languages = {
   Oracle: '.sql',
 };
 
+/* Difficulty of most recenty submitted question */
+let difficulty = '';
+
 /* Get file extension for submission */
 function findLanguage() {
   const tag = [
@@ -66,13 +69,19 @@ const upload = (token, hook, code, directory, filename, sha) => {
             // create stats object
             stats = {};
             stats.solved = 0;
+            stats.easy = 0;
+            stats.medium = 0;
+            stats.hard = 0;
             stats.sha = {};
           }
           const filePath = directory + filename;
           // Only increment solved problems statistics once
           // New submission commits twice (README and problem)
-          if (filename !== 'README.md') {
+          if (filename === 'README.md') {
             stats.solved += 1;
+            stats.easy += difficulty === 'Easy' ? 1 : 0;
+            stats.medium += difficulty === 'Medium' ? 1 : 0;
+            stats.hard += difficulty === 'Hard' ? 1 : 0;
           }
           stats.sha[filePath] = updatedSha; // update sha key.
           chrome.storage.sync.set({ stats }, () => {
@@ -161,8 +170,6 @@ function parseQuestion() {
   // Problem title.
   const qtitlte = document.getElementsByClassName('css-v3d350')[0]
     .innerHTML;
-
-  let difficulty = '';
 
   // Problem difficulty, each problem difficulty has its own class.
   const isHard = document.getElementsByClassName('css-t42afm');
