@@ -168,12 +168,11 @@ function parseQuestion() {
   const qbody = questionElem[0].innerHTML;
 
   // Problem title.
-  let qtitlte = document.getElementsByClassName('css-v3d350')[0];
-  if(checkElem(qtitle)) {
+  let qtitle = document.getElementsByClassName('css-v3d350')[0];
+  if (checkElem(qtitle)) {
     qtitle = qtitle.innerHTML;
-  }
-  else {
-    qtitle = "unknown-problem";
+  } else {
+    qtitle = 'unknown-problem';
   }
 
   // Problem difficulty, each problem difficulty has its own class.
@@ -189,7 +188,7 @@ function parseQuestion() {
     difficulty = 'Hard';
   }
   // Final formatting of the contents of the README for each problem
-  const markdown = `<h2>${qtitlte}</h2><h3>${difficulty}</h3><hr>${qbody}`;
+  const markdown = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr>${qbody}`;
   return markdown;
 }
 
