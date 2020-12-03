@@ -20,6 +20,9 @@ const languages = {
   Oracle: '.sql',
 };
 
+/* Difficulty of most recenty submitted question */
+let difficulty = '';
+
 /* Get file extension for submission */
 function findLanguage() {
   const tag = [
@@ -66,13 +69,19 @@ const upload = (token, hook, code, directory, filename, sha) => {
             // create stats object
             stats = {};
             stats.solved = 0;
+            stats.easy = 0;
+            stats.medium = 0;
+            stats.hard = 0;
             stats.sha = {};
           }
           const filePath = directory + filename;
           // Only increment solved problems statistics once
           // New submission commits twice (README and problem)
-          if (filename !== 'README.md') {
+          if (filename === 'README.md') {
             stats.solved += 1;
+            stats.easy += difficulty === 'Easy' ? 1 : 0;
+            stats.medium += difficulty === 'Medium' ? 1 : 0;
+            stats.hard += difficulty === 'Hard' ? 1 : 0;
           }
           stats.sha[filePath] = updatedSha; // update sha key.
           chrome.storage.sync.set({ stats }, () => {
@@ -159,10 +168,12 @@ function parseQuestion() {
   const qbody = questionElem[0].innerHTML;
 
   // Problem title.
-  const qtitlte = document.getElementsByClassName('css-v3d350')[0]
-    .innerHTML;
-
-  let difficulty = '';
+  let qtitle = document.getElementsByClassName('css-v3d350')[0];
+  if (checkElem(qtitle)) {
+    qtitle = qtitle.innerHTML;
+  } else {
+    qtitle = 'unknown-problem';
+  }
 
   // Problem difficulty, each problem difficulty has its own class.
   const isHard = document.getElementsByClassName('css-t42afm');
@@ -177,7 +188,7 @@ function parseQuestion() {
     difficulty = 'Hard';
   }
   // Final formatting of the contents of the README for each problem
-  const markdown = `<h2>${qtitlte}</h2><h3>${difficulty}</h3><hr>${qbody}`;
+  const markdown = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr>${qbody}`;
   return markdown;
 }
 
