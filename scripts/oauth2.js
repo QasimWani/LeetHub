@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 const oAuth2 = {
   /**
    * Initialize
@@ -22,9 +23,9 @@ const oAuth2 = {
 
     let url = `${this.AUTHORIZATION_URL}?client_id=${this.CLIENT_ID}&redirect_uri${this.REDIRECT_URL}&scope=`;
 
-    Object.keys(this.SCOPES).forEach(function (key) {
-      url += key;
-    });
+    for (let i = 0; i < this.SCOPES.length; i += 1) {
+      url += this.SCOPES[i];
+    }
 
     chrome.storage.sync.set({ pipe_leethub: true }, () => {
       // opening pipe temporarily
@@ -38,5 +39,3 @@ const oAuth2 = {
     });
   },
 };
-
-export default oAuth2;
