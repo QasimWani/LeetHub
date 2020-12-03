@@ -38,18 +38,19 @@ chrome.storage.sync.get('leethub_token', (data) => {
               $('#commit_mode').show();
               /* Get problem stats and repo link */
               chrome.storage.sync.get(
-                ['stats', 'repo'],
-                (psolved) => {
-                  const { stats, repo } = psolved;
+                ['stats', 'leethub_hook'],
+                (data3) => {
+                  const { stats } = data3;
                   if (stats && stats.solved) {
                     $('#p_solved').text(stats.solved);
                     $('#p_solved_easy').text(stats.easy);
                     $('#p_solved_medium').text(stats.medium);
                     $('#p_solved_hard').text(stats.hard);
                   }
-                  if (repo) {
+                  const leethubHook = data3.leethub_hook;
+                  if (leethubHook) {
                     $('#repo_url').html(
-                      `<a target="blank" style="color: cadetblue !important" href="${repo}">Linked Repo</a>`,
+                      `<a target="blank" style="color: cadetblue !important" href="https://github.com/${leethubHook}">Linked Repo</a>`,
                     );
                   }
                 },
