@@ -1,4 +1,5 @@
-import oAuth2 from './scripts/oauth2';
+/* global oAuth2 */
+/* eslint no-undef: "error" */
 
 let action = false;
 
