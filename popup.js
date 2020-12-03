@@ -40,7 +40,7 @@ chrome.storage.sync.get('leethub_token', (data) => {
               chrome.storage.sync.get('stats', (psolved) => {
                 const { stats } = psolved;
                 if (stats && stats.solved) {
-                  $('#p_solved').text(psolved.solved);
+                  $('#p_solved').text(stats.solved);
                 }
               });
             } else {

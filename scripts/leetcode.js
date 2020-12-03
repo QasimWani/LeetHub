@@ -61,7 +61,7 @@ const upload = (token, hook, code, directory, filename, sha) => {
         const updatedSha = JSON.parse(xhr.responseText).content.sha; // get updated SHA.
 
         chrome.storage.sync.get('stats', (data2) => {
-          let stats = data2.stats;
+          let { stats } = data2;
           if (stats === null || stats === {} || stats === undefined) {
             // create stats object
             stats = {};
@@ -107,7 +107,7 @@ function uploadGit(code, problemName, filename) {
               /* to get unique key */
               const filePath = problemName + filename;
               chrome.storage.sync.get('stats', (s) => {
-                const stats = s.stats;
+                const { stats } = s;
                 let sha = null;
 
                 if (
