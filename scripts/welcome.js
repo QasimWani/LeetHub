@@ -166,7 +166,6 @@ const linkRepo = (token, name) => {
             'none';
         } else {
           /* Change mode type to commit */
-          /* Save repo url to chrome storage */
           chrome.storage.sync.set(
             { mode_type: 'commit', repo: res.html_url },
             () => {
