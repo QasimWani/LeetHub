@@ -179,9 +179,9 @@ function parseQuestion() {
   const qbody = questionElem[0].innerHTML;
 
   // Problem title.
-  let qtitle = document.getElementsByClassName('css-v3d350')[0];
+  let qtitle = document.getElementsByClassName('css-v3d350');
   if (checkElem(qtitle)) {
-    qtitle = qtitle.innerHTML;
+    qtitle = qtitle[0].innerHTML;
   } else {
     qtitle = 'unknown-problem';
   }
