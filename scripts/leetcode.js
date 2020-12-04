@@ -21,7 +21,7 @@ const languages = {
 };
 
 /* Default commit message */
-const defaultMsg = 'working commit - Created using LeetHub';
+const defaultMsg = 'Create README - LeetHub';
 
 /* Difficulty of most recenty submitted question */
 let difficulty = '';
@@ -102,7 +102,7 @@ const upload = (token, hook, code, directory, filename, sha, msg) => {
   xhr.send(data);
 };
 
-function uploadGit(code, problemName, filename, msg = defaultMsg) {
+function uploadGit(code, problemName, fileName, msg = defaultMsg) {
   /* Get necessary payload data */
   chrome.storage.sync.get('leethub_token', (t) => {
     const token = t.leethub_token;
@@ -117,7 +117,7 @@ function uploadGit(code, problemName, filename, msg = defaultMsg) {
               /* Get SHA, if it exists */
 
               /* to get unique key */
-              const filePath = problemName + filename;
+              const filePath = problemName + fileName;
               chrome.storage.sync.get('stats', (s) => {
                 const { stats } = s;
                 let sha = null;
@@ -135,7 +135,7 @@ function uploadGit(code, problemName, filename, msg = defaultMsg) {
                   hook,
                   code,
                   problemName,
-                  filename,
+                  fileName,
                   sha,
                   msg,
                 );
@@ -245,14 +245,30 @@ const loader = setInterval(() => {
         probStats,
       ); // Encode `code` to base64
 
-      /* @TODO: Change this setTimeout to Promise */
-      setTimeout(function () {
-        uploadGit(
-          btoa(unescape(encodeURIComponent(probStatement))),
-          problemName,
-          'README.md',
-        );
-      }, 2000);
+      /* Only create README if not already created */
+      chrome.storage.sync.get('stats', (s) => {
+        const { stats } = s;
+        const filePath = problemName + problemName + language;
+        let sha = null;
+        if (
+          stats !== undefined &&
+          stats.sha !== undefined &&
+          stats.sha[filePath] !== undefined
+        ) {
+          sha = stats.sha[filePath];
+        }
+
+        if (sha === null) {
+          /* @TODO: Change this setTimeout to Promise */
+          setTimeout(function () {
+            uploadGit(
+              btoa(unescape(encodeURIComponent(probStatement))),
+              problemName,
+              'README.md',
+            );
+          }, 2000);
+        }
+      });
     }
   }
 }, 1000);
