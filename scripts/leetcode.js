@@ -20,6 +20,9 @@ const languages = {
   Oracle: '.sql',
 };
 
+/* Default commit message */
+const defaultMsg = 'working commit - Created using LeetHub';
+
 /* Difficulty of most recenty submitted question */
 let difficulty = '';
 
@@ -42,13 +45,13 @@ function findLanguage() {
 }
 
 /* Main function for uploading code to GitHub repo */
-const upload = (token, hook, code, directory, filename, sha) => {
+const upload = (token, hook, code, directory, filename, sha, msg) => {
   // To validate user, load user object from GitHub.
   const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
 
   /* Define Payload */
   let data = {
-    message: `working commit - Created using LeetHub`,
+    message: msg,
     content: code,
   };
   if (sha !== null) {
@@ -99,7 +102,7 @@ const upload = (token, hook, code, directory, filename, sha) => {
   xhr.send(data);
 };
 
-function uploadGit(code, problemName, filename) {
+function uploadGit(code, problemName, filename, msg = defaultMsg) {
   /* Get necessary payload data */
   chrome.storage.sync.get('leethub_token', (t) => {
     const token = t.leethub_token;
@@ -127,7 +130,15 @@ function uploadGit(code, problemName, filename) {
                   sha = stats.sha[filePath];
                 }
                 /* Upload to git. */
-                upload(token, hook, code, problemName, filename, sha);
+                upload(
+                  token,
+                  hook,
+                  code,
+                  problemName,
+                  filename,
+                  sha,
+                  msg,
+                );
               });
             }
           });
@@ -192,9 +203,25 @@ function parseQuestion() {
   return markdown;
 }
 
+/* Parser function for time/space stats */
+function parseStats() {
+  const probStats = document.getElementsByClassName('data__HC-i');
+  if (!checkElem(probStats)) {
+    return null;
+  }
+  const time = probStats[0].textContent;
+  const timePercentile = probStats[1].textContent;
+  const space = probStats[2].textContent;
+  const spacePercentile = probStats[3].textContent;
+
+  // Format commit message
+  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
+}
+
 const loader = setInterval(() => {
   let code = null;
   let probStatement = null;
+  let probStats = null;
 
   const successTag = document.getElementsByClassName('success__3Ai7');
   if (
@@ -204,8 +231,9 @@ const loader = setInterval(() => {
   ) {
     code = parseCode();
     probStatement = parseQuestion();
+    probStats = parseStats();
   }
-  if (code !== null && probStatement !== null) {
+  if (code !== null && probStatement !== null && probStats !== null) {
     clearTimeout(loader);
     const problemName = window.location.pathname.split('/')[2]; // must be true.
     const language = findLanguage();
@@ -214,6 +242,7 @@ const loader = setInterval(() => {
         btoa(unescape(encodeURIComponent(code))),
         problemName,
         problemName + language,
+        probStats,
       ); // Encode `code` to base64
 
       /* @TODO: Change this setTimeout to Promise */
