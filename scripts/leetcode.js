@@ -20,8 +20,9 @@ const languages = {
   Oracle: '.sql',
 };
 
-/* Default commit message */
-const defaultMsg = 'Create README - LeetHub';
+/* Commit messages */
+const readmeMsg = 'Create README - LeetHub';
+const discussionMsg = 'Prepend discussion post - LeetHub';
 
 /* Difficulty of most recenty submitted question */
 let difficulty = '';
@@ -43,6 +44,35 @@ function findLanguage() {
   }
   return null;
 }
+/* Main function for updating code on GitHub Repo */
+const update = (
+  token,
+  hook,
+  addition,
+  directory,
+  filename,
+  sha,
+  msg,
+  prepend,
+) => {
+  const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
+
+  /* Read from existing file on GitHub */
+  const xhr = new XMLHttpRequest();
+  xhr.addEventListener('readystatechange', function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200 || xhr.status === 201) {
+        const existingContent = decodeURIComponent(
+          escape(atob(JSON.parse(xhr.responseText).content)),
+        );
+      }
+    }
+  });
+  xhr.open('GET', URL, true);
+  xhr.setRequestHeader('Authorization', `token ${token}`);
+  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+  xhr.send();
+};
 
 /* Main function for uploading code to GitHub repo */
 const upload = (token, hook, code, directory, filename, sha, msg) => {
@@ -102,7 +132,14 @@ const upload = (token, hook, code, directory, filename, sha, msg) => {
   xhr.send(data);
 };
 
-function uploadGit(code, problemName, fileName, msg = defaultMsg) {
+function uploadGit(
+  code,
+  problemName,
+  fileName,
+  msg,
+  action,
+  prepend = true,
+) {
   /* Get necessary payload data */
   chrome.storage.sync.get('leethub_token', (t) => {
     const token = t.leethub_token;
@@ -129,16 +166,31 @@ function uploadGit(code, problemName, fileName, msg = defaultMsg) {
                 ) {
                   sha = stats.sha[filePath];
                 }
-                /* Upload to git. */
-                upload(
-                  token,
-                  hook,
-                  code,
-                  problemName,
-                  fileName,
-                  sha,
-                  msg,
-                );
+
+                if (action === 'upload') {
+                  /* Upload to git. */
+                  upload(
+                    token,
+                    hook,
+                    code,
+                    problemName,
+                    fileName,
+                    sha,
+                    msg,
+                  );
+                } else if (action === 'update') {
+                  /* Update on git */
+                  update(
+                    token,
+                    hook,
+                    code,
+                    problemName,
+                    fileName,
+                    sha,
+                    msg,
+                    prepend,
+                  );
+                }
               });
             }
           });
@@ -218,6 +270,26 @@ function parseStats() {
   return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
 }
 
+document.addEventListener('click', (event) => {
+  const element = event.target;
+  if (
+    element.classList.contains('css-y98m8o-sm') ||
+    element.parentElement.classList.contains('css-y98m8o-sm')
+  ) {
+    const addition = '';
+    const problemName = window.location.pathname.split('/')[2]; // must be true.
+    const language = findLanguage();
+
+    uploadGit(
+      addition,
+      problemName,
+      problemName + language,
+      discussionMsg,
+      'update',
+    );
+  }
+});
+
 const loader = setInterval(() => {
   let code = null;
   let probStatement = null;
@@ -243,6 +315,7 @@ const loader = setInterval(() => {
         problemName,
         problemName + language,
         probStats,
+        'upload',
       ); // Encode `code` to base64
 
       /* Only create README if not already created */
@@ -265,6 +338,8 @@ const loader = setInterval(() => {
               btoa(unescape(encodeURIComponent(probStatement))),
               problemName,
               'README.md',
+              readmeMsg,
+              'upload',
             );
           }, 2000);
         }
