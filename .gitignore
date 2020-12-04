@@ -1,2 +1,3 @@
 /scripts/authorize.js
 /scripts/oauth2.js
+.env
