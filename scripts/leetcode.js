@@ -192,38 +192,49 @@ function parseQuestion() {
   return markdown;
 }
 
-const loader = setInterval(() => {
-  let code = null;
-  let probStatement = null;
-
-  const successTag = document.getElementsByClassName('success__3Ai7');
+/* Only poll when submit button clicked */
+document.addEventListener('click', (event) => {
+  const element = event.target;
   if (
-    successTag !== undefined &&
-    successTag.length > 0 &&
-    successTag[0].innerText.trim() === 'Success'
+    element.classList.contains('css-gahzfj-sm') ||
+    element.parentElement.classList.contains('css-gahzfj-sm')
   ) {
-    code = parseCode();
-    probStatement = parseQuestion();
-  }
-  if (code !== null && probStatement !== null) {
-    clearTimeout(loader);
-    const problemName = window.location.pathname.split('/')[2]; // must be true.
-    const language = findLanguage();
-    if (language !== null) {
-      uploadGit(
-        btoa(unescape(encodeURIComponent(code))),
-        problemName,
-        problemName + language,
-      ); // Encode `code` to base64
+    const loader = setInterval(() => {
+      let code = null;
+      let probStatement = null;
 
-      /* @TODO: Change this setTimeout to Promise */
-      setTimeout(function () {
-        uploadGit(
-          btoa(unescape(encodeURIComponent(probStatement))),
-          problemName,
-          'README.md',
-        );
-      }, 2000);
-    }
+      const successTag = document.getElementsByClassName(
+        'success__3Ai7',
+      );
+      if (
+        successTag !== undefined &&
+        successTag.length > 0 &&
+        successTag[0].innerText.trim() === 'Success'
+      ) {
+        code = parseCode();
+        probStatement = parseQuestion();
+      }
+      if (code !== null && probStatement !== null) {
+        clearTimeout(loader);
+        const problemName = window.location.pathname.split('/')[2]; // must be true.
+        const language = findLanguage();
+        if (language !== null) {
+          uploadGit(
+            btoa(unescape(encodeURIComponent(code))),
+            problemName,
+            problemName + language,
+          ); // Encode `code` to base64
+
+          /* @TODO: Change this setTimeout to Promise */
+          setTimeout(function () {
+            uploadGit(
+              btoa(unescape(encodeURIComponent(probStatement))),
+              problemName,
+              'README.md',
+            );
+          }, 2000);
+        }
+      }
+    }, 1000);
   }
-}, 1000);
+});
