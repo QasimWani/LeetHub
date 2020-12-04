@@ -77,7 +77,7 @@ const upload = (token, hook, code, directory, filename, sha) => {
           const filePath = directory + filename;
           // Only increment solved problems statistics once
           // New submission commits twice (README and problem)
-          if (filename === 'README.md') {
+          if (filename === 'README.md' && sha === null) {
             stats.solved += 1;
             stats.easy += difficulty === 'Easy' ? 1 : 0;
             stats.medium += difficulty === 'Medium' ? 1 : 0;
