@@ -193,14 +193,19 @@ function parseQuestion() {
 }
 
 /* Only poll when submit button clicked */
-document.addEventListener('click', (event)=> {
+document.addEventListener('click', (event) => {
   const element = event.target;
-  if (element.classList.contains("css-gahzfj-sm") || element.parentElement.classList.contains("css-gahzfj-sm")) {
+  if (
+    element.classList.contains('css-gahzfj-sm') ||
+    element.parentElement.classList.contains('css-gahzfj-sm')
+  ) {
     const loader = setInterval(() => {
       let code = null;
       let probStatement = null;
-    
-      const successTag = document.getElementsByClassName('success__3Ai7');
+
+      const successTag = document.getElementsByClassName(
+        'success__3Ai7',
+      );
       if (
         successTag !== undefined &&
         successTag.length > 0 &&
@@ -219,7 +224,7 @@ document.addEventListener('click', (event)=> {
             problemName,
             problemName + language,
           ); // Encode `code` to base64
-    
+
           /* @TODO: Change this setTimeout to Promise */
           setTimeout(function () {
             uploadGit(
@@ -232,6 +237,4 @@ document.addEventListener('click', (event)=> {
       }
     }, 1000);
   }
-})
-
-
+});
