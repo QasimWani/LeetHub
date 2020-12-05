@@ -44,35 +44,6 @@ function findLanguage() {
   }
   return null;
 }
-/* Main function for updating code on GitHub Repo */
-const update = (
-  token,
-  hook,
-  addition,
-  directory,
-  filename,
-  sha,
-  msg,
-  prepend,
-) => {
-  const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
-
-  /* Read from existing file on GitHub */
-  const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200 || xhr.status === 201) {
-        const existingContent = decodeURIComponent(
-          escape(atob(JSON.parse(xhr.responseText).content)),
-        );
-      }
-    }
-  });
-  xhr.open('GET', URL, true);
-  xhr.setRequestHeader('Authorization', `token ${token}`);
-  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-  xhr.send();
-};
 
 /* Main function for uploading code to GitHub repo */
 const upload = (token, hook, code, directory, filename, sha, msg) => {
@@ -83,10 +54,8 @@ const upload = (token, hook, code, directory, filename, sha, msg) => {
   let data = {
     message: msg,
     content: code,
+    sha,
   };
-  if (sha !== null) {
-    data.sha = sha; // get sha for files that already exist in the gh file system.
-  }
 
   data = JSON.stringify(data);
 
@@ -130,6 +99,49 @@ const upload = (token, hook, code, directory, filename, sha, msg) => {
   xhr.setRequestHeader('Authorization', `token ${token}`);
   xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
   xhr.send(data);
+};
+
+/* Main function for updating code on GitHub Repo */
+/* Currently only used for prepending discussion posts to README */
+const update = (token, hook, addition, directory, msg, prepend) => {
+  const URL = `https://api.github.com/repos/${hook}/contents/${directory}/README.md`;
+
+  /* Read from existing file on GitHub */
+  const xhr = new XMLHttpRequest();
+  xhr.addEventListener('readystatechange', function () {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200 || xhr.status === 201) {
+        const response = JSON.parse(xhr.responseText);
+        const existingContent = decodeURIComponent(
+          escape(atob(response.content)),
+        );
+        let newContent = '';
+
+        /* Discussion posts prepended at top of README */
+        /* Future implementations may require appending to bottom of file */
+        if (prepend) {
+          newContent = btoa(
+            unescape(encodeURIComponent(addition + existingContent)),
+          );
+        }
+
+        /* Write file with new content to GitHub */
+        upload(
+          token,
+          hook,
+          newContent,
+          directory,
+          'README.md',
+          response.sha,
+          msg,
+        );
+      }
+    }
+  });
+  xhr.open('GET', URL, true);
+  xhr.setRequestHeader('Authorization', `token ${token}`);
+  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+  xhr.send();
 };
 
 function uploadGit(
@@ -185,8 +197,6 @@ function uploadGit(
                     hook,
                     code,
                     problemName,
-                    fileName,
-                    sha,
                     msg,
                     prepend,
                   );
@@ -272,21 +282,40 @@ function parseStats() {
 
 document.addEventListener('click', (event) => {
   const element = event.target;
-  if (
-    element.classList.contains('css-y98m8o-sm') ||
-    element.parentElement.classList.contains('css-y98m8o-sm')
-  ) {
-    const addition = '';
-    const problemName = window.location.pathname.split('/')[2]; // must be true.
-    const language = findLanguage();
+  const oldPath = window.location.pathname;
 
-    uploadGit(
-      addition,
-      problemName,
-      problemName + language,
-      discussionMsg,
-      'update',
-    );
+  /* Act on Post button click */
+  /* Complex since "New" button shares many of the same properties as "Post button */
+  if (
+    element.classList.contains('icon__3Su4') ||
+    element.parentElement.classList.contains('icon__3Su4') ||
+    element.parentElement.classList.contains(
+      'btn-content-container__214G',
+    ) ||
+    element.parentElement.classList.contains('header-right__2UzF')
+  ) {
+    setTimeout(function () {
+      /* Only post if post button was clicked and url changed */
+      if (
+        oldPath !== window.location.pathname &&
+        oldPath ===
+          window.location.pathname.substring(0, oldPath.length) &&
+        !Number.isNaN(window.location.pathname.charAt(oldPath.length))
+      ) {
+        const date = new Date();
+        const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()} at ${date.getHours()}:${date.getMinutes()}`;
+        const addition = `[Discussion Post (created on ${currentDate})](${window.location})  \n`;
+        const problemName = window.location.pathname.split('/')[2]; // must be true.
+
+        uploadGit(
+          addition,
+          problemName,
+          'README.md',
+          discussionMsg,
+          'update',
+        );
+      }
+    }, 1000);
   }
 });
 
