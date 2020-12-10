@@ -50,7 +50,7 @@ chrome.storage.sync.get('leethub_token', (data) => {
                   const leethubHook = data3.leethub_hook;
                   if (leethubHook) {
                     $('#repo_url').html(
-                      `<a target="blank" style="color: cadetblue !important" href="https://github.com/${leethubHook}">Linked Repo</a>`,
+                      `<a target="blank" style="color: cadetblue !important; font-size:0.8em;" href="https://github.com/${leethubHook}">${leethubHook}</a>`,
                     );
                   }
                 },

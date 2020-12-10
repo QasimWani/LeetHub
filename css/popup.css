@@ -30,5 +30,6 @@ body {
   font-family: sans-serif;
   border-top: solid black 1px;
   font-weight: 500;
+  padding-top: 2%;
   font-size: medium;
 }
