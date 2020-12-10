@@ -340,12 +340,12 @@ const loader = setInterval(() => {
     const language = findLanguage();
     if (language !== null) {
       uploadGit(
-        btoa(unescape(encodeURIComponent(code))),
+        btoa(unescape(encodeURIComponent(probStatement))),
         problemName,
-        problemName + language,
-        probStats,
+        'README.md',
+        readmeMsg,
         'upload',
-      ); // Encode `code` to base64
+      );
 
       /* Only create README if not already created */
       chrome.storage.sync.get('stats', (s) => {
@@ -364,12 +364,12 @@ const loader = setInterval(() => {
           /* @TODO: Change this setTimeout to Promise */
           setTimeout(function () {
             uploadGit(
-              btoa(unescape(encodeURIComponent(probStatement))),
+              btoa(unescape(encodeURIComponent(code))),
               problemName,
-              'README.md',
-              readmeMsg,
+              problemName + language,
+              probStats,
               'upload',
-            );
+            ); // Encode `code` to base64
           }, 2000);
         }
       });
