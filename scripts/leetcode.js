@@ -20,6 +20,9 @@ const languages = {
   Oracle: '.sql',
 };
 
+/* Default commit message */
+const defaultMsg = 'Create README - LeetHub';
+
 /* Difficulty of most recenty submitted question */
 let difficulty = '';
 
@@ -42,13 +45,13 @@ function findLanguage() {
 }
 
 /* Main function for uploading code to GitHub repo */
-const upload = (token, hook, code, directory, filename, sha) => {
+const upload = (token, hook, code, directory, filename, sha, msg) => {
   // To validate user, load user object from GitHub.
   const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
 
   /* Define Payload */
   let data = {
-    message: `working commit - Created using LeetHub`,
+    message: msg,
     content: code,
   };
   if (sha !== null) {
@@ -99,7 +102,7 @@ const upload = (token, hook, code, directory, filename, sha) => {
   xhr.send(data);
 };
 
-function uploadGit(code, problemName, filename) {
+function uploadGit(code, problemName, fileName, msg = defaultMsg) {
   /* Get necessary payload data */
   chrome.storage.sync.get('leethub_token', (t) => {
     const token = t.leethub_token;
@@ -114,7 +117,7 @@ function uploadGit(code, problemName, filename) {
               /* Get SHA, if it exists */
 
               /* to get unique key */
-              const filePath = problemName + filename;
+              const filePath = problemName + fileName;
               chrome.storage.sync.get('stats', (s) => {
                 const { stats } = s;
                 let sha = null;
@@ -127,7 +130,15 @@ function uploadGit(code, problemName, filename) {
                   sha = stats.sha[filePath];
                 }
                 /* Upload to git. */
-                upload(token, hook, code, problemName, filename, sha);
+                upload(
+                  token,
+                  hook,
+                  code,
+                  problemName,
+                  fileName,
+                  sha,
+                  msg,
+                );
               });
             }
           });
@@ -168,9 +179,9 @@ function parseQuestion() {
   const qbody = questionElem[0].innerHTML;
 
   // Problem title.
-  let qtitle = document.getElementsByClassName('css-v3d350')[0];
+  let qtitle = document.getElementsByClassName('css-v3d350');
   if (checkElem(qtitle)) {
-    qtitle = qtitle.innerHTML;
+    qtitle = qtitle[0].innerHTML;
   } else {
     qtitle = 'unknown-problem';
   }
@@ -192,9 +203,25 @@ function parseQuestion() {
   return markdown;
 }
 
+/* Parser function for time/space stats */
+function parseStats() {
+  const probStats = document.getElementsByClassName('data__HC-i');
+  if (!checkElem(probStats)) {
+    return null;
+  }
+  const time = probStats[0].textContent;
+  const timePercentile = probStats[1].textContent;
+  const space = probStats[2].textContent;
+  const spacePercentile = probStats[3].textContent;
+
+  // Format commit message
+  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
+}
+
 const loader = setInterval(() => {
   let code = null;
   let probStatement = null;
+  let probStats = null;
 
   const successTag = document.getElementsByClassName('success__3Ai7');
   if (
@@ -204,8 +231,9 @@ const loader = setInterval(() => {
   ) {
     code = parseCode();
     probStatement = parseQuestion();
+    probStats = parseStats();
   }
-  if (code !== null && probStatement !== null) {
+  if (code !== null && probStatement !== null && probStats !== null) {
     clearTimeout(loader);
     const problemName = window.location.pathname.split('/')[2]; // must be true.
     const language = findLanguage();
@@ -214,16 +242,33 @@ const loader = setInterval(() => {
         btoa(unescape(encodeURIComponent(code))),
         problemName,
         problemName + language,
+        probStats,
       ); // Encode `code` to base64
 
-      /* @TODO: Change this setTimeout to Promise */
-      setTimeout(function () {
-        uploadGit(
-          btoa(unescape(encodeURIComponent(probStatement))),
-          problemName,
-          'README.md',
-        );
-      }, 2000);
+      /* Only create README if not already created */
+      chrome.storage.sync.get('stats', (s) => {
+        const { stats } = s;
+        const filePath = problemName + problemName + language;
+        let sha = null;
+        if (
+          stats !== undefined &&
+          stats.sha !== undefined &&
+          stats.sha[filePath] !== undefined
+        ) {
+          sha = stats.sha[filePath];
+        }
+
+        if (sha === null) {
+          /* @TODO: Change this setTimeout to Promise */
+          setTimeout(function () {
+            uploadGit(
+              btoa(unescape(encodeURIComponent(probStatement))),
+              problemName,
+              'README.md',
+            );
+          }, 2000);
+        }
+      });
     }
   }
 }, 1000);
