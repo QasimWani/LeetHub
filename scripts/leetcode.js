@@ -339,15 +339,7 @@ const loader = setInterval(() => {
     const problemName = window.location.pathname.split('/')[2]; // must be true.
     const language = findLanguage();
     if (language !== null) {
-      uploadGit(
-        btoa(unescape(encodeURIComponent(probStatement))),
-        problemName,
-        'README.md',
-        readmeMsg,
-        'upload',
-      );
 
-      /* Only create README if not already created */
       chrome.storage.sync.get('stats', (s) => {
         const { stats } = s;
         const filePath = problemName + problemName + language;
@@ -360,19 +352,29 @@ const loader = setInterval(() => {
           sha = stats.sha[filePath];
         }
 
+        /* Only create README if not already created */
         if (sha === null) {
           /* @TODO: Change this setTimeout to Promise */
-          setTimeout(function () {
-            uploadGit(
-              btoa(unescape(encodeURIComponent(code))),
-              problemName,
-              problemName + language,
-              probStats,
-              'upload',
-            ); // Encode `code` to base64
-          }, 2000);
+          uploadGit(
+            btoa(unescape(encodeURIComponent(probStatement))),
+            problemName,
+            'README.md',
+            readmeMsg,
+            'upload',
+          );
         }
       });
+
+      /* Upload code to Git */
+      setTimeout(function () {
+        uploadGit(
+          btoa(unescape(encodeURIComponent(code))),
+          problemName,
+          problemName + language,
+          probStats,
+          'upload',
+        ); // Encode `code` to base64
+      }, 2000);
     }
   }
 }, 1000);
