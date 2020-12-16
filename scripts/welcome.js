@@ -129,6 +129,7 @@ const linkStatusCode = (status, name) => {
       bool = true;
       break;
   }
+  $('#unlink').show();
   return bool;
 };
 
