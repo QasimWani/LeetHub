@@ -36,7 +36,7 @@
 
 
 ## How fast is it really?
-### THIS FAST!
+### THIS FAST (~400ms, 530x speed improvement)!
 
 ![](assets/extension/output.gif)
 
