@@ -104,7 +104,7 @@ const upload = (token, hook, code, directory, filename, sha, msg) => {
 /* Main function for updating code on GitHub Repo */
 /* Currently only used for prepending discussion posts to README */
 const update = (token, hook, addition, directory, msg, prepend) => {
-  const URL = `https://api.github.com/repos/${hook}/contents/${directory}/README.md`;
+  const URL = `https://api.github.com/repos/${hook}/contents/${difficulty}/${directory}/README.md`;
 
   /* Read from existing file on GitHub */
   const xhr = new XMLHttpRequest();
