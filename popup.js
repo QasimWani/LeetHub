@@ -19,7 +19,7 @@ $('#hook_URL').attr(
   `chrome-extension://${chrome.runtime.id}/welcome.html`,
 );
 
-chrome.storage.sync.get('leethub_token', (data) => {
+chrome.storage.local.get('leethub_token', (data) => {
   const token = data.leethub_token;
   if (token === null || token === undefined) {
     action = true;
@@ -33,11 +33,11 @@ chrome.storage.sync.get('leethub_token', (data) => {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           /* Show MAIN FEATURES */
-          chrome.storage.sync.get('mode_type', (data2) => {
+          chrome.storage.local.get('mode_type', (data2) => {
             if (data2 && data2.mode_type === 'commit') {
               $('#commit_mode').show();
               /* Get problem stats and repo link */
-              chrome.storage.sync.get(
+              chrome.storage.local.get(
                 ['stats', 'leethub_hook'],
                 (data3) => {
                   const { stats } = data3;
@@ -62,7 +62,7 @@ chrome.storage.sync.get('leethub_token', (data) => {
         } else if (xhr.status === 401) {
           // bad oAuth
           // reset token and redirect to authorization process again!
-          chrome.storage.sync.set({ leethub_token: null }, () => {
+          chrome.storage.local.set({ leethub_token: null }, () => {
             console.log(
               'BAD oAuth!!! Redirecting back to oAuth process',
             );

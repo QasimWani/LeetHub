@@ -27,7 +27,7 @@ const oAuth2 = {
       url += this.SCOPES[i];
     }
 
-    chrome.storage.sync.set({ pipe_leethub: true }, () => {
+    chrome.storage.local.set({ pipe_leethub: true }, () => {
       // opening pipe temporarily
 
       chrome.tabs.create({ url, selected: true }, function () {
