@@ -65,7 +65,7 @@ const upload = (token, hook, code, directory, filename, sha, msg) => {
       if (xhr.status === 200 || xhr.status === 201) {
         const updatedSha = JSON.parse(xhr.responseText).content.sha; // get updated SHA.
 
-        chrome.storage.sync.get('stats', (data2) => {
+        chrome.storage.local.get('stats', (data2) => {
           let { stats } = data2;
           if (stats === null || stats === {} || stats === undefined) {
             // create stats object
@@ -86,7 +86,7 @@ const upload = (token, hook, code, directory, filename, sha, msg) => {
             stats.hard += difficulty === 'Hard' ? 1 : 0;
           }
           stats.sha[filePath] = updatedSha; // update sha key.
-          chrome.storage.sync.set({ stats }, () => {
+          chrome.storage.local.set({ stats }, () => {
             console.log(
               `Successfully committed ${filename} to github`,
             );
@@ -153,21 +153,21 @@ function uploadGit(
   prepend = true,
 ) {
   /* Get necessary payload data */
-  chrome.storage.sync.get('leethub_token', (t) => {
+  chrome.storage.local.get('leethub_token', (t) => {
     const token = t.leethub_token;
     if (token) {
-      chrome.storage.sync.get('mode_type', (m) => {
+      chrome.storage.local.get('mode_type', (m) => {
         const mode = m.mode_type;
         if (mode === 'commit') {
           /* Get hook */
-          chrome.storage.sync.get('leethub_hook', (h) => {
+          chrome.storage.local.get('leethub_hook', (h) => {
             const hook = h.leethub_hook;
             if (hook) {
               /* Get SHA, if it exists */
 
               /* to get unique key */
               const filePath = problemName + fileName;
-              chrome.storage.sync.get('stats', (s) => {
+              chrome.storage.local.get('stats', (s) => {
                 const { stats } = s;
                 let sha = null;
 
@@ -406,7 +406,7 @@ const loader = setInterval(() => {
     const problemName = window.location.pathname.split('/')[2]; // must be true.
     const language = findLanguage();
     if (language !== null) {
-      chrome.storage.sync.get('stats', (s) => {
+      chrome.storage.local.get('stats', (s) => {
         const { stats } = s;
         const filePath = problemName + problemName + language;
         let sha = null;
@@ -444,3 +444,28 @@ const loader = setInterval(() => {
     }
   }
 }, 1000);
+
+/* Sync to local storage */
+chrome.storage.local.get('isSync', (data) => {
+  keys = [
+    'leethub_token',
+    'leethub_username',
+    'pipe_leethub',
+    'stats',
+    'mode_type',
+    'leethub_hook',
+    'mode_type',
+  ];
+  if (!data || !data.isSync) {
+    keys.forEach((key) => {
+      chrome.storage.sync.get(key, (data) => {
+        chrome.storage.local.set({ [key]: data[key] });
+      });
+    });
+    chrome.storage.local.set({ isSync: true }, (data) => {
+      console.log('LeetHub Synced to local values');
+    });
+  } else {
+    console.log('LeetHub Local storage already synced!');
+  }
+});
