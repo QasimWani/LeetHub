@@ -1,10 +1,5 @@
 .env
 scripts/authorize.js
 scripts/oauth2.js
-<<<<<<< HEAD
-.env
 node_modules
 .vscode
-=======
-node_modules
->>>>>>> 3aad6c7915b33088dcbaf581c28c3ae51df8cccc
