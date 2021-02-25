@@ -440,7 +440,7 @@ const loader = setInterval(() => {
           probStats,
           'upload',
         ); // Encode `code` to base64
-      }, 2000);
+      }, 1000);
     }
   }
 }, 1000);
