@@ -65,7 +65,7 @@ const upload = (token, hook, code, directory, filename, sha, msg) => {
       if (xhr.status === 200 || xhr.status === 201) {
         const updatedSha = JSON.parse(xhr.responseText).content.sha; // get updated SHA.
 
-        chrome.storage.sync.get('stats', (data2) => {
+        chrome.storage.local.get('stats', (data2) => {
           let { stats } = data2;
           if (stats === null || stats === {} || stats === undefined) {
             // create stats object
@@ -86,7 +86,7 @@ const upload = (token, hook, code, directory, filename, sha, msg) => {
             stats.hard += difficulty === 'Hard' ? 1 : 0;
           }
           stats.sha[filePath] = updatedSha; // update sha key.
-          chrome.storage.sync.set({ stats }, () => {
+          chrome.storage.local.set({ stats }, () => {
             console.log(
               `Successfully committed ${filename} to github`,
             );
@@ -153,21 +153,21 @@ function uploadGit(
   prepend = true,
 ) {
   /* Get necessary payload data */
-  chrome.storage.sync.get('leethub_token', (t) => {
+  chrome.storage.local.get('leethub_token', (t) => {
     const token = t.leethub_token;
     if (token) {
-      chrome.storage.sync.get('mode_type', (m) => {
+      chrome.storage.local.get('mode_type', (m) => {
         const mode = m.mode_type;
         if (mode === 'commit') {
           /* Get hook */
-          chrome.storage.sync.get('leethub_hook', (h) => {
+          chrome.storage.local.get('leethub_hook', (h) => {
             const hook = h.leethub_hook;
             if (hook) {
               /* Get SHA, if it exists */
 
               /* to get unique key */
               const filePath = problemName + fileName;
-              chrome.storage.sync.get('stats', (s) => {
+              chrome.storage.local.get('stats', (s) => {
                 const { stats } = s;
                 let sha = null;
 
@@ -208,6 +208,74 @@ function uploadGit(
       });
     }
   });
+}
+
+/* Function for finding and parsing the full code. */
+/* - At first find the submission details url. */
+/* - Then send a request for the details page. */
+/* - Finally, parse the code from the html reponse. */
+function findCode(uploadGit, problemName, fileName, msg, action) {
+  const e = document.getElementsByClassName('status-column__3SUg');
+  if (e != undefined && e.length > 1) {
+    /* Get the submission details url from the submission page. */
+    const submissionRef = e[1].innerHTML.split(' ')[1];
+    const submissionURL = submissionRef.split('=')[1].slice(1, -1);
+    /* Request for the submission details page */
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        /* received submission details as html reponse. */
+        var doc = new DOMParser().parseFromString(
+          this.responseText,
+          'text/html',
+        );
+        /* the response has a js object called pageData. */
+        /* Pagedata has the details data with code about that submission */
+        var scripts = doc.getElementsByTagName('script');
+        for (var i = 0; i < scripts.length; i++) {
+          var text = scripts[i].innerText;
+          if (text.includes('pageData')) {
+            /* Considering the pageData as text and extract the sbustring
+            which has the full code */
+            var firstIndex = text.indexOf('submissionCode');
+            var lastIndex = text.indexOf('editCodeUrl');
+            var sclicedText = text.slice(firstIndex, lastIndex);
+            /* slicedText has code as like as. (submissionCode: 'Details code'). */
+            /* So finding the index of first and last single inverted coma. */
+            var firstInverted = sclicedText.indexOf("'");
+            var lastInverted = sclicedText.lastIndexOf("'");
+            /* Extract only the code */
+            var codeUnicoded = sclicedText.slice(
+              firstInverted + 1,
+              lastInverted,
+            );
+            /* The code has some unicode. Replacing all unicode with actual characters */
+            var code = codeUnicoded.replace(
+              /\\u[\dA-F]{4}/gi,
+              function (match) {
+                return String.fromCharCode(
+                  parseInt(match.replace(/\\u/g, ''), 16),
+                );
+              },
+            );
+            if (code != null) {
+              setTimeout(function () {
+                uploadGit(
+                  btoa(unescape(encodeURIComponent(code))),
+                  problemName,
+                  fileName,
+                  msg,
+                  action,
+                );
+              }, 2000);
+            }
+          }
+        }
+      }
+    };
+    xhttp.open('GET', `https://leetcode.com${submissionURL}`, true);
+    xhttp.send();
+  }
 }
 
 /* Main parser function for the code */
@@ -330,25 +398,15 @@ const loader = setInterval(() => {
     successTag.length > 0 &&
     successTag[0].innerText.trim() === 'Success'
   ) {
-    code = parseCode();
     probStatement = parseQuestion();
     probStats = parseStats();
   }
-  if (code !== null && probStatement !== null && probStats !== null) {
+  if (probStatement !== null && probStats !== null) {
     clearTimeout(loader);
     const problemName = window.location.pathname.split('/')[2]; // must be true.
     const language = findLanguage();
     if (language !== null) {
-      uploadGit(
-        btoa(unescape(encodeURIComponent(probStatement))),
-        problemName,
-        'README.md',
-        readmeMsg,
-        'upload',
-      );
-
-      /* Only create README if not already created */
-      chrome.storage.sync.get('stats', (s) => {
+      chrome.storage.local.get('stats', (s) => {
         const { stats } = s;
         const filePath = problemName + problemName + language;
         let sha = null;
@@ -360,19 +418,54 @@ const loader = setInterval(() => {
           sha = stats.sha[filePath];
         }
 
+        /* Only create README if not already created */
         if (sha === null) {
           /* @TODO: Change this setTimeout to Promise */
-          setTimeout(function () {
-            uploadGit(
-              btoa(unescape(encodeURIComponent(code))),
-              problemName,
-              problemName + language,
-              probStats,
-              'upload',
-            ); // Encode `code` to base64
-          }, 2000);
+          uploadGit(
+            btoa(unescape(encodeURIComponent(probStatement))),
+            problemName,
+            'README.md',
+            readmeMsg,
+            'upload',
+          );
         }
       });
+
+      /* Upload code to Git */
+      setTimeout(function () {
+        findCode(
+          uploadGit,
+          problemName,
+          problemName + language,
+          probStats,
+          'upload',
+        ); // Encode `code` to base64
+      }, 2000);
     }
   }
 }, 1000);
+
+/* Sync to local storage */
+chrome.storage.local.get('isSync', (data) => {
+  keys = [
+    'leethub_token',
+    'leethub_username',
+    'pipe_leethub',
+    'stats',
+    'mode_type',
+    'leethub_hook',
+    'mode_type',
+  ];
+  if (!data || !data.isSync) {
+    keys.forEach((key) => {
+      chrome.storage.sync.get(key, (data) => {
+        chrome.storage.local.set({ [key]: data[key] });
+      });
+    });
+    chrome.storage.local.set({ isSync: true }, (data) => {
+      console.log('LeetHub Synced to local values');
+    });
+  } else {
+    console.log('LeetHub Local storage already synced!');
+  }
+});

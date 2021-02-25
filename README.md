@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/QasimWani/LeetHub/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/></a>
-  <a href="https://discord.gg/42kzTWwk"><img src="https://img.shields.io/discord/781373810251137074" alt="discord"></a>
+  <a href="https://discord.gg/anXT9vErxu"><img src="https://img.shields.io/discord/781373810251137074" alt="discord"></a>
   <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/v/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="chrome-webstore"/></a>
   <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/d/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="users"></a>
   <a href="https://twitter.com/intent/tweet?text=LeetHub%20-%20Automatically%20sync%20your%20code%20to%20GitHub%20after%20solving%20any%20leetcode%20problems!&url=https://github.com/QasimWani/LeetHub&hashtags=javascript,github,leetcode,coding,interview,chrome"> <img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social"> </a>
@@ -36,7 +36,7 @@
 
 
 ## How fast is it really?
-### THIS FAST!
+### THIS FAST (~400ms, 530x speed improvement)!
 
 ![](assets/extension/output.gif)
 

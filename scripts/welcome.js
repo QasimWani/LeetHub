@@ -52,7 +52,7 @@ const statusCode = (res, status, name) => {
 
     default:
       /* Change mode type to commit */
-      chrome.storage.sync.set({ mode_type: 'commit' }, () => {
+      chrome.storage.local.set({ mode_type: 'commit' }, () => {
         $('#error').hide();
         $('#success').html(
           `Successfully created <a target="blank" href="${res.html_url}">${name}</a>. Start <a href="http://leetcode.com">LeetCoding</a>!`,
@@ -65,9 +65,12 @@ const statusCode = (res, status, name) => {
           'inherit';
       });
       /* Set Repo Hook */
-      chrome.storage.sync.set({ leethub_hook: res.full_name }, () => {
-        console.log('Successfully set new repo hook');
-      });
+      chrome.storage.local.set(
+        { leethub_hook: res.full_name },
+        () => {
+          console.log('Successfully set new repo hook');
+        },
+      );
 
       break;
   }
@@ -129,6 +132,7 @@ const linkStatusCode = (status, name) => {
       bool = true;
       break;
   }
+  $('#unlink').show();
   return bool;
 };
 
@@ -151,11 +155,11 @@ const linkRepo = (token, name) => {
         if (!bool) {
           // unable to gain access to repo in commit mode. Must switch to hook mode.
           /* Set mode type to hook */
-          chrome.storage.sync.set({ mode_type: 'hook' }, () => {
+          chrome.storage.local.set({ mode_type: 'hook' }, () => {
             console.log(`Error linking ${name} to LeetHub`);
           });
           /* Set Repo Hook to NONE */
-          chrome.storage.sync.set({ leethub_hook: null }, () => {
+          chrome.storage.local.set({ leethub_hook: null }, () => {
             console.log('Defaulted repo hook to NONE');
           });
 
@@ -167,7 +171,7 @@ const linkRepo = (token, name) => {
         } else {
           /* Change mode type to commit */
           /* Save repo url to chrome storage */
-          chrome.storage.sync.set(
+          chrome.storage.local.set(
             { mode_type: 'commit', repo: res.html_url },
             () => {
               $('#error').hide();
@@ -179,12 +183,12 @@ const linkRepo = (token, name) => {
             },
           );
           /* Set Repo Hook */
-          chrome.storage.sync.set(
+          chrome.storage.local.set(
             { leethub_hook: res.full_name },
             () => {
               console.log('Successfully set new repo hook');
               /* Get problems solved count */
-              chrome.storage.sync.get('stats', (psolved) => {
+              chrome.storage.local.get('stats', (psolved) => {
                 const { stats } = psolved;
                 if (stats && stats.solved) {
                   $('#p_solved').text(stats.solved);
@@ -212,11 +216,11 @@ const linkRepo = (token, name) => {
 
 const unlinkRepo = () => {
   /* Set mode type to hook */
-  chrome.storage.sync.set({ mode_type: 'hook' }, () => {
+  chrome.storage.local.set({ mode_type: 'hook' }, () => {
     console.log(`Unlinking repo`);
   });
   /* Set Repo Hook to NONE */
-  chrome.storage.sync.set({ leethub_hook: null }, () => {
+  chrome.storage.local.set({ leethub_hook: null }, () => {
     console.log('Defaulted repo hook to NONE');
   });
 
@@ -261,7 +265,7 @@ $('#hook_button').on('click', () => {
             - step 3: if (1), POST request to repoName (iff option = create new repo) ; else display error message.
             - step 4: if proceed from 3, hide hook_mode and display commit_mode (show stats e.g: files pushed/questions-solved/leaderboard)
         */
-    chrome.storage.sync.get('leethub_token', (data) => {
+    chrome.storage.local.get('leethub_token', (data) => {
       const token = data.leethub_token;
       if (token === null || token === undefined) {
         /* Not authorized yet. */
@@ -273,7 +277,7 @@ $('#hook_button').on('click', () => {
       } else if (option() === 'new') {
         createRepo(token, repositoryName());
       } else {
-        chrome.storage.sync.get('leethub_username', (data2) => {
+        chrome.storage.local.get('leethub_username', (data2) => {
           const username = data2.leethub_username;
           if (!username) {
             /* Improper authorization. */
@@ -300,12 +304,12 @@ $('#unlink a').on('click', () => {
 });
 
 /* Detect mode type */
-chrome.storage.sync.get('mode_type', (data) => {
+chrome.storage.local.get('mode_type', (data) => {
   const mode = data.mode_type;
 
   if (mode && mode === 'commit') {
     /* Check if still access to repo */
-    chrome.storage.sync.get('leethub_token', (data2) => {
+    chrome.storage.local.get('leethub_token', (data2) => {
       const token = data2.leethub_token;
       if (token === null || token === undefined) {
         /* Not authorized yet. */
@@ -320,7 +324,7 @@ chrome.storage.sync.get('mode_type', (data) => {
         document.getElementById('commit_mode').style.display = 'none';
       } else {
         /* Get access to repo */
-        chrome.storage.sync.get('leethub_hook', (repoName) => {
+        chrome.storage.local.get('leethub_hook', (repoName) => {
           const hook = repoName.leethub_hook;
           if (!hook) {
             /* Not authorized yet. */

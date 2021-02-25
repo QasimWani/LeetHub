@@ -5,7 +5,7 @@ function handleMessage(request) {
     request.isSuccess === true
   ) {
     /* Set username */
-    chrome.storage.sync.set(
+    chrome.storage.local.set(
       { leethub_username: request.username },
       () => {
         window.localStorage.leethub_username = request.username;
@@ -13,12 +13,12 @@ function handleMessage(request) {
     );
 
     /* Set token */
-    chrome.storage.sync.set({ leethub_token: request.token }, () => {
+    chrome.storage.local.set({ leethub_token: request.token }, () => {
       window.localStorage[request.KEY] = request.token;
     });
 
     /* Close pipe */
-    chrome.storage.sync.set({ pipe_leethub: false }, () => {
+    chrome.storage.local.set({ pipe_leethub: false }, () => {
       console.log('Closed pipe.');
     });
 
