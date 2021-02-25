@@ -2,3 +2,4 @@
 scripts/authorize.js
 scripts/oauth2.js
 node_modules
+.vscode
