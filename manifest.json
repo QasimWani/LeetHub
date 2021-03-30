@@ -14,11 +14,14 @@
         "48": "assets/thumbnail.png",
         "128": "assets/thumbnail.png"
       },
-      "background": {
-        "scripts": ["scripts/background.js"],
-        "persistent": false
-      },
-    "permissions": [
+    "background": {
+      "scripts": ["scripts/background.js"],
+      "persistent": false
+    },
+        "permissions": [
+        "https://github.com/*",
+        "https://api.github.com/*",
+        "https://leetcode.com/*",
         "tabs",
         "activeTab",
         "unlimitedStorage",
