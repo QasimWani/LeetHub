@@ -9,30 +9,31 @@
 // console.log("started gfg script");
 
 /* Commit messages */
-const README_MSG = 'Create README - LeetHub';
-const SUBMIT_MSG = 'Added solution - LeetHub';
-const UPDATE_MSG = 'Updated solution - LeetHub';
+const README_MSG = "Create README - LeetHub";
+const SUBMIT_MSG = "Added solution - LeetHub";
+const UPDATE_MSG = "Updated solution - LeetHub";
 
 function findGfgLanguage() {
   const ele = document.getElementsByClassName("filter-option")[0].innerText;
-  let lang = ele.split("(")[0].trim()
-  if(lang.length > 0 && languages[lang]){
-    return languages[lang]
+  let lang = ele.split("(")[0].trim();
+  if (lang.length > 0 && languages[lang]) {
+    return languages[lang];
   }
-  return null
+  return null;
 }
 
 function findTitle() {
   const ele = document.getElementsByClassName("problem-tab__name")[0].innerText;
-  if(ele != null){
+  if (ele != null) {
     return ele;
   }
   return "";
 }
 
-function findDifficulty(){
-  const ele = document.getElementsByClassName("problem-tab__problem-level")[0].innerText;
-  if(ele != null){
+function findDifficulty() {
+  const ele = document.getElementsByClassName("problem-tab__problem-level")[0]
+    .innerText;
+  if (ele != null) {
     return ele;
   }
   return "";
@@ -57,20 +58,24 @@ function getCode() {
   `;
 
   // console.log(hackyScriptContent);
-  
-  var script = document.createElement('script');
-  script.id = 'tmpScript';
+
+  var script = document.createElement("script");
+  script.id = "tmpScript";
   script.appendChild(document.createTextNode(hackyScriptContent));
-  (document.body || document.head || document.documentElement).appendChild(script);
+  (document.body || document.head || document.documentElement).appendChild(
+    script
+  );
   const text = document.getElementById("codeDataLeetHub").innerText;
 
   let nodeDeletionScript = `
   document.body.removeChild(para)
-  `
-  var script = document.createElement('script');
-  script.id = 'tmpScript';
+  `;
+  var script = document.createElement("script");
+  script.id = "tmpScript";
   script.appendChild(document.createTextNode(nodeDeletionScript));
-  (document.body || document.head || document.documentElement).appendChild(script);
+  (document.body || document.head || document.documentElement).appendChild(
+    script
+  );
 
   return text ? text : "";
 }
@@ -82,68 +87,74 @@ const gfgLoader = setInterval(() => {
   let language = null;
   let difficulty = null;
 
-  let submitBtn = document.getElementById("run")
+  if (window.location.hostname.includes("geeksforgeeks")) {
+    let submitBtn = document.getElementById("run");
 
-  // console.log("listening to events");
-  submitBtn.addEventListener("click", function () {
-    const submission = setInterval(()=> {
-      let output = document.getElementsByClassName("out")[0].innerText;
-      if(output.includes("Correct Answer")){
-        // clear timeout
-        clearTimeout(gfgLoader);
-        clearTimeout(submission);
-        // get data
-        title = findTitle().trim();
-        difficulty = findDifficulty();
-        problemStatement = getProblemStatement();
-        code = getCode();
-        language = findGfgLanguage()
+    // console.log("listening to events");
+    submitBtn.addEventListener("click", function () {
+      const submission = setInterval(() => {
+        let output = document.getElementsByClassName("out")[0].innerText;
+        if (output.includes("Correct Answer")) {
+          // clear timeout
+          clearTimeout(gfgLoader);
+          clearTimeout(submission);
+          // get data
+          title = findTitle().trim();
+          difficulty = findDifficulty();
+          problemStatement = getProblemStatement();
+          code = getCode();
+          language = findGfgLanguage();
 
-        let probName = title + ` - GFG`;
+          // format data
+          let probName = title + ` - GFG`;
 
-        problemStatement = `# ${title}\n## ${difficulty}\n` + problemStatement;
+          problemStatement =
+            `# ${title}\n## ${difficulty}\n` + problemStatement;
 
-        if(language !== null){
-          chrome.storage.local.get('stats', (s) => {
-            const { stats } = s;
-            const filePath = title + "gfg" + language;
-            let sha = null;
-            if (
-              stats !== undefined &&
-              stats.sha !== undefined &&
-              stats.sha[filePath] !== undefined
-            ) {
-              sha = stats.sha[filePath];
-            }
-    
-            // Only create README if not already created
-            if (sha === null) {
-              uploadGit(
-                btoa(problemStatement),
-                probName,
-                'README.md',
-                README_MSG,
-                'upload',
-              );
-            }
+          //
+          if (language !== null) {
+            chrome.storage.local.get("stats", (s) => {
+              const { stats } = s;
+              const filePath = title + "gfg" + language;
+              let sha = null;
+              if (
+                stats !== undefined &&
+                stats.sha !== undefined &&
+                stats.sha[filePath] !== undefined
+              ) {
+                sha = stats.sha[filePath];
+              }
 
-            if (code !== ""){
+              // Only create README if not already created
+              if (sha === null) {
                 uploadGit(
-                  btoa(code),
+                  btoa(problemStatement),
                   probName,
-                  title+language,
-                  SUBMIT_MSG,
-                  'upload',
+                  "README.md",
+                  README_MSG,
+                  "upload"
                 );
-            }
-          });
-        }
+              }
 
-        // proceeed to github
-      } else if(output.includes("Compilation Error")){
-        // clear timeout and do nothing
-        clearTimeout(submission);
-      }
-    },3000)
-  })
+              if (code !== "") {
+                setTimeout(function () {
+                  uploadGit(
+                    btoa(code),
+                    probName,
+                    title + language,
+                    SUBMIT_MSG,
+                    "upload"
+                  );
+                }, 2000);
+              }
+            });
+          }
+
+        } else if (output.includes("Compilation Error")) {
+          // clear timeout and do nothing
+          clearTimeout(submission);
+        }
+      }, 3000);
+    });
+  }
 }, 1000);
