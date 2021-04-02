@@ -47,10 +47,9 @@ function getCode() {
   let hackyScriptContent = `
   console.log("trying to get editor content");
   var editorContent = editor.getValue();
-  // editorContent = editorContent.replace(/\\n/g,"<br/>")
   console.log(editorContent);
   var para = document.createElement("pre");
-  para.innerHTML+=editorContent;
+  para.innerText+=editorContent;
   para.setAttribute("id","codeDataLeetHub")
   // para.appendChild(node);
   document.body.appendChild(para);
@@ -129,7 +128,6 @@ const gfgLoader = setInterval(() => {
             }
 
             if (code !== ""){
-              setTimeout(function () {
                 uploadGit(
                   btoa(code),
                   probName,
@@ -137,7 +135,6 @@ const gfgLoader = setInterval(() => {
                   SUBMIT_MSG,
                   'upload',
                 );
-              }, 2000);
             }
           });
         }
