@@ -87,7 +87,7 @@ const gfgLoader = setInterval(() => {
   let language = null;
   let difficulty = null;
 
-  if (window.location.hostname.includes("geeksforgeeks")) {
+  if (window.location.href.includes("practice.geeksforgeeks.org")) {
     let submitBtn = document.getElementById("run");
 
     // console.log("listening to events");
