@@ -15,6 +15,7 @@ const UPDATE_MSG = 'Updated solution - LeetHub';
 let START_MONITOR = true;
 const toKebabCase = (string) => {
   return string
+    .replace(/[^a-zA-Z0-9\. ]/g, '') //remove special chars
     .replace(/([a-z])([A-Z])/g, '$1-$2') // get all lowercase letters that are near to uppercase ones
     .replace(/[\s_]+/g, '-') // replace all spaces and low dash
     .toLowerCase(); // convert to lower case
@@ -113,7 +114,7 @@ const gfgLoader = setInterval(() => {
       const submission = setInterval(() => {
         let output = document.getElementsByClassName('out')[0]
           .innerText;
-        if (output.includes('Correct Answer')) {
+        if (output.includes('Correct Answer') && START_MONITOR) {
           // clear timeout
           START_MONITOR = false;
           clearInterval(gfgLoader);
@@ -147,15 +148,15 @@ const gfgLoader = setInterval(() => {
               }
 
               // Only create README if not already created
-              if (sha === null) {
-                uploadGit(
-                  btoa(problemStatement),
-                  probName,
-                  'README.md',
-                  README_MSG,
-                  'upload',
-                );
-              }
+              // if (sha === null) {
+              uploadGit(
+                btoa(problemStatement),
+                probName,
+                'README.md',
+                README_MSG,
+                'upload',
+              );
+              // }
 
               if (code !== '') {
                 setTimeout(function () {
