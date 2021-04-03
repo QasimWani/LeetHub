@@ -13,6 +13,13 @@ const README_MSG = "Create README - LeetHub";
 const SUBMIT_MSG = "Added solution - LeetHub";
 const UPDATE_MSG = "Updated solution - LeetHub";
 
+const toKebabCase = string =>{
+  return string
+  .replace(/([a-z])([A-Z])/g, '$1-$2')    // get all lowercase letters that are near to uppercase ones
+  .replace(/[\s_]+/g, '-')                // replace all spaces and low dash
+  .toLowerCase();                         // convert to lower case
+}
+
 function findGfgLanguage() {
   const ele = document.getElementsByClassName("filter-option")[0].innerText;
   let lang = ele.split("(")[0].trim();
@@ -87,7 +94,7 @@ const gfgLoader = setInterval(() => {
   let language = null;
   let difficulty = null;
 
-  if (window.location.href.includes("practice.geeksforgeeks.org")) {
+  if (window.location.href.includes("practice.geeksforgeeks.org/problems")) {
     let submitBtn = document.getElementById("run");
 
     // console.log("listening to events");
@@ -111,11 +118,11 @@ const gfgLoader = setInterval(() => {
           problemStatement =
             `# ${title}\n## ${difficulty}\n` + problemStatement;
 
-          //
+          // if language was found
           if (language !== null) {
             chrome.storage.local.get("stats", (s) => {
               const { stats } = s;
-              const filePath = title + "gfg" + language;
+              const filePath = probName + toKebabCase(title + language);
               let sha = null;
               if (
                 stats !== undefined &&
@@ -141,7 +148,7 @@ const gfgLoader = setInterval(() => {
                   uploadGit(
                     btoa(code),
                     probName,
-                    title + language,
+                    toKebabCase(title + language),
                     SUBMIT_MSG,
                     "upload"
                   );
