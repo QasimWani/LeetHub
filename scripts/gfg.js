@@ -55,11 +55,10 @@ function getCode() {
   let hackyScriptContent = `
   console.log("trying to get editor content");
   var editorContent = editor.getValue();
-  console.log(editorContent);
+  // console.log(editorContent);
   var para = document.createElement("pre");
   para.innerText+=editorContent;
   para.setAttribute("id","codeDataLeetHub")
-  // para.appendChild(node);
   document.body.appendChild(para);
   // console.log(para);
   `;
@@ -103,8 +102,8 @@ const gfgLoader = setInterval(() => {
         let output = document.getElementsByClassName("out")[0].innerText;
         if (output.includes("Correct Answer")) {
           // clear timeout
-          clearTimeout(gfgLoader);
-          clearTimeout(submission);
+          clearInterval(gfgLoader);
+          clearInterval(submission);
           // get data
           title = findTitle().trim();
           difficulty = findDifficulty();
@@ -152,16 +151,16 @@ const gfgLoader = setInterval(() => {
                     SUBMIT_MSG,
                     "upload"
                   );
-                }, 2000);
+                }, 1000);
               }
             });
           }
 
         } else if (output.includes("Compilation Error")) {
           // clear timeout and do nothing
-          clearTimeout(submission);
+          clearInterval(submission);
         }
-      }, 3000);
+      }, 1000);
     });
   }
 }, 1000);

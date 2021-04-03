@@ -7,6 +7,7 @@ const languages = {
   Java: '.java',
   'C#': '.cs',
   JavaScript: '.js',
+  Javascript: '.js',
   Ruby: '.rb',
   Swift: '.swift',
   Go: '.go',
