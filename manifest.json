@@ -3,7 +3,7 @@
   "name": "LeetHub",
   "description": "Automatically integrate your code with LeetCode, GeeksForGeeks and GitHub",
   "homepage_url": "https://github.com/QasimWani/LeetHub",
-  "version": "0.2.0-beta.1",
+  "version": "0.1.9",
   "author": "Qasim Wani",
   "browser_action": {
     "default_icon": "assets/thumbnail.png",
