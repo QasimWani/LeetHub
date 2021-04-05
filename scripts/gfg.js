@@ -150,7 +150,7 @@ const gfgLoader = setInterval(() => {
               // Only create README if not already created
               // if (sha === null) {
               uploadGit(
-                btoa(problemStatement),
+                btoa(unescape(encodeURIComponent(problemStatement))),
                 probName,
                 'README.md',
                 README_MSG,
@@ -161,7 +161,7 @@ const gfgLoader = setInterval(() => {
               if (code !== '') {
                 setTimeout(function () {
                   uploadGit(
-                    btoa(code),
+                    btoa(unescape(encodeURIComponent(code))),
                     probName,
                     toKebabCase(title + language),
                     SUBMIT_MSG,
