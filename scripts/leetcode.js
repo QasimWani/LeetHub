@@ -298,6 +298,11 @@ function checkElem(elem) {
   return elem && elem.length > 0;
 }
 
+/* convert html to markown */
+function converter(html) {
+  import html2md from 'tinyhtmlmd'
+  return html2md(html);  
+}
 /* Parser function for the question and tags */
 function parseQuestion() {
   const questionElem = document.getElementsByClassName(
@@ -330,7 +335,7 @@ function parseQuestion() {
   }
   // Final formatting of the contents of the README for each problem
   const markdown = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr>${qbody}`;
-  return markdown;
+  return converter(markdown);
 }
 
 /* Parser function for time/space stats */
