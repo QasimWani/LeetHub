@@ -335,7 +335,8 @@ function parseQuestion() {
   }
   // Final formatting of the contents of the README for each problem
   const markdown = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr>${qbody}`;
-  return converter(markdown);
+  const pureMarkdown = converter(markdown);
+  return pureMarkdown;
 }
 
 /* Parser function for time/space stats */
