@@ -299,8 +299,8 @@ function checkElem(elem) {
 }
 
 /* convert html to markown */
+import html2md from 'tinyhtmlmd'
 function converter(html) {
-  import html2md from 'tinyhtmlmd'
   return html2md(html);  
 }
 /* Parser function for the question and tags */
