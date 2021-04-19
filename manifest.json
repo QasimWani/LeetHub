@@ -29,7 +29,7 @@
           "matches": [
             "https://leetcode.com/*", "https://github.com/*"
           ],
-          "js": ["scripts/leetcode.js", "scripts/authorize.js"],
+          "js": ["scripts/leetcode.js", "scripts/authorize.js", "scripts/html2md.js"],
           "run_at": "document_start"
         }
       ],

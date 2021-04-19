@@ -298,6 +298,13 @@ function checkElem(elem) {
   return elem && elem.length > 0;
 }
 
+/* The variable tiny  be bound to the file exported by html2md.js */
+/* Convert html to markdown */
+function parseHTML(html) {
+  const md = tiny.h2m(html);
+  return md;
+}
+
 /* Parser function for the question and tags */
 function parseQuestion() {
   const questionElem = document.getElementsByClassName(
@@ -329,8 +336,8 @@ function parseQuestion() {
     difficulty = 'Hard';
   }
   // Final formatting of the contents of the README for each problem
-  const markdown = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr>${qbody}`;
-  return markdown;
+  const htmlText = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr>${qbody}`;
+  return parseHTML(htmlText);
 }
 
 /* Parser function for time/space stats */
@@ -367,7 +374,7 @@ document.addEventListener('click', (event) => {
       if (
         oldPath !== window.location.pathname &&
         oldPath ===
-          window.location.pathname.substring(0, oldPath.length) &&
+        window.location.pathname.substring(0, oldPath.length) &&
         !Number.isNaN(window.location.pathname.charAt(oldPath.length))
       ) {
         const date = new Date();
