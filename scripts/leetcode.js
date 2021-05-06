@@ -453,7 +453,6 @@ chrome.storage.local.get('isSync', (data) => {
     'leethub_username',
     'pipe_leethub',
     'stats',
-    'mode_type',
     'leethub_hook',
     'mode_type',
   ];
