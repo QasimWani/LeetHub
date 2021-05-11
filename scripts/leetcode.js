@@ -34,6 +34,9 @@ function findLanguage() {
     ...document.getElementsByClassName(
       'ant-select-selection-selected-value',
     ),
+    ...document.getElementsByClassName(
+      'Select-value-label',
+    )
   ];
   if (tag && tag.length > 0) {
     for (let i = 0; i < tag.length; i += 1) {
@@ -216,11 +219,21 @@ function uploadGit(
 /* - Then send a request for the details page. */
 /* - Finally, parse the code from the html reponse. */
 function findCode(uploadGit, problemName, fileName, msg, action) {
+
+  /* Get the submission details url from the submission page. */
+  var submissionURL;
   const e = document.getElementsByClassName('status-column__3SUg');
-  if (e != undefined && e.length > 1) {
-    /* Get the submission details url from the submission page. */
+  if (checkElem(e)) {
+    // for normal problem submisson
     const submissionRef = e[1].innerHTML.split(' ')[1];
-    const submissionURL = submissionRef.split('=')[1].slice(1, -1);
+    submissionURL = "https://leetcode.com" + submissionRef.split('=')[1].slice(1, -1);
+  } else{
+    // for a submission in explore section
+    const submissionRef = document.getElementById('result-state');
+    submissionURL = submissionRef.href;
+  }
+
+  if (submissionURL != undefined) {
     /* Request for the submission details page */
     const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
@@ -236,17 +249,17 @@ function findCode(uploadGit, problemName, fileName, msg, action) {
         for (var i = 0; i < scripts.length; i++) {
           var text = scripts[i].innerText;
           if (text.includes('pageData')) {
-            /* Considering the pageData as text and extract the sbustring
+            /* Considering the pageData as text and extract the substring
             which has the full code */
             var firstIndex = text.indexOf('submissionCode');
             var lastIndex = text.indexOf('editCodeUrl');
-            var sclicedText = text.slice(firstIndex, lastIndex);
+            var slicedText = text.slice(firstIndex, lastIndex);
             /* slicedText has code as like as. (submissionCode: 'Details code'). */
             /* So finding the index of first and last single inverted coma. */
-            var firstInverted = sclicedText.indexOf("'");
-            var lastInverted = sclicedText.lastIndexOf("'");
+            var firstInverted = slicedText.indexOf("'");
+            var lastInverted = slicedText.lastIndexOf("'");
             /* Extract only the code */
-            var codeUnicoded = sclicedText.slice(
+            var codeUnicoded = slicedText.slice(
               firstInverted + 1,
               lastInverted,
             );
@@ -259,6 +272,19 @@ function findCode(uploadGit, problemName, fileName, msg, action) {
                 );
               },
             );
+
+            /*
+            for a submisssion in explore section we do not get probStat beforehand
+            so, parse statistics from submisson page
+            */
+            if(!msg){
+              slicedText = text.slice(text.indexOf("runtime"),text.indexOf("memory"));
+              const resultRuntime = slicedText.slice(slicedText.indexOf("'")+1,slicedText.lastIndexOf("'"));
+              slicedText = text.slice(text.indexOf("memory"),text.indexOf("total_correct"));
+              const resultMemory = slicedText.slice(slicedText.indexOf("'")+1,slicedText.lastIndexOf("'"));
+              msg = `Time: ${resultRuntime}, Memory: ${resultMemory} -LeetHub`; 
+            }
+
             if (code != null) {
               setTimeout(function () {
                 uploadGit(
@@ -274,7 +300,8 @@ function findCode(uploadGit, problemName, fileName, msg, action) {
         }
       }
     };
-    xhttp.open('GET', `https://leetcode.com${submissionURL}`, true);
+
+    xhttp.open('GET', submissionURL, true);
     xhttp.send();
   }
 }
@@ -298,40 +325,88 @@ function parseCode() {
 function checkElem(elem) {
   return elem && elem.length > 0;
 }
+function convertToSlug(string) {
+  const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+  const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
+  const p = new RegExp(a.split('').join('|'), 'g')
+
+  return string.toString().toLowerCase()
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+    .replace(/&/g, '-and-') // Replace & with 'and'
+    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
+    .replace(/\-\-+/g, '-') // Replace multiple - with single -
+    .replace(/^-+/, '') // Trim - from start of text
+    .replace(/-+$/, '') // Trim - from end of text
+}
+function getProblemNameSlug(){
+  const questionElem = document.getElementsByClassName(
+    'content__u3I1 question-content__JfgR',
+  );
+  const questionDescriptionElem = document.getElementsByClassName("question-description__3U1T");
+  let questionTitle = "unknown-problem";
+  if (checkElem(questionElem)) {
+    let qtitle = document.getElementsByClassName('css-v3d350');
+    if (checkElem(qtitle)) {
+      questionTitle = qtitle[0].innerHTML;
+    }
+  } else if(checkElem(questionDescriptionElem)){
+    let qtitle = document.getElementsByClassName("question-title");
+    if(checkElem(qtitle)){
+      questionTitle = qtitle[0].innerText;
+    } 
+  }
+  return convertToSlug(questionTitle);
+}
 
 /* Parser function for the question and tags */
 function parseQuestion() {
   const questionElem = document.getElementsByClassName(
     'content__u3I1 question-content__JfgR',
   );
-  if (!checkElem(questionElem)) {
-    return null;
-  }
-  const qbody = questionElem[0].innerHTML;
+  const questionDescriptionElem = document.getElementsByClassName("question-description__3U1T");
+  if (checkElem(questionElem)) {
+    const qbody = questionElem[0].innerHTML;
 
-  // Problem title.
-  let qtitle = document.getElementsByClassName('css-v3d350');
-  if (checkElem(qtitle)) {
-    qtitle = qtitle[0].innerHTML;
-  } else {
-    qtitle = 'unknown-problem';
-  }
+    // Problem title.
+    let qtitle = document.getElementsByClassName('css-v3d350');
+    if (checkElem(qtitle)) {
+      qtitle = qtitle[0].innerHTML;
+    } else {
+      qtitle = 'unknown-problem';
+    }
+  
+    // Problem difficulty, each problem difficulty has its own class.
+    const isHard = document.getElementsByClassName('css-t42afm');
+    const isMedium = document.getElementsByClassName('css-dcmtd5');
+    const isEasy = document.getElementsByClassName('css-14oi08n');
+  
+    if (checkElem(isEasy)) {
+      difficulty = 'Easy';
+    } else if (checkElem(isMedium)) {
+      difficulty = 'Medium';
+    } else if (checkElem(isHard)) {
+      difficulty = 'Hard';
+    }
+    // Final formatting of the contents of the README for each problem
+    const markdown = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr>${qbody}`;
+    return markdown;
+  } else if(checkElem(questionDescriptionElem)){
+    
+    let questionTitle = document.getElementsByClassName("question-title");
+    if(checkElem(questionTitle)){
+      questionTitle = questionTitle[0].innerText;
+    } else{
+      questionTitle = "unknown-problem";
+    }
 
-  // Problem difficulty, each problem difficulty has its own class.
-  const isHard = document.getElementsByClassName('css-t42afm');
-  const isMedium = document.getElementsByClassName('css-dcmtd5');
-  const isEasy = document.getElementsByClassName('css-14oi08n');
-
-  if (checkElem(isEasy)) {
-    difficulty = 'Easy';
-  } else if (checkElem(isMedium)) {
-    difficulty = 'Medium';
-  } else if (checkElem(isHard)) {
-    difficulty = 'Hard';
+    const questionBody = questionDescriptionElem[0].innerHTML;
+    const markdown = `<h2>${questionTitle}</h2><hr>${questionBody}`;
+    
+    return markdown;
   }
-  // Final formatting of the contents of the README for each problem
-  const markdown = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr>${qbody}`;
-  return markdown;
+ 
+  return null;
 }
 
 /* Parser function for time/space stats */
@@ -394,17 +469,22 @@ const loader = setInterval(() => {
   let probStats = null;
 
   const successTag = document.getElementsByClassName('success__3Ai7');
-  if (
-    successTag !== undefined &&
-    successTag.length > 0 &&
-    successTag[0].innerText.trim() === 'Success'
-  ) {
+  const resultState = document.getElementById("result-state");
+  var success = false;
+  if (checkElem(successTag) && successTag[0].innerText.trim() === 'Success'){
+    success = true;
+  }
+  else if(resultState && resultState.innerText=="Accepted"){
+    success = true;
+  }
+  if(success) {
     probStatement = parseQuestion();
     probStats = parseStats();
   }
-  if (probStatement !== null && probStats !== null) {
+  
+  if (probStatement !== null) {
     clearTimeout(loader);
-    const problemName = window.location.pathname.split('/')[2]; // must be true.
+    const problemName = getProblemNameSlug();
     const language = findLanguage();
     if (language !== null) {
       chrome.storage.local.get('stats', (s) => {
