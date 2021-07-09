@@ -114,7 +114,7 @@ const gfgLoader = setInterval(() => {
       const submission = setInterval(() => {
         let output = document.getElementsByClassName('out')[0]
           .innerText;
-        if (output.includes('Correct Answer') && START_MONITOR) {
+        if (output.includes('Problem Solved Successfully') && START_MONITOR) {
           // clear timeout
           START_MONITOR = false;
           clearInterval(gfgLoader);
