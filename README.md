@@ -49,6 +49,7 @@ Moreover, pushing code manually to GitHub from Leetcode is very time consuming. 
 
 ## How does LeetHub work?     
 
+<h4> Your LeetHub portfolio could like <a href="https://github.com/QasimWani/leetcode"> this </a>!  </h4>
 <p>It's as simple as:</p>
 <ol>
   <li>After installation, launch LeetHub.</li>
@@ -56,6 +57,7 @@ Moreover, pushing code manually to GitHub from Leetcode is very time consuming. 
   <li>Setup an existing/new repository with LeetHub (private by default) by clicking "Get Started" button.</li>
   <li>Begin Leetcoding! To view your progress, simply click on the extension!</li>
 </ol>
+
 
 #### BONUS: Star [this repository](https://github.com/QasimWani/LeetHub) for further development of features. If you want a particular feature, simply [request](https://github.com/QasimWani/LeetHub/labels/feature) for it!
 
