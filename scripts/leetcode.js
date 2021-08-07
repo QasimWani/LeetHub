@@ -24,6 +24,7 @@ const languages = {
 /* Commit messages */
 const readmeMsg = 'Create README - LeetHub';
 const discussionMsg = 'Prepend discussion post - LeetHub';
+const createNotesMsg = 'Create NOTES - LeetHub';
 
 /* Difficulty of most recenty submitted question */
 let difficulty = '';
@@ -463,6 +464,26 @@ document.addEventListener('click', (event) => {
   }
 });
 
+/* function to get the notes if there is any
+ the note should be opened atleast once for this to work
+ this is because the dom is populated after data is fetched by opening the note */
+function getNotesIfAny() {
+  notes = '';
+  notesdiv = document
+    .getElementsByClassName('notewrap__eHkN')[0]
+    .getElementsByClassName('CodeMirror-code')[0];
+  if (notesdiv) {
+    for (i = 0; i < notesdiv.childNodes.length; i++) {
+      if (notesdiv.childNodes[i].childNodes.length == 0) continue;
+      text = notesdiv.childNodes[i].childNodes[0].innerText;
+      if (text) {
+        notes = `${notes}\n${text.trim()}`;
+      }
+    }
+  }
+  return notes.trim();
+}
+
 const loader = setInterval(() => {
   let code = null;
   let probStatement = null;
@@ -511,6 +532,22 @@ const loader = setInterval(() => {
           );
         }
       });
+
+      /* get the notes and upload it */
+      setTimeout(function () {
+        notes = getNotesIfAny();
+        if (notes != undefined && notes.length != 0) {
+          console.log('Create Notes');
+          // means we can upload the notes too
+          uploadGit(
+            btoa(unescape(encodeURIComponent(notes))),
+            problemName,
+            'NOTES.txt',
+            createNotesMsg,
+            'upload',
+          );
+        }
+      }, 500);
 
       /* Upload code to Git */
       setTimeout(function () {
