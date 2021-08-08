@@ -552,7 +552,7 @@ const loader = setInterval(() => {
 }, 1000);
 
 /* Since we dont yet have callbacks/promises that helps to find out if things went bad */
-/* we will start 6 seconds counter and even after that upload is not complete, then we conclude its failed */
+/* we will start 10 seconds counter and even after that upload is not complete, then we conclude its failed */
 function startUploadCountDown() {
   uploadState.uploading = true;
   uploadState['countdown'] = setTimeout(() => {
@@ -561,7 +561,7 @@ function startUploadCountDown() {
       uploadState.uploading = false;
       markUploadFailed();
     }
-  }, 6000);
+  }, 10000);
 }
 /* start upload will inject a spinner on left side to the "Run Code" button */
 function startUpload() {
