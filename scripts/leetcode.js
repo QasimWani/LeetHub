@@ -600,22 +600,40 @@ function startUploadCountDown() {
     }
   }, 10000);
 }
-/* start upload will inject a spinner on left side to the "Run Code" button */
-function startUpload() {
-  elem = document.getElementById('leethub_progress_anchor_element')
-  if (elem !== undefined) {
-    elem = document.createElement('span')
-    elem.id = "leethub_progress_anchor_element"
+
+/* we will need specific anchor element that is specific to the page you are in Eg. Explore */
+function insertToAnchorElement(elem){
+  if(document.URL.startsWith("https://leetcode.com/explore/")) {
+    // means we are in explore page
+    target = document.getElementsByClassName('action')[0].getElementsByClassName('row')[0].getElementsByClassName('col-sm-6')[1]
+    elem.className = "pull-left"
+    target.childNodes[0].prepend(elem)
+
+  } else {
+    target = document.getElementsByClassName('action__38Xc')[0] 
     elem.className = "runcode-wrapper__8rXm"
-    elem.style = "margin-right: 20px;padding-top: 2px;"
-  }
-  elem.innerHTML = `<div id="leethub_progress_elem" class="leethub_progress"></div>`
-  target = document.getElementsByClassName('action__38Xc')[0]
-  if (target.childNodes.length > 0) {
     target.childNodes[0].prepend(elem)
   }
-  // start the countdown
-  startUploadCountDown();
+}
+
+/* start upload will inject a spinner on left side to the "Run Code" button */
+function startUpload() {
+  try {
+    elem = document.getElementById('leethub_progress_anchor_element')
+    if (elem !== undefined) {
+      elem = document.createElement('span')
+      elem.id = "leethub_progress_anchor_element"
+      elem.style = "margin-right: 20px;padding-top: 2px;"
+    }
+    elem.innerHTML = `<div id="leethub_progress_elem" class="leethub_progress"></div>`
+    target = insertToAnchorElement(elem)
+    // start the countdown
+    startUploadCountDown();
+  } catch (error) {
+    // generic exception handler for time being so that existing feature doesnt break but
+    // error gets logged
+    console.log(error);
+  }
 }
 
 /* This will create a tick mark before "Run Code" button signalling LeetHub has done its job */
