@@ -484,6 +484,9 @@ document.addEventListener('click', (event) => {
  the note should be opened atleast once for this to work
  this is because the dom is populated after data is fetched by opening the note */
 function getNotesIfAny() {
+  // there are no notes on expore
+  if(document.URL.startsWith("https://leetcode.com/explore/")) return "";
+
   notes = '';
   notesdiv = document
     .getElementsByClassName('notewrap__eHkN')[0]
@@ -493,7 +496,7 @@ function getNotesIfAny() {
       if (notesdiv.childNodes[i].childNodes.length == 0) continue;
       text = notesdiv.childNodes[i].childNodes[0].innerText;
       if (text) {
-        notes = `${notes}\n${text.trim()}`;
+        notes = `${notes}\n${text.trim()}`.trim();
       }
     }
   }
@@ -552,20 +555,23 @@ const loader = setInterval(() => {
       });
 
       /* get the notes and upload it */
-      setTimeout(function () {
-        notes = getNotesIfAny();
-        if (notes != undefined && notes.length != 0) {
-          console.log('Create Notes');
-          // means we can upload the notes too
-          uploadGit(
-            btoa(unescape(encodeURIComponent(notes))),
-            problemName,
-            'NOTES.txt',
-            createNotesMsg,
-            'upload',
-          );
-        }
-      }, 500);
+      /* only upload notes if there is any */
+      notes = getNotesIfAny();
+      if (notes.length > 0) {
+        setTimeout(function () {
+          if (notes != undefined && notes.length != 0) {
+            console.log('Create Notes');
+            // means we can upload the notes too
+            uploadGit(
+              btoa(unescape(encodeURIComponent(notes))),
+              problemName,
+              'NOTES.txt',
+              createNotesMsg,
+              'upload',
+            );
+          }
+        }, 500);
+      }
 
       /* Upload code to Git */
       setTimeout(function () {
