@@ -484,16 +484,22 @@ document.addEventListener('click', (event) => {
  the note should be opened atleast once for this to work
  this is because the dom is populated after data is fetched by opening the note */
 function getNotesIfAny() {
+  // there are no notes on expore
+  if (document.URL.startsWith("https://leetcode.com/explore/")) return "";
+
   notes = '';
-  notesdiv = document
-    .getElementsByClassName('notewrap__eHkN')[0]
-    .getElementsByClassName('CodeMirror-code')[0];
-  if (notesdiv) {
-    for (i = 0; i < notesdiv.childNodes.length; i++) {
-      if (notesdiv.childNodes[i].childNodes.length == 0) continue;
-      text = notesdiv.childNodes[i].childNodes[0].innerText;
-      if (text) {
-        notes = `${notes}\n${text.trim()}`;
+  if (checkElem(document.getElementsByClassName('notewrap__eHkN'))
+    && checkElem(document.getElementsByClassName('notewrap__eHkN')[0].getElementsByClassName('CodeMirror-code'))) {
+    notesdiv = document
+      .getElementsByClassName('notewrap__eHkN')[0]
+      .getElementsByClassName('CodeMirror-code')[0];
+    if (notesdiv) {
+      for (i = 0; i < notesdiv.childNodes.length; i++) {
+        if (notesdiv.childNodes[i].childNodes.length == 0) continue;
+        text = notesdiv.childNodes[i].childNodes[0].innerText;
+        if (text) {
+          notes = `${notes}\n${text.trim()}`.trim();
+        }
       }
     }
   }
@@ -552,20 +558,23 @@ const loader = setInterval(() => {
       });
 
       /* get the notes and upload it */
-      setTimeout(function () {
-        notes = getNotesIfAny();
-        if (notes != undefined && notes.length != 0) {
-          console.log('Create Notes');
-          // means we can upload the notes too
-          uploadGit(
-            btoa(unescape(encodeURIComponent(notes))),
-            problemName,
-            'NOTES.txt',
-            createNotesMsg,
-            'upload',
-          );
-        }
-      }, 500);
+      /* only upload notes if there is any */
+      notes = getNotesIfAny();
+      if (notes.length > 0) {
+        setTimeout(function () {
+          if (notes != undefined && notes.length != 0) {
+            console.log('Create Notes');
+            // means we can upload the notes too
+            uploadGit(
+              btoa(unescape(encodeURIComponent(notes))),
+              problemName,
+              'NOTES.txt',
+              createNotesMsg,
+              'upload',
+            );
+          }
+        }, 500);
+      }
 
       /* Upload code to Git */
       setTimeout(function () {
@@ -600,38 +609,69 @@ function startUploadCountDown() {
     }
   }, 10000);
 }
+
+/* we will need specific anchor element that is specific to the page you are in Eg. Explore */
+function insertToAnchorElement(elem) {
+  if (document.URL.startsWith("https://leetcode.com/explore/")) {
+    // means we are in explore page
+    action = document.getElementsByClassName('action');
+    if (checkElem(action)
+      && checkElem(action[0].getElementsByClassName('row'))
+      && checkElem(action[0].getElementsByClassName('row')[0].getElementsByClassName('col-sm-6'))
+      && action[0].getElementsByClassName('row')[0].getElementsByClassName('col-sm-6').length > 1) {
+      target = action[0].getElementsByClassName('row')[0].getElementsByClassName('col-sm-6')[1]
+      elem.className = "pull-left"
+      if (target.childNodes.length > 0)
+        target.childNodes[0].prepend(elem)
+    }
+  } else {
+    if (checkElem(document.getElementsByClassName('action__38Xc'))) {
+      target = document.getElementsByClassName('action__38Xc')[0]
+      elem.className = "runcode-wrapper__8rXm"
+      if (target.childNodes.length > 0)
+        target.childNodes[0].prepend(elem)
+    }
+  }
+}
+
 /* start upload will inject a spinner on left side to the "Run Code" button */
 function startUpload() {
-  elem = document.getElementById('leethub_progress_anchor_element')
-  if (elem !== undefined) {
-    elem = document.createElement('span')
-    elem.id = "leethub_progress_anchor_element"
-    elem.className = "runcode-wrapper__8rXm"
-    elem.style = "margin-right: 20px;padding-top: 2px;"
+  try {
+    elem = document.getElementById('leethub_progress_anchor_element')
+    if (!elem) {
+      elem = document.createElement('span')
+      elem.id = "leethub_progress_anchor_element"
+      elem.style = "margin-right: 20px;padding-top: 2px;"
+    }
+    elem.innerHTML = `<div id="leethub_progress_elem" class="leethub_progress"></div>`
+    target = insertToAnchorElement(elem)
+    // start the countdown
+    startUploadCountDown();
+  } catch (error) {
+    // generic exception handler for time being so that existing feature doesnt break but
+    // error gets logged
+    console.log(error);
   }
-  elem.innerHTML = `<div id="leethub_progress_elem" class="leethub_progress"></div>`
-  target = document.getElementsByClassName('action__38Xc')[0]
-  if (target.childNodes.length > 0) {
-    target.childNodes[0].prepend(elem)
-  }
-  // start the countdown
-  startUploadCountDown();
 }
 
 /* This will create a tick mark before "Run Code" button signalling LeetHub has done its job */
 function markUploaded() {
   elem = document.getElementById("leethub_progress_elem");
-  elem.className = "";
-  style = 'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid #78b13f;border-right:7px solid #78b13f;'
-  elem.style = style;
+  if (elem) {
+    elem.className = "";
+    style = 'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid #78b13f;border-right:7px solid #78b13f;'
+    elem.style = style;
+  }
 }
 
 /* This will create a failed tick mark before "Run Code" button signalling that upload failed */
 function markUploadFailed() {
   elem = document.getElementById("leethub_progress_elem");
-  elem.className = "";
-  style = 'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid red;border-right:7px solid red;'
-  elem.style = style;
+  if (elem) {
+    elem.className = "";
+    style = 'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid red;border-right:7px solid red;'
+    elem.style = style;
+  }
 }
 
 /* Sync to local storage */
