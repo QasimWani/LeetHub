@@ -16,7 +16,8 @@
   },
   "background": {
     "scripts": [
-      "scripts/background.js"
+      "scripts/background.js",
+      "hot-reload.js"
     ],
     "persistent": false
   },
