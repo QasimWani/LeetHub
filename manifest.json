@@ -21,6 +21,10 @@
     "persistent": false
   },
   "permissions": [
+    "https://github.com/*",
+    "https://api.github.com/*",
+    "https://leetcode.com/*",
+    "https://practice.geeksforgeeks.org/*",
     "tabs",
     "activeTab",
     "unlimitedStorage",

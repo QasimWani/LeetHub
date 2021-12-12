@@ -27,8 +27,8 @@ function handleMessage(request) {
     });
 
     /* Go to onboarding for UX */
-    const urlOnboarding = `chrome-extension://${chrome.runtime.id}/welcome.html`;
-    chrome.tabs.create({ url: urlOnboarding, selected: true }); // creates new tab
+    const urlOnboarding = chrome.runtime.getURL('welcome.html');
+    chrome.tabs.create({ url: urlOnboarding, active: true }); // creates new tab
   } else if (
     request &&
     request.closeWebPage === true &&
