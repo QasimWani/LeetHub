@@ -26,6 +26,10 @@ const readmeMsg = 'Create README - LeetHub';
 const discussionMsg = 'Prepend discussion post - LeetHub';
 const createNotesMsg = 'Create NOTES - LeetHub';
 
+// problem types
+const NORMAL_PROBLEM = 0;
+const EXPLORE_SECTION_PROBLEM = 1;
+
 /* Difficulty of most recenty submitted question */
 let difficulty = '';
 
@@ -510,23 +514,42 @@ const loader = setInterval(() => {
   let code = null;
   let probStatement = null;
   let probStats = null;
-
+  let probType;
   const successTag = document.getElementsByClassName('success__3Ai7');
   const resultState = document.getElementById("result-state");
   var success = false;
-  if (checkElem(successTag) && successTag[0].innerText.trim() === 'Success'){
+  // check success tag for a normal problem
+  if (checkElem(successTag) && successTag[0].className === 'success__3Ai7' && successTag[0].innerText.trim() === 'Success'){
+    console.log(successTag[0]);
     success = true;
+    probType = NORMAL_PROBLEM;
   }
-  else if(resultState && resultState.innerText=="Accepted"){
+  
+  // check success state for a explore section problem 
+  else if(resultState && resultState.className === "text-success" && resultState.innerText==="Accepted"){
     success = true;
+    probType = EXPLORE_SECTION_PROBLEM;
   }
+
   if(success) {
     probStatement = parseQuestion();
     probStats = parseStats();
   }
   
   if (probStatement !== null) {
-    clearTimeout(loader);
+
+    switch(probType){
+      case NORMAL_PROBLEM:
+        successTag[0].classList.add('marked_as_success');
+        break;
+      case EXPLORE_SECTION_PROBLEM:
+        resultState.classList.add('marked_as_success');
+        break;
+      default:
+        console.error(`Unknown problem type ${probType}`);
+        return;
+    }
+
     const problemName = getProblemNameSlug();
     const language = findLanguage();
     if (language !== null) {
