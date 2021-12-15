@@ -414,7 +414,7 @@ function parseQuestion() {
       difficulty = 'Hard';
     }
     // Final formatting of the contents of the README for each problem
-    const markdown = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr><a href="${questionUrl}">Question Link</a><hr>${qbody}`;
+    const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
     return markdown;
   } else if(checkElem(questionDescriptionElem)){
     
