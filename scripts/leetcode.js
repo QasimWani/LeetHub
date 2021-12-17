@@ -382,6 +382,10 @@ function getProblemNameSlug(){
 
 /* Parser function for the question and tags */
 function parseQuestion() {
+  var questionUrl = window.location.href
+  if(questionUrl.endsWith('/submissions/')){
+    questionUrl = questionUrl.substring(0, questionUrl.lastIndexOf("/submissions/")+1)
+  }
   const questionElem = document.getElementsByClassName(
     'content__u3I1 question-content__JfgR',
   );
@@ -410,7 +414,7 @@ function parseQuestion() {
       difficulty = 'Hard';
     }
     // Final formatting of the contents of the README for each problem
-    const markdown = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr>${qbody}`;
+    const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
     return markdown;
   } else if(checkElem(questionDescriptionElem)){
     
