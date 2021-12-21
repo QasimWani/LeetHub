@@ -1,4 +1,7 @@
 /* Enum for languages supported by LeetCode. */
+
+const debug = true;
+
 const languages = {
   Python: '.py',
   Python3: '.py',
@@ -6,6 +9,7 @@ const languages = {
   'C++17': '.cpp',
   C: '.c',
   Java: '.java',
+  'Java 11': '.java',
   'C#': '.cs',
   JavaScript: '.js',
   Javascript: '.js',
@@ -80,7 +84,7 @@ function findLanguage() {
   if (tag && tag.length > 0) {
     for (let i = 0; i < tag.length; i += 1) {
       const elem = document.getElementsByClassName('table-bordered')[1][0][6][0];
-      console.log('language is: '+ elem);
+      if(debug) if(debug) console.log('language is: '+ elem);
       if (elem !== undefined && languages[elem] !== undefined) {
         return languages[elem]; // should generate respective file extension
       }
@@ -131,7 +135,7 @@ const upload = (token, hook, code, directory, filename, sha, msg, cb=undefined) 
           }
           stats.sha[filePath] = updatedSha; // update sha key.
           chrome.storage.local.set({ stats }, () => {
-            console.log(
+            if(debug) console.log(
               `Successfully committed ${filename} to github`,
             );
 
@@ -204,6 +208,7 @@ function uploadGit(
   prepend = true,
   cb = undefined
 ) {
+  if(debug) console.log("msg:\n"+code);
   /* Get necessary payload data */
   chrome.storage.local.get('BaekjunHub_token', (t) => {
     const token = t.BaekjunHub_token;
@@ -277,7 +282,7 @@ function findCode(uploadGit, problemName, fileName, msg, action, cb=undefined) {
   const e = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[0].innerHTML;
   if (checkElem(e)) {
     // for normal problem submisson
-    console.log("https://www.acmicpc.net/source/"+e);
+    if(debug) console.log("https://www.acmicpc.net/source/"+e);
     submissionURL = "https://www.acmicpc.net/source/" + e;
   } else{
     return;
@@ -301,7 +306,7 @@ function findCode(uploadGit, problemName, fileName, msg, action, cb=undefined) {
         var code = doc.getElementsByClassName('codemirror-textarea')[0].innerHTML;
         
         code = code.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
-        console.log(code);
+        if(debug) console.log(code);
         // for (var i = 0; i < scripts.length; i++) {
           // var text = scripts[i].innerText;
         // var text = scripts.innerHTML;
@@ -344,16 +349,16 @@ function findCode(uploadGit, problemName, fileName, msg, action, cb=undefined) {
               // var bj_title = document.querySelector("body > div.wrapper > div.container.content > div.row > div:nth-child(10) > div > table > tbody > tr > td:nth-child(4)").innerHTML;
               var bj_memory = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[4].innerText;
               var bj_runtime = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[5].innerText;
-              console.log(bj_memory);
-              console.log(bj_runtime);
-              console.log(leveldoc);
+              if(debug) console.log(bj_memory);
+              if(debug) console.log(bj_runtime);
+              if(debug) console.log(leveldoc);
               msg = `[${bj_level[leveldoc.level]}] Title: ${leveldoc.titleKo} Time: ${bj_runtime}, Memory: ${bj_memory} -BaekjunHub`; 
-              console.log(msg);
+              if(debug) console.log(msg);
             }
           }
           var problemId = getProblemId();
           // document.getElementsByClassName("table-striped")[0].childNodes[1].childNodes[0].childNodes[0].innerHTML;
-          console.log(problemId);
+          if(debug) console.log(problemId);
           levelxhttp.open('GET', "https://solved.ac/api/v3/problem/show?problemId="+problemId, true);
           levelxhttp.send();
         }
@@ -380,6 +385,7 @@ function findCode(uploadGit, problemName, fileName, msg, action, cb=undefined) {
     xhttp.send();
     
   }
+  if(debug) console.log(submissionURL);
 }
 
 /* Main parser function for the code */
@@ -402,20 +408,20 @@ function checkElem(elem) {
   return elem && elem.length > 0;
 }
 
-// function convertToSlug(string) {
-//   const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
-//   const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
-//   const p = new RegExp(a.split('').join('|'), 'g')
+function convertToSlug(string) {
+  const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+  const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
+  const p = new RegExp(a.split('').join('|'), 'g')
 
-//   return string.toString().toLowerCase()
-//     .replace(/\s+/g, '-') // Replace spaces with -
-//     .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
-//     .replace(/&/g, '-and-') // Replace & with 'and'
-//     .replace(/[^\w\-]+/g, '') // Remove all non-word characters
-//     .replace(/\-\-+/g, '-') // Replace multiple - with single -
-//     .replace(/^-+/, '') // Trim - from start of text
-//     .replace(/-+$/, '') // Trim - from end of text
-// }
+  return string.toString().toLowerCase()
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+    .replace(/&/g, '-and-') // Replace & with 'and'
+    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
+    .replace(/\-\-+/g, '-') // Replace multiple - with single -
+    .replace(/^-+/, '') // Trim - from start of text
+    .replace(/-+$/, '') // Trim - from end of text
+}
 function getProblemNameSlug(){
   const problemElem = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[2];
   let result = "";
@@ -426,79 +432,68 @@ function getProblemNameSlug(){
       result = problemElem.childNodes[i].innerHTML;
     }
   }
-  console.log(result);
+  if(debug) console.log(result);
   return result;
 }
 
 function getProblemId(){
   const problemElem = document.getElementsByClassName("table-striped")[0].childNodes[1].childNodes[0].childNodes[2];
   
-  console.log("getProblemId: ");
-  console.log(problemElem);
+  if(debug) console.log("getProblemId: ");
+  if(debug) console.log(problemElem);
   let resultId = "";
   // let resultId = problemElem.childNodes[2].innerHTML.toString();
   for(let i =0; i <= problemElem.childElementCount; i++){
     let temp_name = problemElem.childNodes[i].innerHTML;
-    // console.log(i+" "+temp_name);
+    // if(debug) console.log(i+" "+temp_name);
     if(temp_name== null || temp_name=='undefined' || temp_name==undefined) continue;
-    // console.log(temp_name.length + " vs " + resultId.length);
+    // if(debug) console.log(temp_name.length + " vs " + resultId.length);
     if(temp_name.length > resultId.length){
-      console.log("adding: "+temp_name);
+      if(debug) console.log("adding: "+temp_name);
       resultId = temp_name;
     }
   }
-  console.log(resultId);
+  if(debug) console.log(resultId);
   return resultId;
 }
 
 /* Parser function for the question and tags */
 function parseQuestion() {
-  const questionElem = document.getElementsByClassName(
-    'content__u3I1 question-content__JfgR',
-  );
-  const questionDescriptionElem = document.getElementsByClassName("question-description__3U1T");
-  if (checkElem(questionElem)) {
-    const qbody = questionElem[0].innerHTML;
-
-    // Problem title.
-    let qtitle = document.getElementsByClassName('css-v3d350');
-    if (checkElem(qtitle)) {
-      qtitle = qtitle[0].innerHTML;
-    } else {
-      qtitle = 'unknown-problem';
-    }
-  
-    // Problem difficulty, each problem difficulty has its own class.
-    const isHard = document.getElementsByClassName('css-t42afm');
-    const isMedium = document.getElementsByClassName('css-dcmtd5');
-    const isEasy = document.getElementsByClassName('css-14oi08n');
-  
-    if (checkElem(isEasy)) {
-      difficulty = 'Easy';
-    } else if (checkElem(isMedium)) {
-      difficulty = 'Medium';
-    } else if (checkElem(isHard)) {
-      difficulty = 'Hard';
-    }
-    // Final formatting of the contents of the README for each problem
-    const markdown = `<h2>${qtitle}</h2><h3>${difficulty}</h3><hr>${qbody}`;
-    return markdown;
-  } else if(checkElem(questionDescriptionElem)){
-    
-    let questionTitle = document.getElementsByClassName("question-title");
-    if(checkElem(questionTitle)){
-      questionTitle = questionTitle[0].innerText;
-    } else{
-      questionTitle = "unknown-problem";
-    }
-
-    const questionBody = questionDescriptionElem[0].innerHTML;
-    const markdown = `<h2>${questionTitle}</h2><hr>${questionBody}`;
-    
-    return markdown;
+  if(debug) console.log("at ParseQuestion\n\n");
+  var questionDescription = "";
+  var submissionURL;
+  const e = getProblemId();
+  if (checkElem(e)) {
+    if(debug) console.log("https://www.acmicpc.net/problem/"+e);
+    submissionURL = "https://www.acmicpc.net/problem/" + e;
+  } else{
+    return;
   }
- 
-  return null;
+
+  if (submissionURL != undefined) {
+    /* Request for the submission details page */
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        /* received submission details as html reponse. */
+        var doc = new DOMParser().parseFromString(
+          this.responseText,
+          'text/html',
+        );
+        
+        questionDescription = doc.getElementById('problem_description').innerText;
+        questionDescription = questionDescription.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+        console.log(questionDescription);
+      }
+    };
+    xhttp.open('GET', submissionURL, true);
+    xhttp.send();  
+    xhttp.onload = function(){
+      console.log("returning: " + questionDescription);
+      return questionDescription;
+    }
+  }
+  else return questionDescription;
 }
 
 /* Parser function for time/space stats */
@@ -519,7 +514,7 @@ function parseStats() {
 document.addEventListener('click', (event) => {
   const element = event.target;
   const oldPath = window.location.pathname;
-  console.log("flaxinger clicked");
+  if(debug) console.log("flaxinger clicked");
   /* Act on Post button click */
   /* Complex since "New" button shares many of the same properties as "Post button */
   if (
@@ -539,6 +534,7 @@ document.addEventListener('click', (event) => {
           window.location.pathname.substring(0, oldPath.length) &&
         !Number.isNaN(window.location.pathname.charAt(oldPath.length))
       ) {
+        if(debug) console.log('here we are\n\n\n\n');
         const date = new Date();
         const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()} at ${date.getHours()}:${date.getMinutes()}`;
         const addition = `[Discussion Post (created on ${currentDate})](${window.location})  \n`;
@@ -565,73 +561,108 @@ const loader = setInterval(() => {
 
   // const successTag = document.getElementsByClassName('success__3Ai7');
   const successTagpre = document.getElementById("status-table");
-  console.log(successTagpre);
+  if(debug) console.log(successTagpre);
   if(successTagpre == null || typeof successTagpre === 'undefined') return null;
-  if(successTagpre!==null && typeof successTagpre !== 'undefined') console.log("Success Tag is: "+successTagpre.childNodes[1].childNodes[0].childNodes[3].childNodes[0].innerHTML);
+  if(successTagpre!==null && typeof successTagpre !== 'undefined') if(debug) console.log("Success Tag is: "+successTagpre.childNodes[1].childNodes[0].childNodes[3].childNodes[0].innerHTML);
   else{
-    console.log("Error");
+    if(debug) console.log("Error");
     return null;
   }
   var success = false;
   const successTag = successTagpre.childNodes[1].childNodes[0].childNodes[3].childNodes[0].innerHTML;
   if (checkElem(successTag) && successTag === "맞았습니다!!"){
-    console.log("맞았네..???");
+    if(debug) console.log("맞았네..???");
+    if(debug) console.log("got probStatement\n"+probStatement);
     success=true;
   }
+/////////////////////////////////////////////////////////////////////////////////////////////
+  if(debug) console.log("at ParseQuestion\n\n");
 
-  if(success==true) {
-    clearTimeout(loader);
-    console.log("next func");
-    const problemName = getProblemNameSlug();
-    let language = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[6].childNodes[0].innerHTML;
-    console.log(language);
-    if(languages[language]!==undefined) language = languages[language];
-    if (language !== null) {
-      startUpload();
-      chrome.storage.local.get('stats', (s) => {
-        const { stats } = s;
-        const filePath = problemName + problemName + language;
-        let sha = null;
-        if (
-          stats !== undefined &&
-          stats.sha !== undefined &&
-          stats.sha[filePath] !== undefined
-        ) {
-          sha = stats.sha[filePath];
+  var submissionURL;
+  const e = getProblemId();
+  if (checkElem(e)) {
+    if(debug) console.log("https://www.acmicpc.net/problem/"+e);
+    submissionURL = "https://www.acmicpc.net/problem/" + e;
+  } else{
+    return;
+  }
+
+  if (submissionURL != undefined) {
+    /* Request for the submission details page */
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        /* received submission details as html reponse. */
+        var doc = new DOMParser().parseFromString(
+          this.responseText,
+          'text/html',
+        );
+        
+        probStatement = doc.getElementById('problem_description').innerText;
+        probStatement = probStatement.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').trim();
+        console.log(probStatement);
+      }
+    };
+    xhttp.open('GET', submissionURL, true);
+    xhttp.send();  
+    xhttp.onload = function(){
+/////////////////////////////////////////////////////////////////////////////////////////////
+      if(success) {
+        clearTimeout(loader);
+        if(debug) console.log("next func");
+        const problemName = getProblemNameSlug();
+        let language = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[6].childNodes[0].innerHTML;
+        if(debug) console.log(language);
+        if(languages[language]!==undefined) language = languages[language];
+        if (language !== null) {
+          startUpload();
+          chrome.storage.local.get('stats', (s) => {
+            const { stats } = s;
+            const filePath = problemName + problemName + language;
+            let sha = null;
+            if (
+              stats !== undefined &&
+              stats.sha !== undefined &&
+              stats.sha[filePath] !== undefined
+            ) {
+              sha = stats.sha[filePath];
+            }
+
+            if (sha === null) {
+              uploadGit(
+                btoa(unescape(encodeURIComponent("# "+problemName+"\n\n\n"+probStatement))),
+                problemName,
+                'README.md',
+                readmeMsg,
+                'upload',
+              );
+            }
+          });
+
+
+          /* Upload code to Git */
+          setTimeout(function () {
+            findCode(
+              uploadGit,
+              problemName,
+              problemName + language,
+              probStats,
+              'upload',
+              // callback is called when the code upload to git is a success
+              () => { 
+                if(uploadState['countdown']) clearTimeout(uploadState['countdown']); 
+                delete uploadState['countdown']
+                uploadState.uploading = false; 
+                markUploaded(); 
+              }
+            ); // Encode `code` to base64
+          }, 1000);
         }
-
-        if (sha === null) {
-          uploadGit(
-            btoa(unescape(encodeURIComponent(probStatement))),
-            problemName,
-            'README.md',
-            readmeMsg,
-            'upload',
-          );
-        }
-      });
-
-
-      /* Upload code to Git */
-      setTimeout(function () {
-        findCode(
-          uploadGit,
-          problemName,
-          problemName + language,
-          probStats,
-          'upload',
-          // callback is called when the code upload to git is a success
-          () => { 
-            if(uploadState['countdown']) clearTimeout(uploadState['countdown']); 
-            delete uploadState['countdown']
-            uploadState.uploading = false; 
-            markUploaded(); 
-          }
-        ); // Encode `code` to base64
-      }, 1000);
+      }
     }
   }
 }, 1000);
+
 
 /* Since we dont yet have callbacks/promises that helps to find out if things went bad */
 /* we will start 10 seconds counter and even after that upload is not complete, then we conclude its failed */
@@ -656,7 +687,7 @@ function startUpload() {
   }
   elem.innerHTML = `<div id="BaekjunHub_progress_elem" class="BaekjunHub_progress"></div>`
   target = document.getElementsByClassName('loginbar')[0];
-  console.log("startUpload: target is " + target);
+  if(debug) console.log("startUpload: target is " + target);
   if (target.childNodes.length > 0) {
     target.childNodes[0].prepend(elem)
   }
@@ -697,10 +728,10 @@ chrome.storage.local.get('isSync', (data) => {
       });
     });
     chrome.storage.local.set({ isSync: true }, (data) => {
-      console.log('BaekjunHub Synced to local values');
+      if(debug) console.log('BaekjunHub Synced to local values');
     });
   } else {
-    console.log('BaekjunHub Local storage already synced!');
+    if(debug) console.log('BaekjunHub Local storage already synced!');
   }
 });
 
