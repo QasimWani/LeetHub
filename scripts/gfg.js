@@ -7,11 +7,10 @@
 // };
 
 // console.log("started gfg script");
-
 /* Commit messages */
-const README_MSG = 'Create README - LeetHub';
-const SUBMIT_MSG = 'Added solution - LeetHub';
-const UPDATE_MSG = 'Updated solution - LeetHub';
+const README_MSG = 'Create README - BaekjunHub';
+const SUBMIT_MSG = 'Added solution - BaekjunHub';
+const UPDATE_MSG = 'Updated solution - BaekjunHub';
 let START_MONITOR = true;
 const toKebabCase = (string) => {
   return string
@@ -62,7 +61,7 @@ function getCode() {
   // console.log(editorContent);
   var para = document.createElement("pre");
   para.innerText+=editorContent;
-  para.setAttribute("id","codeDataLeetHub")
+  para.setAttribute("id","codeDataBaekjunHub")
   document.body.appendChild(para);
   // console.log(para);
   `;
@@ -77,7 +76,7 @@ function getCode() {
     document.head ||
     document.documentElement
   ).appendChild(script);
-  const text = document.getElementById('codeDataLeetHub').innerText;
+  const text = document.getElementById('codeDataBaekjunHub').innerText;
 
   let nodeDeletionScript = `
   document.body.removeChild(para)

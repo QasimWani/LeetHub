@@ -3,6 +3,7 @@ const languages = {
   Python: '.py',
   Python3: '.py',
   'C++': '.cpp',
+  'C++17': '.cpp',
   C: '.c',
   Java: '.java',
   'C#': '.cs',
@@ -21,10 +22,43 @@ const languages = {
   Oracle: '.sql',
 };
 
+const bj_level = {
+  0:	"Unrated",
+  1:	"Bronze V",
+  2:	"Bronze IV",
+  3:	"Bronze III",
+  4:	"Bronze II",
+  5:	"Bronze I",
+  6:	"Silver V",
+  7:	"Silver IV",
+  8:	"Silver III",
+  9:	"Silver II",
+  10:	"Silver I",
+  11:	"Gold V",
+  12:	"Gold IV",
+  13:	"Gold III",
+  14:	"Gold II",
+  15:	"Gold I",
+  16:	"Platinum V",
+  17:	"Platinum IV",
+  18:	"Platinum III",
+  19:	"Platinum II",
+  20:	"Platinum I",
+  21:	"Diamond V",
+  22:	"Diamond IV",
+  23:	"Diamond III",
+  24:	"Diamond II",
+  25:	"Diamond I",
+  26:	"Ruby V",
+  27:	"Ruby IV",
+  28:	"Ruby III",
+  29:	"Ruby II",
+  30:	"Ruby I",
+}
 /* Commit messages */
-const readmeMsg = 'Create README - LeetHub';
-const discussionMsg = 'Prepend discussion post - LeetHub';
-const createNotesMsg = 'Create NOTES - LeetHub';
+const readmeMsg = 'Create README - BaekjunHub';
+const discussionMsg = 'Prepend discussion post - BaekjunHub';
+const createNotesMsg = 'Create NOTES - BaekjunHub';
 
 /* Difficulty of most recenty submitted question */
 let difficulty = '';
@@ -36,15 +70,17 @@ let uploadState = { uploading: false }
 function findLanguage() {
   const tag = [
     ...document.getElementsByClassName(
-      'ant-select-selection-selected-value',
-    ),
-    ...document.getElementsByClassName(
-      'Select-value-label',
+      // 'ant-select-selection-selected-value',
+      'table-bordered'
     )
+    // ...document.getElementsByClassName(
+    //   'Select-value-label',
+    // )
   ];
   if (tag && tag.length > 0) {
     for (let i = 0; i < tag.length; i += 1) {
-      const elem = tag[i].textContent;
+      const elem = document.getElementsByClassName('table-bordered')[1][0][6][0];
+      console.log('language is: '+ elem);
       if (elem !== undefined && languages[elem] !== undefined) {
         return languages[elem]; // should generate respective file extension
       }
@@ -169,15 +205,15 @@ function uploadGit(
   cb = undefined
 ) {
   /* Get necessary payload data */
-  chrome.storage.local.get('leethub_token', (t) => {
-    const token = t.leethub_token;
+  chrome.storage.local.get('BaekjunHub_token', (t) => {
+    const token = t.BaekjunHub_token;
     if (token) {
       chrome.storage.local.get('mode_type', (m) => {
         const mode = m.mode_type;
         if (mode === 'commit') {
           /* Get hook */
-          chrome.storage.local.get('leethub_hook', (h) => {
-            const hook = h.leethub_hook;
+          chrome.storage.local.get('BaekjunHub_hook', (h) => {
+            const hook = h.BaekjunHub_hook;
             if (hook) {
               /* Get SHA, if it exists */
 
@@ -237,17 +273,19 @@ function findCode(uploadGit, problemName, fileName, msg, action, cb=undefined) {
 
   /* Get the submission details url from the submission page. */
   var submissionURL;
-  const e = document.getElementsByClassName('status-column__3SUg');
+  // const e = document.getElementsByClassName('status-column__3SUg');
+  const e = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[0].innerHTML;
   if (checkElem(e)) {
     // for normal problem submisson
-    const submissionRef = e[1].innerHTML.split(' ')[1];
-    submissionURL = "https://leetcode.com" + submissionRef.split('=')[1].slice(1, -1);
+    console.log("https://www.acmicpc.net/source/"+e);
+    submissionURL = "https://www.acmicpc.net/source/" + e;
   } else{
+    return;
     // for a submission in explore section
-    const submissionRef = document.getElementById('result-state');
-    submissionURL = submissionRef.href;
+    // const submissionRef = document.getElementById('result-state');
+    // submissionURL = submissionRef.href;
   }
-
+  
   if (submissionURL != undefined) {
     /* Request for the submission details page */
     const xhttp = new XMLHttpRequest();
@@ -260,120 +298,157 @@ function findCode(uploadGit, problemName, fileName, msg, action, cb=undefined) {
         );
         /* the response has a js object called pageData. */
         /* Pagedata has the details data with code about that submission */
-        var scripts = doc.getElementsByTagName('script');
-        for (var i = 0; i < scripts.length; i++) {
-          var text = scripts[i].innerText;
-          if (text.includes('pageData')) {
-            /* Considering the pageData as text and extract the substring
-            which has the full code */
-            var firstIndex = text.indexOf('submissionCode');
-            var lastIndex = text.indexOf('editCodeUrl');
-            var slicedText = text.slice(firstIndex, lastIndex);
-            /* slicedText has code as like as. (submissionCode: 'Details code'). */
-            /* So finding the index of first and last single inverted coma. */
-            var firstInverted = slicedText.indexOf("'");
-            var lastInverted = slicedText.lastIndexOf("'");
+        var code = doc.getElementsByClassName('codemirror-textarea')[0].innerHTML;
+        
+        code = code.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+        console.log(code);
+        // for (var i = 0; i < scripts.length; i++) {
+          // var text = scripts[i].innerText;
+        // var text = scripts.innerHTML;
+        // if (text.includes('pageData')) {
+          /* Considering the pageData as text and extract the substring
+          which has the full code */
+          // var firstIndex = text.indexOf('submissionCode');
+          // var lastIndex = text.indexOf('editCodeUrl');
+          // var slicedText = text.slice(firstIndex, lastIndex);
+          /* slicedText has code as like as. (submissionCode: 'Details code'). */
+          /* So finding the index of first and last single inverted coma. */
+          // var firstInverted = slicedText.indexOf("\"");
+          // var lastInverted = slicedText.lastIndexOf("\"");
             /* Extract only the code */
-            var codeUnicoded = slicedText.slice(
-              firstInverted + 1,
-              lastInverted,
-            );
-            /* The code has some unicode. Replacing all unicode with actual characters */
-            var code = codeUnicoded.replace(
-              /\\u[\dA-F]{4}/gi,
-              function (match) {
-                return String.fromCharCode(
-                  parseInt(match.replace(/\\u/g, ''), 16),
-                );
-              },
-            );
-
-            /*
-            for a submisssion in explore section we do not get probStat beforehand
-            so, parse statistics from submisson page
-            */
-            if(!msg){
-              slicedText = text.slice(text.indexOf("runtime"),text.indexOf("memory"));
-              const resultRuntime = slicedText.slice(slicedText.indexOf("'")+1,slicedText.lastIndexOf("'"));
-              slicedText = text.slice(text.indexOf("memory"),text.indexOf("total_correct"));
-              const resultMemory = slicedText.slice(slicedText.indexOf("'")+1,slicedText.lastIndexOf("'"));
-              msg = `Time: ${resultRuntime}, Memory: ${resultMemory} -LeetHub`; 
-            }
-
-            if (code != null) {
-              setTimeout(function () {
-                uploadGit(
-                  btoa(unescape(encodeURIComponent(code))),
-                  problemName,
-                  fileName,
-                  msg,
-                  action,
-                  true,
-                  cb
-                );
-              }, 2000);
+            // var codeUnicoded = slicedText.slice(
+          // var code = slicedText.slice(
+          //   firstInverted + 1,
+          //   lastInverted,
+          // );
+          /* The code has some unicode. Replacing all unicode with actual characters */
+          // var code = codeUnicoded.replace(
+            //   /\\u[\dA-F]{4}/gi,
+            //   function (match) {
+              //     return String.fromCharCode(
+                //       parseInt(match.replace(/\\u/g, ''), 16),
+                //     );
+                //   },
+                // );
+                
+                /*
+                for a submisssion in explore section we do not get probStat beforehand
+                so, parse statistics from submisson page
+                */
+        if(!msg){
+          const levelxhttp = new XMLHttpRequest();
+          levelxhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+              /* received submission details as html reponse. */
+              var leveldoc = JSON.parse(this.response);
+              // var bj_title = document.querySelector("body > div.wrapper > div.container.content > div.row > div:nth-child(10) > div > table > tbody > tr > td:nth-child(4)").innerHTML;
+              var bj_memory = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[4].innerText;
+              var bj_runtime = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[5].innerText;
+              console.log(bj_memory);
+              console.log(bj_runtime);
+              console.log(leveldoc);
+              msg = `[${bj_level[leveldoc.level]}] Title: ${leveldoc.titleKo} Time: ${bj_runtime}, Memory: ${bj_memory} -BaekjunHub`; 
+              console.log(msg);
             }
           }
+          var problemId = getProblemId();
+          // document.getElementsByClassName("table-striped")[0].childNodes[1].childNodes[0].childNodes[0].innerHTML;
+          console.log(problemId);
+          levelxhttp.open('GET', "https://solved.ac/api/v3/problem/show?problemId="+problemId, true);
+          levelxhttp.send();
         }
+
+        if (code != null) {
+          setTimeout(function () {
+            uploadGit(
+              btoa(unescape(encodeURIComponent(code))),
+              problemName,
+              fileName,
+              msg,
+              action,
+              true,
+              cb
+            );
+          }, 2000);
+        }
+        // }
+        // }
       }
     };
 
     xhttp.open('GET', submissionURL, true);
     xhttp.send();
+    
   }
 }
 
 /* Main parser function for the code */
-function parseCode() {
-  const e = document.getElementsByClassName('CodeMirror-code');
-  if (e !== undefined && e.length > 0) {
-    const elem = e[0];
-    let parsedCode = '';
-    const textArr = elem.innerText.split('\n');
-    for (let i = 1; i < textArr.length; i += 2) {
-      parsedCode += `${textArr[i]}\n`;
-    }
-    return parsedCode;
-  }
-  return null;
-}
+// function parseCode() {
+//   const e = document.getElementsByClassName('CodeMirror-code');
+//   if (e !== undefined && e.length > 0) {
+//     const elem = e[0];
+//     let parsedCode = '';
+//     const textArr = elem.innerText.split('\n');
+//     for (let i = 1; i < textArr.length; i += 2) {
+//       parsedCode += `${textArr[i]}\n`;
+//     }
+//     return parsedCode;
+//   }
+//   return null;
+// }
 
 /* Util function to check if an element exists */
 function checkElem(elem) {
   return elem && elem.length > 0;
 }
-function convertToSlug(string) {
-  const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
-  const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
-  const p = new RegExp(a.split('').join('|'), 'g')
 
-  return string.toString().toLowerCase()
-    .replace(/\s+/g, '-') // Replace spaces with -
-    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
-    .replace(/&/g, '-and-') // Replace & with 'and'
-    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
-    .replace(/\-\-+/g, '-') // Replace multiple - with single -
-    .replace(/^-+/, '') // Trim - from start of text
-    .replace(/-+$/, '') // Trim - from end of text
-}
+// function convertToSlug(string) {
+//   const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+//   const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
+//   const p = new RegExp(a.split('').join('|'), 'g')
+
+//   return string.toString().toLowerCase()
+//     .replace(/\s+/g, '-') // Replace spaces with -
+//     .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+//     .replace(/&/g, '-and-') // Replace & with 'and'
+//     .replace(/[^\w\-]+/g, '') // Remove all non-word characters
+//     .replace(/\-\-+/g, '-') // Replace multiple - with single -
+//     .replace(/^-+/, '') // Trim - from start of text
+//     .replace(/-+$/, '') // Trim - from end of text
+// }
 function getProblemNameSlug(){
-  const questionElem = document.getElementsByClassName(
-    'content__u3I1 question-content__JfgR',
-  );
-  const questionDescriptionElem = document.getElementsByClassName("question-description__3U1T");
-  let questionTitle = "unknown-problem";
-  if (checkElem(questionElem)) {
-    let qtitle = document.getElementsByClassName('css-v3d350');
-    if (checkElem(qtitle)) {
-      questionTitle = qtitle[0].innerHTML;
+  const problemElem = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[2];
+  let result = "";
+  for(let i =0; i <= problemElem.childElementCount; i++){
+    let temp_name = problemElem.childNodes[i].innerHTML;
+    if(temp_name== null || temp_name=='undefined' || temp_name==undefined) continue;
+    if(temp_name.length > result.length){
+      result = problemElem.childNodes[i].innerHTML;
     }
-  } else if(checkElem(questionDescriptionElem)){
-    let qtitle = document.getElementsByClassName("question-title");
-    if(checkElem(qtitle)){
-      questionTitle = qtitle[0].innerText;
-    } 
   }
-  return convertToSlug(questionTitle);
+  console.log(result);
+  return result;
+}
+
+function getProblemId(){
+  const problemElem = document.getElementsByClassName("table-striped")[0].childNodes[1].childNodes[0].childNodes[2];
+  
+  console.log("getProblemId: ");
+  console.log(problemElem);
+  let resultId = "";
+  // let resultId = problemElem.childNodes[2].innerHTML.toString();
+  for(let i =0; i <= problemElem.childElementCount; i++){
+    let temp_name = problemElem.childNodes[i].innerHTML;
+    // console.log(i+" "+temp_name);
+    if(temp_name== null || temp_name=='undefined' || temp_name==undefined) continue;
+    // console.log(temp_name.length + " vs " + resultId.length);
+    if(temp_name.length > resultId.length){
+      console.log("adding: "+temp_name);
+      resultId = temp_name;
+    }
+  }
+  console.log(resultId);
+  return resultId;
 }
 
 /* Parser function for the question and tags */
@@ -438,16 +513,17 @@ function parseStats() {
   const spacePercentile = probStats[3].textContent;
 
   // Format commit message
-  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
+  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - BaekjunHub`;
 }
 
 document.addEventListener('click', (event) => {
   const element = event.target;
   const oldPath = window.location.pathname;
-
+  console.log("flaxinger clicked");
   /* Act on Post button click */
   /* Complex since "New" button shares many of the same properties as "Post button */
   if (
+    element.getAttribute('data-loading-text') ==="제출 중..." ||
     element.classList.contains('icon__3Su4') ||
     element.parentElement.classList.contains('icon__3Su4') ||
     element.parentElement.classList.contains(
@@ -480,51 +556,37 @@ document.addEventListener('click', (event) => {
   }
 });
 
-/* function to get the notes if there is any
- the note should be opened atleast once for this to work
- this is because the dom is populated after data is fetched by opening the note */
-function getNotesIfAny() {
-  notes = '';
-  notesdiv = document
-    .getElementsByClassName('notewrap__eHkN')[0]
-    .getElementsByClassName('CodeMirror-code')[0];
-  if (notesdiv) {
-    for (i = 0; i < notesdiv.childNodes.length; i++) {
-      if (notesdiv.childNodes[i].childNodes.length == 0) continue;
-      text = notesdiv.childNodes[i].childNodes[0].innerText;
-      if (text) {
-        notes = `${notes}\n${text.trim()}`;
-      }
-    }
-  }
-  return notes.trim();
-}
+
 
 const loader = setInterval(() => {
   let code = null;
   let probStatement = null;
   let probStats = null;
 
-  const successTag = document.getElementsByClassName('success__3Ai7');
-  const resultState = document.getElementById("result-state");
+  // const successTag = document.getElementsByClassName('success__3Ai7');
+  const successTagpre = document.getElementById("status-table");
+  console.log(successTagpre);
+  if(successTagpre == null || typeof successTagpre === 'undefined') return null;
+  if(successTagpre!==null && typeof successTagpre !== 'undefined') console.log("Success Tag is: "+successTagpre.childNodes[1].childNodes[0].childNodes[3].childNodes[0].innerHTML);
+  else{
+    console.log("Error");
+    return null;
+  }
   var success = false;
-  if (checkElem(successTag) && successTag[0].innerText.trim() === 'Success'){
-    success = true;
+  const successTag = successTagpre.childNodes[1].childNodes[0].childNodes[3].childNodes[0].innerHTML;
+  if (checkElem(successTag) && successTag === "맞았습니다!!"){
+    console.log("맞았네..???");
+    success=true;
   }
-  else if(resultState && resultState.innerText=="Accepted"){
-    success = true;
-  }
-  if(success) {
-    probStatement = parseQuestion();
-    probStats = parseStats();
-  }
-  
-  if (probStatement !== null) {
+
+  if(success==true) {
     clearTimeout(loader);
+    console.log("next func");
     const problemName = getProblemNameSlug();
-    const language = findLanguage();
+    let language = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[6].childNodes[0].innerHTML;
+    console.log(language);
+    if(languages[language]!==undefined) language = languages[language];
     if (language !== null) {
-      // start upload indicator here
       startUpload();
       chrome.storage.local.get('stats', (s) => {
         const { stats } = s;
@@ -538,9 +600,7 @@ const loader = setInterval(() => {
           sha = stats.sha[filePath];
         }
 
-        /* Only create README if not already created */
         if (sha === null) {
-          /* @TODO: Change this setTimeout to Promise */
           uploadGit(
             btoa(unescape(encodeURIComponent(probStatement))),
             problemName,
@@ -551,21 +611,6 @@ const loader = setInterval(() => {
         }
       });
 
-      /* get the notes and upload it */
-      setTimeout(function () {
-        notes = getNotesIfAny();
-        if (notes != undefined && notes.length != 0) {
-          console.log('Create Notes');
-          // means we can upload the notes too
-          uploadGit(
-            btoa(unescape(encodeURIComponent(notes))),
-            problemName,
-            'NOTES.txt',
-            createNotesMsg,
-            'upload',
-          );
-        }
-      }, 500);
 
       /* Upload code to Git */
       setTimeout(function () {
@@ -602,15 +647,16 @@ function startUploadCountDown() {
 }
 /* start upload will inject a spinner on left side to the "Run Code" button */
 function startUpload() {
-  elem = document.getElementById('leethub_progress_anchor_element')
+  elem = document.getElementById('BaekjunHub_progress_anchor_element')
   if (elem !== undefined) {
     elem = document.createElement('span')
-    elem.id = "leethub_progress_anchor_element"
+    elem.id = "BaekjunHub_progress_anchor_element"
     elem.className = "runcode-wrapper__8rXm"
     elem.style = "margin-right: 20px;padding-top: 2px;"
   }
-  elem.innerHTML = `<div id="leethub_progress_elem" class="leethub_progress"></div>`
-  target = document.getElementsByClassName('action__38Xc')[0]
+  elem.innerHTML = `<div id="BaekjunHub_progress_elem" class="BaekjunHub_progress"></div>`
+  target = document.getElementsByClassName('loginbar')[0];
+  console.log("startUpload: target is " + target);
   if (target.childNodes.length > 0) {
     target.childNodes[0].prepend(elem)
   }
@@ -618,9 +664,9 @@ function startUpload() {
   startUploadCountDown();
 }
 
-/* This will create a tick mark before "Run Code" button signalling LeetHub has done its job */
+/* This will create a tick mark before "Run Code" button signalling BaekjunHub has done its job */
 function markUploaded() {
-  elem = document.getElementById("leethub_progress_elem");
+  elem = document.getElementById("BaekjunHub_progress_elem");
   elem.className = "";
   style = 'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid #78b13f;border-right:7px solid #78b13f;'
   elem.style = style;
@@ -628,7 +674,7 @@ function markUploaded() {
 
 /* This will create a failed tick mark before "Run Code" button signalling that upload failed */
 function markUploadFailed() {
-  elem = document.getElementById("leethub_progress_elem");
+  elem = document.getElementById("BaekjunHub_progress_elem");
   elem.className = "";
   style = 'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid red;border-right:7px solid red;'
   elem.style = style;
@@ -637,11 +683,11 @@ function markUploadFailed() {
 /* Sync to local storage */
 chrome.storage.local.get('isSync', (data) => {
   keys = [
-    'leethub_token',
-    'leethub_username',
-    'pipe_leethub',
+    'BaekjunHub_token',
+    'BaekjunHub_username',
+    'pipe_BaekjunHub',
     'stats',
-    'leethub_hook',
+    'BaekjunHub_hook',
     'mode_type',
   ];
   if (!data || !data.isSync) {
@@ -651,10 +697,10 @@ chrome.storage.local.get('isSync', (data) => {
       });
     });
     chrome.storage.local.set({ isSync: true }, (data) => {
-      console.log('LeetHub Synced to local values');
+      console.log('BaekjunHub Synced to local values');
     });
   } else {
-    console.log('LeetHub Local storage already synced!');
+    console.log('BaekjunHub Local storage already synced!');
   }
 });
 
@@ -664,6 +710,6 @@ injectStyle();
 /* inject css style required for the upload progress feature */
 function injectStyle() {
   const style = document.createElement('style');
-  style.textContent = '.leethub_progress {pointer-events: none;width: 2.0em;height: 2.0em;border: 0.4em solid transparent;border-color: #eee;border-top-color: #3E67EC;border-radius: 50%;animation: loadingspin 1s linear infinite;} @keyframes loadingspin { 100% { transform: rotate(360deg) }}';
+  style.textContent = '.BaekjunHub_progress {pointer-events: none;width: 2.0em;height: 2.0em;border: 0.4em solid transparent;border-color: #eee;border-top-color: #3E67EC;border-radius: 50%;animation: loadingspin 1s linear infinite;} @keyframes loadingspin { 100% { transform: rotate(360deg) }}';
   document.head.append(style);
 }

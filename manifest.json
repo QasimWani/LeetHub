@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "LeetHub",
+  "name": "BaekjunHub",
   "description": "Automatically integrate your Leetcode, GeeksforGeeks submissions to GitHub",
-  "homepage_url": "https://github.com/QasimWani/LeetHub",
+  "homepage_url": "https://github.com/QasimWani/BaekjunHub",
   "version": "0.1.9",
   "author": "Qasim Wani",
   "browser_action": {
@@ -29,9 +29,9 @@
   "content_scripts": [
     {
       "matches": [
-        "https://leetcode.com/*",
-        "https://github.com/*",
-        "https://practice.geeksforgeeks.org/*"
+        "https://www.acmicpc.net/submit/*",
+        "https://www.acmicpc.net/status*",
+        "https://github.com/*"
       ],
       "js": [
         "scripts/leetcode.js",
