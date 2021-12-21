@@ -29,7 +29,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.acmicpc.net/*",
+        "https://www.acmicpc.net/submit/*",
+        "https://www.acmicpc.net/status*",
         "https://github.com/*"
       ],
       "js": [

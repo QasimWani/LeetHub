@@ -3,6 +3,7 @@ const languages = {
   Python: '.py',
   Python3: '.py',
   'C++': '.cpp',
+  'C++17': '.cpp',
   C: '.c',
   Java: '.java',
   'C#': '.cs',
@@ -79,7 +80,7 @@ function findLanguage() {
   if (tag && tag.length > 0) {
     for (let i = 0; i < tag.length; i += 1) {
       const elem = document.getElementsByClassName('table-bordered')[1][0][6][0];
-      console.log(elem);
+      console.log('language is: '+ elem);
       if (elem !== undefined && languages[elem] !== undefined) {
         return languages[elem]; // should generate respective file extension
       }
@@ -298,8 +299,8 @@ function findCode(uploadGit, problemName, fileName, msg, action, cb=undefined) {
         /* the response has a js object called pageData. */
         /* Pagedata has the details data with code about that submission */
         var code = doc.getElementsByClassName('codemirror-textarea')[0].innerHTML;
-        console.log("scripts is "+code);
-        code.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        
+        code = code.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
         console.log(code);
         // for (var i = 0; i < scripts.length; i++) {
           // var text = scripts[i].innerText;
@@ -555,25 +556,7 @@ document.addEventListener('click', (event) => {
   }
 });
 
-/* function to get the notes if there is any
- the note should be opened atleast once for this to work
- this is because the dom is populated after data is fetched by opening the note */
-// function getNotesIfAny() {
-//   notes = '';
-//   notesdiv = document
-//     .getElementsByClassName('notewrap__eHkN')[0]
-//     .getElementsByClassName('CodeMirror-code')[0];
-//   if (notesdiv) {
-//     for (i = 0; i < notesdiv.childNodes.length; i++) {
-//       if (notesdiv.childNodes[i].childNodes.length == 0) continue;
-//       text = notesdiv.childNodes[i].childNodes[0].innerText;
-//       if (text) {
-//         notes = `${notes}\n${text.trim()}`;
-//       }
-//     }
-//   }
-//   return notes.trim();
-// }
+
 
 const loader = setInterval(() => {
   let code = null;
@@ -581,38 +564,29 @@ const loader = setInterval(() => {
   let probStats = null;
 
   // const successTag = document.getElementsByClassName('success__3Ai7');
-  const successTag = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[3].childNodes[0].innerHTML;
-  console.log(successTag);
-  if(successTag == null || typeof successTag === 'undefined') return null;
-  if(successTag!==null && typeof successTag !== 'undefined') console.log("Success Tag is: "+successTag);
+  const successTagpre = document.getElementById("status-table");
+  console.log(successTagpre);
+  if(successTagpre == null || typeof successTagpre === 'undefined') return null;
+  if(successTagpre!==null && typeof successTagpre !== 'undefined') console.log("Success Tag is: "+successTagpre.childNodes[1].childNodes[0].childNodes[3].childNodes[0].innerHTML);
   else{
     console.log("Error");
     return null;
   }
-  // const resultState = document.getElementById("result-state");
   var success = false;
+  const successTag = successTagpre.childNodes[1].childNodes[0].childNodes[3].childNodes[0].innerHTML;
   if (checkElem(successTag) && successTag === "맞았습니다!!"){
     console.log("맞았네..???");
     success=true;
   }
-  // if (checkElem(successTag) && successTag[0].innerText.trim() === 'Success'){
-  //   success = true;
-  // }
-  // else if(resultState && resultState.innerText=="Accepted"){
-  //   success = true;
-  // }
-  // if(success) {
-  //   probStatement = parseQuestion();
-  //   probStats = parseStats();
-  // }
+
   if(success==true) {
     clearTimeout(loader);
     console.log("next func");
     const problemName = getProblemNameSlug();
-    const language = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[6].childNodes[0].innerHTML;
+    let language = document.getElementById("status-table").childNodes[1].childNodes[0].childNodes[6].childNodes[0].innerHTML;
     console.log(language);
+    if(languages[language]!==undefined) language = languages[language];
     if (language !== null) {
-      // start upload indicator here
       startUpload();
       chrome.storage.local.get('stats', (s) => {
         const { stats } = s;
@@ -626,9 +600,7 @@ const loader = setInterval(() => {
           sha = stats.sha[filePath];
         }
 
-        /* Only create README if not already created */
         if (sha === null) {
-          /* @TODO: Change this setTimeout to Promise */
           uploadGit(
             btoa(unescape(encodeURIComponent(probStatement))),
             problemName,
@@ -639,21 +611,6 @@ const loader = setInterval(() => {
         }
       });
 
-      /* get the notes and upload it */
-      // setTimeout(function () {
-      //   notes = getNotesIfAny();
-      //   if (notes != undefined && notes.length != 0) {
-      //     console.log('Create Notes');
-      //     // means we can upload the notes too
-      //     uploadGit(
-      //       btoa(unescape(encodeURIComponent(notes))),
-      //       problemName,
-      //       'NOTES.txt',
-      //       createNotesMsg,
-      //       'upload',
-      //     );
-      //   }
-      // }, 500);
 
       /* Upload code to Git */
       setTimeout(function () {
