@@ -49,8 +49,8 @@
 <p> <strong>1.</strong> Recruiters <em>want</em> to see your contributions to the Open Source community, be it through side projects, solving algorithms/data-structures, or contributing to existing OS projects.<br>
 As of now, GitHub is developers' #1 portfolio. BaekjunHub just makes it much easier (autonomous) to keep track of progress and contributions on the largest network of engineering community, GitHub.</p>
 
-<p> <strong>2.</strong> There's no easy way of accessing your leetcode problems in one place! <br>
-Moreover, pushing code manually to GitHub from Leetcode is very time consuming. So, why not just automate it entirely without spending a SINGLE additional second on it? </p>
+<p> <strong>2.</strong> There's no easy way of accessing your BOJ problems in one place! <br>
+Moreover, pushing code manually to GitHub from BOJ is very time consuming. So, why not just automate it entirely without spending a SINGLE additional second on it? </p>
 
 ## How does BaekjunHub work?     
 
@@ -72,11 +72,6 @@ Moreover, pushing code manually to GitHub from Leetcode is very time consuming. 
 The coding interview is arguably the most important part of your interview process, given you get the interview first. As someone who's received multiple internship offers from Fortune 100 companies, getting the interview in the first place is not easy!<br>
 And that's what BaekjunHub is supposed to do: indirectly improving your coding skills while improving your portfolio to ACE that interview at <em>insert_name_here</em>!
 </p>
-
-# Let's see you ACE that coding interview!
-
-
-![leetcode view](assets/extension/leetcode.png)
 
 
 # How to set up BaekjunHub for local development?
