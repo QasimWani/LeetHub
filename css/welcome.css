@@ -49,7 +49,7 @@ body {
   margin-bottom: 0px;
 }
 
-p {
+p, label{
   color: white !important;
 }
 .onboarding {
@@ -63,3 +63,4 @@ a {
   color: white !important;
   cursor: pointer;
 }
+

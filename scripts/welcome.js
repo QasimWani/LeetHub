@@ -1,3 +1,66 @@
+const setShowBadge = (show_badge) => {
+  const items = {'show_badge' : show_badge };
+  chrome.storage.local.set(items, () => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError.message);
+    }
+    else{
+      console.log('set show_badge');
+    }
+  })
+};
+
+const setStartDate = () => {
+  const currentTime = (new Date()).toJSON();
+  const items = { 'start_date': currentTime }; 
+  chrome.storage.local.set(items, () => {
+      if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError.message);
+      }
+      else{
+        console.log('set start_date');
+      }
+  });
+};
+
+function setDayCounter(start_date) {
+  const end_date = new Date();
+  const one_day = 1000*60*60*24;
+  const days = Math.ceil( (Math.abs(end_date.setHours(0,0,0,0) - start_date.setHours(0,0,0,0)) / one_day ));
+
+  chrome.browserAction.setBadgeText({text: String(days) });
+}
+
+function clearBadge(){
+  chrome.browserAction.setBadgeText({
+    'text': ''
+  });
+}
+
+function removeStartDate(){
+  chrome.storage.local.remove('start_date', () => {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.message);
+      }
+      else{
+        console.log('remove start_date from storage');
+      }
+  });
+};
+
+function countDays(){
+  chrome.storage.local.get(['start_date'], (result) => {
+    if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.message);
+    } 
+    else {
+      const storedJSONDate = result['start_date'];
+      console.log('storedJSONDate' + storedJSONDate);
+      setDayCounter(new Date(storedJSONDate));
+    }
+  });
+};
+
 const option = () => {
   return $('#type').val();
 };
@@ -276,6 +339,11 @@ $('#hook_button').on('click', () => {
         $('#success').hide();
       } else if (option() === 'new') {
         createRepo(token, repositoryName());
+        setStartDate();
+        setShowBadge($('#show_badge').is(':checked'));
+        if ($('#show_badge').is(':checked')){
+          countDays();
+        }
       } else {
         chrome.storage.local.get('leethub_username', (data2) => {
           const username = data2.leethub_username;
@@ -288,6 +356,11 @@ $('#hook_button').on('click', () => {
             $('#success').hide();
           } else {
             linkRepo(token, `${username}/${repositoryName()}`, false);
+            setStartDate();
+            setShowBadge($('#show_badge').is(':checked'));
+            if ($('#show_badge').is(':checked')){
+              countDays();
+            }
           }
         });
       }
@@ -301,6 +374,9 @@ $('#unlink a').on('click', () => {
   $('#success').text(
     'Successfully unlinked your current git repo. Please create/link a new hook.',
   );
+  clearBadge();
+  setShowBadge(false);
+  removeStartDate();
 });
 
 /* Detect mode type */

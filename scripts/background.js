@@ -1,3 +1,34 @@
+function setDayCounter(start_date) {
+  const end_date = new Date();
+  const one_day = 1000*60*60*24;
+  const days = Math.ceil( (Math.abs(end_date.setHours(0,0,0,0) - start_date.setHours(0,0,0,0)) / one_day ));
+
+  chrome.storage.local.get(['show_badge'], (result) => {
+    if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.message);
+    } 
+    else {
+      const show_badge = result['show_badge'];
+      if (show_badge === true){
+        chrome.browserAction.setBadgeText({text: String(days) });
+      }
+    }
+  });
+}
+
+function countDays(){
+  chrome.storage.local.get(['start_date'], (result) => {
+    if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.message);
+    } 
+    else {
+      const storedJSONDate = result['start_date'];
+      console.log('storedJSONDate' + storedJSONDate);
+      setDayCounter(new Date(storedJSONDate));
+    }
+  });
+};
+
 function handleMessage(request) {
   if (
     request &&
@@ -43,4 +74,13 @@ function handleMessage(request) {
   }
 }
 
+countDays();
+chrome.alarms.create('alaram-set-end-date', {
+  periodInMinutes: 1
+});
 chrome.runtime.onMessage.addListener(handleMessage);
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "alaram-set-end-date") {
+    countDays();
+  }
+});
