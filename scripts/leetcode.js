@@ -709,7 +709,7 @@ chrome.storage.local.get('isSync', (data) => {
     'pipe_leethub',
     'stats',
     'leethub_hook',
-    'mode_type',
+    'mode_type'
   ];
   if (!data || !data.isSync) {
     keys.forEach((key) => {
