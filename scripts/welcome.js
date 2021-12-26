@@ -1,11 +1,10 @@
-const setShowBadge = (show_badge) => {
-  const items = {'show_badge' : show_badge };
+const setShowBadge = (showBadge) => {
+  const items = { show_badge: showBadge };
   chrome.storage.local.set(items, () => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError.message);
-    }
-    else{
-      console.log('set show_badge:' + show_badge);
+    } else {
+      // console.log(`set show_badge:${showBadge}`);
     }
   });
 };
@@ -100,7 +99,7 @@ const createRepo = (token, name) => {
   data = JSON.stringify(data);
 
   const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
+  xhr.addEventListener('readystatechange', () => {
     if (xhr.readyState === 4) {
       statusCode(JSON.parse(xhr.responseText), xhr.status, name);
     }
@@ -158,7 +157,7 @@ const linkRepo = (token, name) => {
   const AUTHENTICATION_URL = `https://api.github.com/repos/${name}`;
 
   const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
+  xhr.addEventListener('readystatechange', () => {
     if (xhr.readyState === 4) {
       const res = JSON.parse(xhr.responseText);
       const bool = linkStatusCode(xhr.status, name);
@@ -243,6 +242,7 @@ const unlinkRepo = () => {
 
 /* Check for value of select tag, Get Started disabled by default */
 
+// eslint-disable-next-line func-names
 $('#type').on('change', function () {
   const valueSelected = this.value;
   if (valueSelected) {
@@ -318,12 +318,13 @@ $('#unlink a').on('click', () => {
   setShowBadge(false);
 });
 
-$("#show_badge").change(function() {
+// eslint-disable-next-line func-names
+$('#show_badge').change(function () {
   setShowBadge(this.checked);
 });
 /* Detect mode type */
 chrome.storage.local.get(['mode_type', 'show_badge'], (data) => {
-  $('#show_badge').prop('checked', data['show_badge']);
+  $('#show_badge').prop('checked', data.show_badge);
   const mode = data.mode_type;
 
   if (mode && mode === 'commit') {
