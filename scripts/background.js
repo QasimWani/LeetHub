@@ -16,27 +16,27 @@ function setDayCounter(startDate) {
 }
 
 function removeStartDate() {
-  chrome.storage.local.remove('start_date', () => {
+  chrome.storage.local.remove('startDate', () => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError.message);
     } else {
-      // console.log('remove start_date from storage');
+      // console.log('remove startDate from storage');
     }
   });
 }
 
 function countDaysAndShowBadge() {
-  chrome.storage.local.get(['start_date', 'show_badge'], (result) => {
+  chrome.storage.local.get(['startDate', 'showBadge'], (result) => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError.message);
     }
     if (
-      'start_date' in result &&
-      result.start_date !== undefined &&
-      'show_badge' in result &&
-      result.show_badge === true
+      'startDate' in result &&
+      result.startDate !== undefined &&
+      'showBadge' in result &&
+      result.showBadge === true
     ) {
-      const storedJSONDate = result.start_date;
+      const storedJSONDate = result.startDate;
       setDayCounter(new Date(storedJSONDate));
     } else {
       clearBadge();
@@ -47,25 +47,25 @@ function countDaysAndShowBadge() {
 
 function setStartDate() {
   const currentTime = new Date().toJSON();
-  const items = { start_date: currentTime };
+  const items = { startDate: currentTime };
   chrome.storage.local.set(items, () => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError.message);
     } else {
-      // console.log(`set start_date:${currentTime}`);
+      // console.log(`set startDate:${currentTime}`);
       countDaysAndShowBadge();
     }
   });
 }
 
-function setShowBadge(startDate) {
-  const items = { show_badge: startDate };
+function setShowBadge(showBadge) {
+  const items = { showBadge };
   chrome.storage.local.set(items, () => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError.message);
     }
-    // console.log(`set show_badge : ${startDate}`);
-    if (startDate === true) {
+    // console.log(`set showBadge : ${startDate}`);
+    if (showBadge === true) {
       setStartDate();
     } else {
       clearBadge();
@@ -143,17 +143,17 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 //   }
 // });
 
-// chrome.storage.local[start_date] event handler to update Badge Counter
+// chrome.storage.local[startDate] event handler to update Badge Counter
 chrome.storage.onChanged.addListener((changes) => {
-  if ('start_date' in changes) {
+  if ('startDate' in changes) {
     countDaysAndShowBadge();
   }
-  if ('show_badge' in changes) {
-    setShowBadge(changes.show_badge.newValue);
+  if ('showBadge' in changes) {
+    setShowBadge(changes.showBadge.newValue);
   }
 });
 
-// on install set show_badge true
+// on install set showBadge true
 chrome.runtime.onInstalled.addListener(() => {
   setShowBadge(true);
 });

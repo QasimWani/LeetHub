@@ -1,10 +1,10 @@
 const setShowBadge = (showBadge) => {
-  const items = { show_badge: showBadge };
+  const items = { showBadge };
   chrome.storage.local.set(items, () => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError.message);
     } else {
-      // console.log(`set show_badge:${showBadge}`);
+      // console.log(`set showBadge:${showBadge}`);
     }
   });
 };
@@ -288,7 +288,7 @@ $('#hook_button').on('click', () => {
         $('#success').hide();
       } else if (option() === 'new') {
         createRepo(token, repositoryName());
-        setShowBadge($('#show_badge').is(':checked'));
+        setShowBadge($('#showBadge').is(':checked'));
       } else {
         chrome.storage.local.get('leethub_username', (data2) => {
           const username = data2.leethub_username;
@@ -301,7 +301,7 @@ $('#hook_button').on('click', () => {
             $('#success').hide();
           } else {
             linkRepo(token, `${username}/${repositoryName()}`, false);
-            setShowBadge($('#show_badge').is(':checked'));
+            setShowBadge($('#showBadge').is(':checked'));
           }
         });
       }
@@ -319,12 +319,12 @@ $('#unlink a').on('click', () => {
 });
 
 // eslint-disable-next-line func-names
-$('#show_badge').change(function () {
+$('#showBadge').change(function () {
   setShowBadge(this.checked);
 });
 /* Detect mode type */
-chrome.storage.local.get(['mode_type', 'show_badge'], (data) => {
-  $('#show_badge').prop('checked', data.show_badge);
+chrome.storage.local.get(['mode_type', 'showBadge'], (data) => {
+  $('#showBadge').prop('checked', data.showBadge);
   const mode = data.mode_type;
 
   if (mode && mode === 'commit') {
