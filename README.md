@@ -100,4 +100,7 @@ npm run lint          Lint JavaScript
 npm run lint-test     Test all code is linted proprely
 ```
 
+# License
+[MIT](LICENSE)
+
 #### And that should be it! Get Hacking...
