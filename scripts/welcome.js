@@ -83,7 +83,7 @@ const createRepo = (token, name) => {
     private: true,
     auto_init: true,
     description:
-      'Collection of LeetCode questions to ace the coding interview! - Created using [LeetHub](https://github.com/QasimWani/LeetHub).',
+      'Collection of LeetCode questions to ace the coding interview! - Created using [LeetHub](https://github.com/QasimWani/LeetHub)',
   };
   data = JSON.stringify(data);
 
@@ -259,12 +259,12 @@ $('#hook_button').on('click', () => {
     $('#success').show();
 
     /* 
-            Perform processing
-            - step 1: Check if current stage === hook.
-            - step 2: store repo name as repoName in chrome storage.
-            - step 3: if (1), POST request to repoName (iff option = create new repo) ; else display error message.
-            - step 4: if proceed from 3, hide hook_mode and display commit_mode (show stats e.g: files pushed/questions-solved/leaderboard)
-        */
+      Perform processing
+      - step 1: Check if current stage === hook.
+      - step 2: store repo name as repoName in chrome storage.
+      - step 3: if (1), POST request to repoName (iff option = create new repo) ; else display error message.
+      - step 4: if proceed from 3, hide hook_mode and display commit_mode (show stats e.g: files pushed/questions-solved/leaderboard)
+    */
     chrome.storage.local.get('leethub_token', (data) => {
       const token = data.leethub_token;
       if (token === null || token === undefined) {

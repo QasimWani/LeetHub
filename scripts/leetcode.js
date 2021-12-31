@@ -24,7 +24,7 @@ const languages = {
 /* Commit messages */
 const readmeMsg = 'Create README - LeetHub';
 const discussionMsg = 'Prepend discussion post - LeetHub';
-const createNotesMsg = 'Create NOTES - LeetHub';
+const createNotesMsg = 'Attach NOTES - LeetHub';
 
 // problem types
 const NORMAL_PROBLEM = 0;
@@ -34,7 +34,7 @@ const EXPLORE_SECTION_PROBLEM = 1;
 let difficulty = '';
 
 /* state of upload for progress */
-let uploadState = { uploading: false }
+let uploadState = { uploading: false };
 
 /* Get file extension for submission */
 function findLanguage() {
@@ -42,9 +42,7 @@ function findLanguage() {
     ...document.getElementsByClassName(
       'ant-select-selection-selected-value',
     ),
-    ...document.getElementsByClassName(
-      'Select-value-label',
-    )
+    ...document.getElementsByClassName('Select-value-label'),
   ];
   if (tag && tag.length > 0) {
     for (let i = 0; i < tag.length; i += 1) {
@@ -58,7 +56,16 @@ function findLanguage() {
 }
 
 /* Main function for uploading code to GitHub repo, and callback cb is called if success */
-const upload = (token, hook, code, directory, filename, sha, msg, cb=undefined) => {
+const upload = (
+  token,
+  hook,
+  code,
+  directory,
+  filename,
+  sha,
+  msg,
+  cb = undefined,
+) => {
   // To validate user, load user object from GitHub.
   const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
 
@@ -104,7 +111,7 @@ const upload = (token, hook, code, directory, filename, sha, msg, cb=undefined) 
             );
 
             // if callback is defined, call it
-            if(cb !== undefined) {
+            if (cb !== undefined) {
               cb();
             }
           });
@@ -121,7 +128,15 @@ const upload = (token, hook, code, directory, filename, sha, msg, cb=undefined) 
 /* Main function for updating code on GitHub Repo */
 /* Currently only used for prepending discussion posts to README */
 /* callback cb is called on success if it is defined */
-const update = (token, hook, addition, directory, msg, prepend, cb=undefined) => {
+const update = (
+  token,
+  hook,
+  addition,
+  directory,
+  msg,
+  prepend,
+  cb = undefined,
+) => {
   const URL = `https://api.github.com/repos/${hook}/contents/${directory}/README.md`;
 
   /* Read from existing file on GitHub */
@@ -152,7 +167,7 @@ const update = (token, hook, addition, directory, msg, prepend, cb=undefined) =>
           'README.md',
           response.sha,
           msg,
-          cb
+          cb,
         );
       }
     }
@@ -170,8 +185,14 @@ function uploadGit(
   msg,
   action,
   prepend = true,
-  cb = undefined
+  cb = undefined,
+  _diff = undefined,
 ) {
+  // Assign difficulty
+  if (_diff && _diff !== undefined) {
+    difficulty = _diff.trim();
+  }
+
   /* Get necessary payload data */
   chrome.storage.local.get('leethub_token', (t) => {
     const token = t.leethub_token;
@@ -209,7 +230,7 @@ function uploadGit(
                     fileName,
                     sha,
                     msg,
-                    cb
+                    cb,
                   );
                 } else if (action === 'update') {
                   /* Update on git */
@@ -220,7 +241,7 @@ function uploadGit(
                     problemName,
                     msg,
                     prepend,
-                    cb
+                    cb,
                   );
                 }
               });
@@ -237,16 +258,24 @@ function uploadGit(
 /* - Then send a request for the details page. */
 /* - Finally, parse the code from the html reponse. */
 /* - Also call the callback if available when upload is success */
-function findCode(uploadGit, problemName, fileName, msg, action, cb=undefined) {
-
+function findCode(
+  uploadGit,
+  problemName,
+  fileName,
+  msg,
+  action,
+  cb = undefined,
+) {
   /* Get the submission details url from the submission page. */
   var submissionURL;
   const e = document.getElementsByClassName('status-column__3SUg');
   if (checkElem(e)) {
     // for normal problem submisson
     const submissionRef = e[1].innerHTML.split(' ')[1];
-    submissionURL = "https://leetcode.com" + submissionRef.split('=')[1].slice(1, -1);
-  } else{
+    submissionURL =
+      'https://leetcode.com' +
+      submissionRef.split('=')[1].slice(1, -1);
+  } else {
     // for a submission in explore section
     const submissionRef = document.getElementById('result-state');
     submissionURL = submissionRef.href;
@@ -296,12 +325,24 @@ function findCode(uploadGit, problemName, fileName, msg, action, cb=undefined) {
             for a submisssion in explore section we do not get probStat beforehand
             so, parse statistics from submisson page
             */
-            if(!msg){
-              slicedText = text.slice(text.indexOf("runtime"),text.indexOf("memory"));
-              const resultRuntime = slicedText.slice(slicedText.indexOf("'")+1,slicedText.lastIndexOf("'"));
-              slicedText = text.slice(text.indexOf("memory"),text.indexOf("total_correct"));
-              const resultMemory = slicedText.slice(slicedText.indexOf("'")+1,slicedText.lastIndexOf("'"));
-              msg = `Time: ${resultRuntime}, Memory: ${resultMemory} -LeetHub`; 
+            if (!msg) {
+              slicedText = text.slice(
+                text.indexOf('runtime'),
+                text.indexOf('memory'),
+              );
+              const resultRuntime = slicedText.slice(
+                slicedText.indexOf("'") + 1,
+                slicedText.lastIndexOf("'"),
+              );
+              slicedText = text.slice(
+                text.indexOf('memory'),
+                text.indexOf('total_correct'),
+              );
+              const resultMemory = slicedText.slice(
+                slicedText.indexOf("'") + 1,
+                slicedText.lastIndexOf("'"),
+              );
+              msg = `Time: ${resultRuntime}, Memory: ${resultMemory} -LeetHub`;
             }
 
             if (code != null) {
@@ -313,7 +354,7 @@ function findCode(uploadGit, problemName, fileName, msg, action, cb=undefined) {
                   msg,
                   action,
                   true,
-                  cb
+                  cb,
                 );
               }, 2000);
             }
@@ -347,49 +388,60 @@ function checkElem(elem) {
   return elem && elem.length > 0;
 }
 function convertToSlug(string) {
-  const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
-  const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
-  const p = new RegExp(a.split('').join('|'), 'g')
+  const a =
+    'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;';
+  const b =
+    'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------';
+  const p = new RegExp(a.split('').join('|'), 'g');
 
-  return string.toString().toLowerCase()
+  return string
+    .toString()
+    .toLowerCase()
     .replace(/\s+/g, '-') // Replace spaces with -
-    .replace(p, c => b.charAt(a.indexOf(c))) // Replace special characters
+    .replace(p, (c) => b.charAt(a.indexOf(c))) // Replace special characters
     .replace(/&/g, '-and-') // Replace & with 'and'
     .replace(/[^\w\-]+/g, '') // Remove all non-word characters
     .replace(/\-\-+/g, '-') // Replace multiple - with single -
     .replace(/^-+/, '') // Trim - from start of text
-    .replace(/-+$/, '') // Trim - from end of text
+    .replace(/-+$/, ''); // Trim - from end of text
 }
-function getProblemNameSlug(){
+function getProblemNameSlug() {
   const questionElem = document.getElementsByClassName(
     'content__u3I1 question-content__JfgR',
   );
-  const questionDescriptionElem = document.getElementsByClassName("question-description__3U1T");
-  let questionTitle = "unknown-problem";
+  const questionDescriptionElem = document.getElementsByClassName(
+    'question-description__3U1T',
+  );
+  let questionTitle = 'unknown-problem';
   if (checkElem(questionElem)) {
     let qtitle = document.getElementsByClassName('css-v3d350');
     if (checkElem(qtitle)) {
       questionTitle = qtitle[0].innerHTML;
     }
-  } else if(checkElem(questionDescriptionElem)){
-    let qtitle = document.getElementsByClassName("question-title");
-    if(checkElem(qtitle)){
+  } else if (checkElem(questionDescriptionElem)) {
+    let qtitle = document.getElementsByClassName('question-title');
+    if (checkElem(qtitle)) {
       questionTitle = qtitle[0].innerText;
-    } 
+    }
   }
   return convertToSlug(questionTitle);
 }
 
 /* Parser function for the question and tags */
 function parseQuestion() {
-  var questionUrl = window.location.href
-  if(questionUrl.endsWith('/submissions/')){
-    questionUrl = questionUrl.substring(0, questionUrl.lastIndexOf("/submissions/")+1)
+  var questionUrl = window.location.href;
+  if (questionUrl.endsWith('/submissions/')) {
+    questionUrl = questionUrl.substring(
+      0,
+      questionUrl.lastIndexOf('/submissions/') + 1,
+    );
   }
   const questionElem = document.getElementsByClassName(
     'content__u3I1 question-content__JfgR',
   );
-  const questionDescriptionElem = document.getElementsByClassName("question-description__3U1T");
+  const questionDescriptionElem = document.getElementsByClassName(
+    'question-description__3U1T',
+  );
   if (checkElem(questionElem)) {
     const qbody = questionElem[0].innerHTML;
 
@@ -400,12 +452,12 @@ function parseQuestion() {
     } else {
       qtitle = 'unknown-problem';
     }
-  
+
     // Problem difficulty, each problem difficulty has its own class.
     const isHard = document.getElementsByClassName('css-t42afm');
     const isMedium = document.getElementsByClassName('css-dcmtd5');
     const isEasy = document.getElementsByClassName('css-14oi08n');
-  
+
     if (checkElem(isEasy)) {
       difficulty = 'Easy';
     } else if (checkElem(isMedium)) {
@@ -416,21 +468,22 @@ function parseQuestion() {
     // Final formatting of the contents of the README for each problem
     const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
     return markdown;
-  } else if(checkElem(questionDescriptionElem)){
-    
-    let questionTitle = document.getElementsByClassName("question-title");
-    if(checkElem(questionTitle)){
+  } else if (checkElem(questionDescriptionElem)) {
+    let questionTitle = document.getElementsByClassName(
+      'question-title',
+    );
+    if (checkElem(questionTitle)) {
       questionTitle = questionTitle[0].innerText;
-    } else{
-      questionTitle = "unknown-problem";
+    } else {
+      questionTitle = 'unknown-problem';
     }
 
     const questionBody = questionDescriptionElem[0].innerHTML;
     const markdown = `<h2>${questionTitle}</h2><hr>${questionBody}`;
-    
+
     return markdown;
   }
- 
+
   return null;
 }
 
@@ -493,11 +546,18 @@ document.addEventListener('click', (event) => {
  this is because the dom is populated after data is fetched by opening the note */
 function getNotesIfAny() {
   // there are no notes on expore
-  if (document.URL.startsWith("https://leetcode.com/explore/")) return "";
+  if (document.URL.startsWith('https://leetcode.com/explore/'))
+    return '';
 
   notes = '';
-  if (checkElem(document.getElementsByClassName('notewrap__eHkN'))
-    && checkElem(document.getElementsByClassName('notewrap__eHkN')[0].getElementsByClassName('CodeMirror-code'))) {
+  if (
+    checkElem(document.getElementsByClassName('notewrap__eHkN')) &&
+    checkElem(
+      document
+        .getElementsByClassName('notewrap__eHkN')[0]
+        .getElementsByClassName('CodeMirror-code'),
+    )
+  ) {
     notesdiv = document
       .getElementsByClassName('notewrap__eHkN')[0]
       .getElementsByClassName('CodeMirror-code')[0];
@@ -520,29 +580,36 @@ const loader = setInterval(() => {
   let probStats = null;
   let probType;
   const successTag = document.getElementsByClassName('success__3Ai7');
-  const resultState = document.getElementById("result-state");
+  const resultState = document.getElementById('result-state');
   var success = false;
   // check success tag for a normal problem
-  if (checkElem(successTag) && successTag[0].className === 'success__3Ai7' && successTag[0].innerText.trim() === 'Success'){
+  if (
+    checkElem(successTag) &&
+    successTag[0].className === 'success__3Ai7' &&
+    successTag[0].innerText.trim() === 'Success'
+  ) {
     console.log(successTag[0]);
     success = true;
     probType = NORMAL_PROBLEM;
   }
-  
-  // check success state for a explore section problem 
-  else if(resultState && resultState.className === "text-success" && resultState.innerText==="Accepted"){
+
+  // check success state for a explore section problem
+  else if (
+    resultState &&
+    resultState.className === 'text-success' &&
+    resultState.innerText === 'Accepted'
+  ) {
     success = true;
     probType = EXPLORE_SECTION_PROBLEM;
   }
 
-  if(success) {
+  if (success) {
     probStatement = parseQuestion();
     probStats = parseStats();
   }
-  
-  if (probStatement !== null) {
 
-    switch(probType){
+  if (probStatement !== null) {
+    switch (probType) {
       case NORMAL_PROBLEM:
         successTag[0].classList.add('marked_as_success');
         break;
@@ -595,7 +662,7 @@ const loader = setInterval(() => {
             uploadGit(
               btoa(unescape(encodeURIComponent(notes))),
               problemName,
-              'NOTES.txt',
+              'NOTES.md',
               createNotesMsg,
               'upload',
             );
@@ -612,12 +679,13 @@ const loader = setInterval(() => {
           probStats,
           'upload',
           // callback is called when the code upload to git is a success
-          () => { 
-            if(uploadState['countdown']) clearTimeout(uploadState['countdown']); 
-            delete uploadState['countdown']
-            uploadState.uploading = false; 
-            markUploaded(); 
-          }
+          () => {
+            if (uploadState['countdown'])
+              clearTimeout(uploadState['countdown']);
+            delete uploadState['countdown'];
+            uploadState.uploading = false;
+            markUploaded();
+          },
         ); // Encode `code` to base64
       }, 1000);
     }
@@ -629,7 +697,7 @@ const loader = setInterval(() => {
 function startUploadCountDown() {
   uploadState.uploading = true;
   uploadState['countdown'] = setTimeout(() => {
-    if (uploadState.uploading = true) {
+    if ((uploadState.uploading = true)) {
       // still uploading, then it failed
       uploadState.uploading = false;
       markUploadFailed();
@@ -639,24 +707,34 @@ function startUploadCountDown() {
 
 /* we will need specific anchor element that is specific to the page you are in Eg. Explore */
 function insertToAnchorElement(elem) {
-  if (document.URL.startsWith("https://leetcode.com/explore/")) {
+  if (document.URL.startsWith('https://leetcode.com/explore/')) {
     // means we are in explore page
     action = document.getElementsByClassName('action');
-    if (checkElem(action)
-      && checkElem(action[0].getElementsByClassName('row'))
-      && checkElem(action[0].getElementsByClassName('row')[0].getElementsByClassName('col-sm-6'))
-      && action[0].getElementsByClassName('row')[0].getElementsByClassName('col-sm-6').length > 1) {
-      target = action[0].getElementsByClassName('row')[0].getElementsByClassName('col-sm-6')[1]
-      elem.className = "pull-left"
+    if (
+      checkElem(action) &&
+      checkElem(action[0].getElementsByClassName('row')) &&
+      checkElem(
+        action[0]
+          .getElementsByClassName('row')[0]
+          .getElementsByClassName('col-sm-6'),
+      ) &&
+      action[0]
+        .getElementsByClassName('row')[0]
+        .getElementsByClassName('col-sm-6').length > 1
+    ) {
+      target = action[0]
+        .getElementsByClassName('row')[0]
+        .getElementsByClassName('col-sm-6')[1];
+      elem.className = 'pull-left';
       if (target.childNodes.length > 0)
-        target.childNodes[0].prepend(elem)
+        target.childNodes[0].prepend(elem);
     }
   } else {
     if (checkElem(document.getElementsByClassName('action__38Xc'))) {
-      target = document.getElementsByClassName('action__38Xc')[0]
-      elem.className = "runcode-wrapper__8rXm"
+      target = document.getElementsByClassName('action__38Xc')[0];
+      elem.className = 'runcode-wrapper__8rXm';
       if (target.childNodes.length > 0)
-        target.childNodes[0].prepend(elem)
+        target.childNodes[0].prepend(elem);
     }
   }
 }
@@ -664,14 +742,14 @@ function insertToAnchorElement(elem) {
 /* start upload will inject a spinner on left side to the "Run Code" button */
 function startUpload() {
   try {
-    elem = document.getElementById('leethub_progress_anchor_element')
+    elem = document.getElementById('leethub_progress_anchor_element');
     if (!elem) {
-      elem = document.createElement('span')
-      elem.id = "leethub_progress_anchor_element"
-      elem.style = "margin-right: 20px;padding-top: 2px;"
+      elem = document.createElement('span');
+      elem.id = 'leethub_progress_anchor_element';
+      elem.style = 'margin-right: 20px;padding-top: 2px;';
     }
-    elem.innerHTML = `<div id="leethub_progress_elem" class="leethub_progress"></div>`
-    target = insertToAnchorElement(elem)
+    elem.innerHTML = `<div id="leethub_progress_elem" class="leethub_progress"></div>`;
+    target = insertToAnchorElement(elem);
     // start the countdown
     startUploadCountDown();
   } catch (error) {
@@ -683,20 +761,22 @@ function startUpload() {
 
 /* This will create a tick mark before "Run Code" button signalling LeetHub has done its job */
 function markUploaded() {
-  elem = document.getElementById("leethub_progress_elem");
+  elem = document.getElementById('leethub_progress_elem');
   if (elem) {
-    elem.className = "";
-    style = 'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid #78b13f;border-right:7px solid #78b13f;'
+    elem.className = '';
+    style =
+      'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid #78b13f;border-right:7px solid #78b13f;';
     elem.style = style;
   }
 }
 
 /* This will create a failed tick mark before "Run Code" button signalling that upload failed */
 function markUploadFailed() {
-  elem = document.getElementById("leethub_progress_elem");
+  elem = document.getElementById('leethub_progress_elem');
   if (elem) {
-    elem.className = "";
-    style = 'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid red;border-right:7px solid red;'
+    elem.className = '';
+    style =
+      'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid red;border-right:7px solid red;';
     elem.style = style;
   }
 }
@@ -731,6 +811,7 @@ injectStyle();
 /* inject css style required for the upload progress feature */
 function injectStyle() {
   const style = document.createElement('style');
-  style.textContent = '.leethub_progress {pointer-events: none;width: 2.0em;height: 2.0em;border: 0.4em solid transparent;border-color: #eee;border-top-color: #3E67EC;border-radius: 50%;animation: loadingspin 1s linear infinite;} @keyframes loadingspin { 100% { transform: rotate(360deg) }}';
+  style.textContent =
+    '.leethub_progress {pointer-events: none;width: 2.0em;height: 2.0em;border: 0.4em solid transparent;border-color: #eee;border-top-color: #3E67EC;border-radius: 50%;animation: loadingspin 1s linear infinite;} @keyframes loadingspin { 100% { transform: rotate(360deg) }}';
   document.head.append(style);
 }
