@@ -12,11 +12,11 @@ $('#authenticate').on('click', () => {
 /* Get URL for welcome page */
 $('#welcome_URL').attr(
   'href',
-  `chrome-extension://${chrome.runtime.id}/welcome.html`,
+  chrome.runtime.getURL('welcome.html')
 );
 $('#hook_URL').attr(
   'href',
-  `chrome-extension://${chrome.runtime.id}/welcome.html`,
+  chrome.runtime.getURL('welcome.html')
 );
 
 chrome.storage.local.get('leethub_token', (data) => {
