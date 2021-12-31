@@ -436,17 +436,30 @@ function parseQuestion() {
 
 /* Parser function for time/space stats */
 function parseStats() {
-  const probStats = document.getElementsByClassName('data__HC-i');
-  if (!checkElem(probStats)) {
-    return null;
+  // const probStats = document.getElementsByClassName('data__HC-i');
+  const tags = document.getElementsByClassName('topic-tag__1jni')
+  let related_topics = ''
+  for( let index = 0; index < tags.length; index++){
+    related_topics += tags[index].outerText + ', '
   }
-  const time = probStats[0].textContent;
-  const timePercentile = probStats[1].textContent;
-  const space = probStats[2].textContent;
-  const spacePercentile = probStats[3].textContent;
+  
+  
+  // Problem difficulty, each problem difficulty has its own class.
+  const isHard = document.getElementsByClassName('css-t42afm');
+  const isMedium = document.getElementsByClassName('css-dcmtd5');
+  const isEasy = document.getElementsByClassName('css-14oi08n');
 
+  if (checkElem(isEasy)) {
+    difficulty = 'Easy';
+  } else if (checkElem(isMedium)) {
+    difficulty = 'Medium';
+  } else if (checkElem(isHard)) {
+    difficulty = 'Hard';
+  }
   // Format commit message
-  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
+  return '[ ' + related_topics.substr(0,related_topics.length-2) + ' ] ' + difficulty
+  
+  // return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
 }
 
 document.addEventListener('click', (event) => {
