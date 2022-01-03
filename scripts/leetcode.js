@@ -342,7 +342,7 @@ function findCode(
                 slicedText.indexOf("'") + 1,
                 slicedText.lastIndexOf("'"),
               );
-              msg = `Time: ${resultRuntime}, Memory: ${resultMemory} -LeetHub`;
+              msg = `Time: ${resultRuntime}, Memory: ${resultMemory} - LeetHub`;
             }
 
             if (code != null) {
