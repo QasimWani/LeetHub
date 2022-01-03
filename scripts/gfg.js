@@ -42,11 +42,10 @@ function findDifficulty() {
   const ele = document.getElementsByClassName(
     'problem-tab__problem-level',
   )[0].innerText;
-  
+
   if (ele != null) {
-    if(ele.trim() == "Basic" || ele.trim() === "School")
-    {
-      return "Easy";
+    if (ele.trim() == 'Basic' || ele.trim() === 'School') {
+      return 'Easy';
     }
     return ele;
   }
