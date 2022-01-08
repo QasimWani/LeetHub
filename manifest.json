@@ -28,7 +28,8 @@
     "tabs",
     "activeTab",
     "unlimitedStorage",
-    "storage"
+    "storage",
+    "alarms"
   ],
   "content_scripts": [
     {

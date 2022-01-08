@@ -1,3 +1,14 @@
+const setShowBadge = (showBadge) => {
+  const items = { showBadge };
+  chrome.storage.local.set(items, () => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError.message);
+    } else {
+      // console.log(`set showBadge:${showBadge}`);
+    }
+  });
+};
+
 const option = () => {
   return $('#type').val();
 };
@@ -88,7 +99,7 @@ const createRepo = (token, name) => {
   data = JSON.stringify(data);
 
   const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
+  xhr.addEventListener('readystatechange', () => {
     if (xhr.readyState === 4) {
       statusCode(JSON.parse(xhr.responseText), xhr.status, name);
     }
@@ -146,7 +157,7 @@ const linkRepo = (token, name) => {
   const AUTHENTICATION_URL = `https://api.github.com/repos/${name}`;
 
   const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
+  xhr.addEventListener('readystatechange', () => {
     if (xhr.readyState === 4) {
       const res = JSON.parse(xhr.responseText);
       const bool = linkStatusCode(xhr.status, name);
@@ -231,6 +242,7 @@ const unlinkRepo = () => {
 
 /* Check for value of select tag, Get Started disabled by default */
 
+// eslint-disable-next-line func-names
 $('#type').on('change', function () {
   const valueSelected = this.value;
   if (valueSelected) {
@@ -276,6 +288,7 @@ $('#hook_button').on('click', () => {
         $('#success').hide();
       } else if (option() === 'new') {
         createRepo(token, repositoryName());
+        setShowBadge($('#showBadge').is(':checked'));
       } else {
         chrome.storage.local.get('leethub_username', (data2) => {
           const username = data2.leethub_username;
@@ -288,6 +301,7 @@ $('#hook_button').on('click', () => {
             $('#success').hide();
           } else {
             linkRepo(token, `${username}/${repositoryName()}`, false);
+            setShowBadge($('#showBadge').is(':checked'));
           }
         });
       }
@@ -301,10 +315,16 @@ $('#unlink a').on('click', () => {
   $('#success').text(
     'Successfully unlinked your current git repo. Please create/link a new hook.',
   );
+  setShowBadge(false);
 });
 
+// eslint-disable-next-line func-names
+$('#showBadge').change(function () {
+  setShowBadge(this.checked);
+});
 /* Detect mode type */
-chrome.storage.local.get('mode_type', (data) => {
+chrome.storage.local.get(['mode_type', 'showBadge'], (data) => {
+  $('#showBadge').prop('checked', data.showBadge);
   const mode = data.mode_type;
 
   if (mode && mode === 'commit') {

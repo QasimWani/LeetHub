@@ -267,7 +267,7 @@ function findCode(
   cb = undefined,
 ) {
   /* Get the submission details url from the submission page. */
-  var submissionURL;
+  let submissionURL;
   const e = document.getElementsByClassName('status-column__3SUg');
   if (checkElem(e)) {
     // for normal problem submisson
@@ -287,27 +287,27 @@ function findCode(
     xhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
         /* received submission details as html reponse. */
-        var doc = new DOMParser().parseFromString(
+        const doc = new DOMParser().parseFromString(
           this.responseText,
           'text/html',
         );
         /* the response has a js object called pageData. */
         /* Pagedata has the details data with code about that submission */
-        var scripts = doc.getElementsByTagName('script');
-        for (var i = 0; i < scripts.length; i++) {
-          var text = scripts[i].innerText;
+        const scripts = doc.getElementsByTagName('script');
+        for (let i = 0; i < scripts.length; i++) {
+          const text = scripts[i].innerText;
           if (text.includes('pageData')) {
             /* Considering the pageData as text and extract the substring
             which has the full code */
-            var firstIndex = text.indexOf('submissionCode');
-            var lastIndex = text.indexOf('editCodeUrl');
-            var slicedText = text.slice(firstIndex, lastIndex);
+            const firstIndex = text.indexOf('submissionCode');
+            const lastIndex = text.indexOf('editCodeUrl');
+            let slicedText = text.slice(firstIndex, lastIndex);
             /* slicedText has code as like as. (submissionCode: 'Details code'). */
             /* So finding the index of first and last single inverted coma. */
-            var firstInverted = slicedText.indexOf("'");
-            var lastInverted = slicedText.lastIndexOf("'");
+            const firstInverted = slicedText.indexOf("'");
+            const lastInverted = slicedText.lastIndexOf("'");
             /* Extract only the code */
-            var codeUnicoded = slicedText.slice(
+            const codeUnicoded = slicedText.slice(
               firstInverted + 1,
               lastInverted,
             );
@@ -414,7 +414,7 @@ function getProblemNameSlug() {
   );
   let questionTitle = 'unknown-problem';
   if (checkElem(questionElem)) {
-    let qtitle = document.getElementsByClassName('css-v3d350');
+    const qtitle = document.getElementsByClassName('css-v3d350');
     if (checkElem(qtitle)) {
       questionTitle = qtitle[0].innerHTML;
     }
@@ -575,7 +575,7 @@ function getNotesIfAny() {
 }
 
 const loader = setInterval(() => {
-  let code = null;
+  const code = null;
   let probStatement = null;
   let probStats = null;
   let probType;

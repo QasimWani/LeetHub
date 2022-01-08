@@ -10,14 +10,8 @@ $('#authenticate').on('click', () => {
 });
 
 /* Get URL for welcome page */
-$('#welcome_URL').attr(
-  'href',
-  chrome.runtime.getURL('welcome.html')
-);
-$('#hook_URL').attr(
-  'href',
-  chrome.runtime.getURL('welcome.html')
-);
+$('#welcome_URL').attr('href', chrome.runtime.getURL('welcome.html'));
+$('#hook_URL').attr('href', chrome.runtime.getURL('welcome.html'));
 
 chrome.storage.local.get('leethub_token', (data) => {
   const token = data.leethub_token;
@@ -29,7 +23,7 @@ chrome.storage.local.get('leethub_token', (data) => {
     const AUTHENTICATION_URL = 'https://api.github.com/user';
 
     const xhr = new XMLHttpRequest();
-    xhr.addEventListener('readystatechange', function () {
+    xhr.addEventListener('readystatechange', () => {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           /* Show MAIN FEATURES */
