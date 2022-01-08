@@ -24,7 +24,7 @@ const languages = {
 /* Commit messages */
 const readmeMsg = 'Create README - LeetHub';
 const discussionMsg = 'Prepend discussion post - LeetHub';
-const createNotesMsg = 'Create NOTES - LeetHub';
+const createNotesMsg = 'Attach NOTES - LeetHub';
 
 // problem types
 const NORMAL_PROBLEM = 0;
@@ -34,7 +34,7 @@ const EXPLORE_SECTION_PROBLEM = 1;
 let difficulty = '';
 
 /* state of upload for progress */
-const uploadState = { uploading: false };
+let uploadState = { uploading: false };
 
 /* Get file extension for submission */
 function findLanguage() {
@@ -186,7 +186,13 @@ function uploadGit(
   action,
   prepend = true,
   cb = undefined,
+  _diff = undefined,
 ) {
+  // Assign difficulty
+  if (_diff && _diff !== undefined) {
+    difficulty = _diff.trim();
+  }
+
   /* Get necessary payload data */
   chrome.storage.local.get('leethub_token', (t) => {
     const token = t.leethub_token;
@@ -266,9 +272,9 @@ function findCode(
   if (checkElem(e)) {
     // for normal problem submisson
     const submissionRef = e[1].innerHTML.split(' ')[1];
-    submissionURL = `https://leetcode.com${submissionRef
-      .split('=')[1]
-      .slice(1, -1)}`;
+    submissionURL =
+      'https://leetcode.com' +
+      submissionRef.split('=')[1].slice(1, -1);
   } else {
     // for a submission in explore section
     const submissionRef = document.getElementById('result-state');
@@ -413,7 +419,7 @@ function getProblemNameSlug() {
       questionTitle = qtitle[0].innerHTML;
     }
   } else if (checkElem(questionDescriptionElem)) {
-    const qtitle = document.getElementsByClassName('question-title');
+    let qtitle = document.getElementsByClassName('question-title');
     if (checkElem(qtitle)) {
       questionTitle = qtitle[0].innerText;
     }
@@ -423,7 +429,7 @@ function getProblemNameSlug() {
 
 /* Parser function for the question and tags */
 function parseQuestion() {
-  let questionUrl = window.location.href;
+  var questionUrl = window.location.href;
   if (questionUrl.endsWith('/submissions/')) {
     questionUrl = questionUrl.substring(
       0,
@@ -462,8 +468,7 @@ function parseQuestion() {
     // Final formatting of the contents of the README for each problem
     const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
     return markdown;
-  }
-  if (checkElem(questionDescriptionElem)) {
+  } else if (checkElem(questionDescriptionElem)) {
     let questionTitle = document.getElementsByClassName(
       'question-title',
     );
@@ -576,7 +581,7 @@ const loader = setInterval(() => {
   let probType;
   const successTag = document.getElementsByClassName('success__3Ai7');
   const resultState = document.getElementById('result-state');
-  let success = false;
+  var success = false;
   // check success tag for a normal problem
   if (
     checkElem(successTag) &&
@@ -657,7 +662,7 @@ const loader = setInterval(() => {
             uploadGit(
               btoa(unescape(encodeURIComponent(notes))),
               problemName,
-              'NOTES.txt',
+              'NOTES.md',
               createNotesMsg,
               'upload',
             );
@@ -675,9 +680,9 @@ const loader = setInterval(() => {
           'upload',
           // callback is called when the code upload to git is a success
           () => {
-            if (uploadState.countdown)
-              clearTimeout(uploadState.countdown);
-            delete uploadState.countdown;
+            if (uploadState['countdown'])
+              clearTimeout(uploadState['countdown']);
+            delete uploadState['countdown'];
             uploadState.uploading = false;
             markUploaded();
           },
@@ -691,7 +696,7 @@ const loader = setInterval(() => {
 /* we will start 10 seconds counter and even after that upload is not complete, then we conclude its failed */
 function startUploadCountDown() {
   uploadState.uploading = true;
-  uploadState.countdown = setTimeout(() => {
+  uploadState['countdown'] = setTimeout(() => {
     if ((uploadState.uploading = true)) {
       // still uploading, then it failed
       uploadState.uploading = false;
@@ -724,13 +729,13 @@ function insertToAnchorElement(elem) {
       if (target.childNodes.length > 0)
         target.childNodes[0].prepend(elem);
     }
-  } else if (
-    checkElem(document.getElementsByClassName('action__38Xc'))
-  ) {
-    target = document.getElementsByClassName('action__38Xc')[0];
-    elem.className = 'runcode-wrapper__8rXm';
-    if (target.childNodes.length > 0)
-      target.childNodes[0].prepend(elem);
+  } else {
+    if (checkElem(document.getElementsByClassName('action__38Xc'))) {
+      target = document.getElementsByClassName('action__38Xc')[0];
+      elem.className = 'runcode-wrapper__8rXm';
+      if (target.childNodes.length > 0)
+        target.childNodes[0].prepend(elem);
+    }
   }
 }
 
