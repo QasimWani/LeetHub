@@ -97,7 +97,7 @@ npm run               Show list of commands available
 npm run format        Auto-format JavaScript, HTML/CSS
 npm run format-test   Test all code is formatted properly
 npm run lint          Lint JavaScript
-npm run lint-test     Test all code is linted proprely
+npm run lint-test     Test all code is linted properly
 ```
 
 #### And that should be it! Get Hacking...
