@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "LeetHub",
-  "description": "Automatically integrate your Leetcode, GeeksforGeeks submissions to GitHub",
+  "description": "Automatically integrate your Leetcode submissions to GitHub, then deploys to a website",
   "homepage_url": "https://github.com/sarthakagrawal927/LeetHub",
   "version": "0.1.9",
   "author": "Sarthak Agrawal",
@@ -33,13 +33,11 @@
     {
       "matches": [
         "https://leetcode.com/*",
-        "https://github.com/*",
-        "https://practice.geeksforgeeks.org/*"
+        "https://github.com/*"
       ],
       "js": [
         "scripts/leetcode.js",
-        "scripts/authorize.js",
-        "scripts/gfg.js"
+        "scripts/authorize.js"
       ],
       "run_at": "document_idle"
     }

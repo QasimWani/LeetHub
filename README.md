@@ -1,13 +1,5 @@
 # LeetHub - Sarthak's Cut
 
-<h1 align="center">
-  <a href="https://standardjs.com"><img src="assets/octocode.png" alt="LeetHub - Automatically sync your code to GitHub." width="400"></a>
-  <br>
-  LeetHub - Automatically sync your code to GitHub.
-  <br>
-  <br>
-</h1>
-
 ## What is LeetHub?
 <p>A chrome extension that automatically pushes your code to GitHub when you pass all tests on a <a href="http://leetcode.com/">Leetcode</a> problem. </p>
 
@@ -45,3 +37,10 @@ pnpm run lint-test     Test all code is linted properly
 
 ```
 
+## Features I can add
+
+If we can get name, why not its index and topic related tags ?
+
+If we have everything in a nice .md file why not just make it a static website ? - Having all the code with topic wise list of questions, it would be amazing !
+
+Website generation, codes in multiple languages and filter question by tags
