@@ -1,10 +1,8 @@
 {
-  "name": "LeetHub",
-  "version": "0.0.8",
-  "private": true,
+  "name": "leethub",
+  "version": "1.x",
   "description": "Automatically integrate your code with LeetCode and GitHub",
   "scripts": {
-    "setup": "npm i",
     "format": "prettier --write **/*.{js,jsx,ts,tsx,css,html}",
     "format-test": "prettier --check **/*.{js,jsx,ts,tsx,css,html}",
     "lint": "eslint **/*.{js,jsx,ts,tsx} --fix",
