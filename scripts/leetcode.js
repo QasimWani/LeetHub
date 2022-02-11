@@ -625,7 +625,11 @@ const loader = setInterval(() => {
     const language = findLanguage();
     if (language !== null) {
       // start upload indicator here
-      startUpload();
+      chrome.storage.local.get('leethub_hook', (h) => {
+        const hook = h.leethub_hook;
+        const repoURL = `https://github.com/${hook}`;
+        startUpload(repoURL);
+      });
       chrome.storage.local.get('stats', (s) => {
         const { stats } = s;
         const filePath = problemName + problemName + language;
@@ -740,7 +744,7 @@ function insertToAnchorElement(elem) {
 }
 
 /* start upload will inject a spinner on left side to the "Run Code" button */
-function startUpload() {
+function startUpload(url) {
   try {
     elem = document.getElementById('leethub_progress_anchor_element');
     if (!elem) {
@@ -749,7 +753,11 @@ function startUpload() {
       elem.style = 'margin-right: 20px;padding-top: 2px;';
     }
     elem.innerHTML = `<div id="leethub_progress_elem" class="leethub_progress"></div>`;
-    target = insertToAnchorElement(elem);
+    const hyperLinkWrapper = document.createElement('a');
+    hyperLinkWrapper.href = url;
+    hyperLinkWrapper.target = '_blank';
+    hyperLinkWrapper.appendChild(elem);
+    target = insertToAnchorElement(hyperLinkWrapper);
     // start the countdown
     startUploadCountDown();
   } catch (error) {
