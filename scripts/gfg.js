@@ -6,8 +6,6 @@
 //   Javascript: '.js',
 // };
 
-// console.log("started gfg script");
-
 /* Commit messages */
 const README_MSG = 'Create README - LeetHub';
 const SUBMIT_MSG = 'Added solution - LeetHub';
@@ -44,7 +42,11 @@ function findDifficulty() {
   const ele = document.getElementsByClassName(
     'problem-tab__problem-level',
   )[0].innerText;
+
   if (ele != null) {
+    if (ele.trim() == 'Basic' || ele.trim() === 'School') {
+      return 'Easy';
+    }
     return ele;
   }
   return '';
@@ -158,6 +160,9 @@ const gfgLoader = setInterval(() => {
                 'README.md',
                 `${title} - ${README_MSG}`,
                 'upload',
+                undefined,
+                undefined,
+                difficulty,
               );
               // }
 
@@ -169,6 +174,9 @@ const gfgLoader = setInterval(() => {
                     toKebabCase(title + language),
                     `${title} - ${SUBMIT_MSG}`,
                     'upload',
+                    undefined,
+                    undefined,
+                    difficulty,
                   );
                 }, 1000);
               }
