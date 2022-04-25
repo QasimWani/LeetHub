@@ -7,8 +7,9 @@
 </h1>
 
 <p align="center">
-  <a href="https://github.com/QasimWani/LeetHub/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/></a>
+  <a href="https://github.com/maxgoodwin/LeetHub-Firefox/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/></a>
   <a href="https://discord.gg/anXT9vErxu"><img src="https://img.shields.io/discord/781373810251137074" alt="discord"></a>
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/leethub/"><img src="https://img.shields.io/amo/v/LeetHub.svg" alt="mozilla add-on"/></a>
   <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/v/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="chrome-webstore"/></a>
   <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/d/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="users"></a>
   <a href="https://github.com/QasimWani/LeetHub/graphs/contributors" alt="Contributors">
@@ -26,6 +27,11 @@
 
 <table style="border-collapse: separate;"><tr>
   <td style="border-spacing:2em 0"> 
+      <a href="https://addons.mozilla.org/en-US/firefox/addon/leethub/">
+        <img src="https://i.ibb.co/BLMCfKB/Firefox-Add-ons.jpg" alt="Mozilla add-ons" height=152.19123505976 width=270.161955728/>
+      </a>  
+  </td>
+  <td style="border-spacing:2em 0"> 
       <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi">
         <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimg.talkandroid.com%2Fuploads%2F2014%2F10%2Fchrome_web_store_logo_new.png&f=1&nofb=1" alt="Chrome WebStore" height=152.19123505976 width=200/>
       </a>  
@@ -37,7 +43,7 @@
 </tr></table>
 
 ## What is LeetHub?
-<p>A chrome extension that automatically pushes your code to GitHub when you pass all tests on a <a href="http://leetcode.com/">Leetcode</a> problem. </p>
+<p>A firefox and chrome extension that automatically pushes your code to GitHub when you pass all tests on a <a href="http://leetcode.com/">Leetcode</a> problem. </p>
 
 
 ## How fast is it really?
@@ -67,7 +73,7 @@ Moreover, pushing code manually to GitHub from Leetcode is very time consuming. 
 #### BONUS: Star [this repository](https://github.com/QasimWani/LeetHub) for further development of features. If you want a particular feature, simply [request](https://github.com/QasimWani/LeetHub/labels/feature) for it!
 
 
-## Why did I build LeetHub?
+## Why was LeetHub built?
 <p>
 The coding interview is arguably the most important part of your interview process, given you get the interview first. As someone who's received multiple internship offers from Fortune 100 companies, getting the interview in the first place is not easy!<br>
 And that's what LeetHub is supposed to do: indirectly improving your coding skills while improving your portfolio to ACE that interview at <em>insert_name_here</em>!
@@ -80,7 +86,17 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
 
 
 # How to set up LeetHub for local development?
+## On firefox
+<ol>
+  <li>Fork this repo and clone to your local machine</li>
+  <li>Go to <a href="about:debugging">about:debugging</a></li>
+  <li>Click <a href="about:debugging#/runtime/this-firefox">'This Firefox'</a> in the left tab</li>
+  <li>Click 'Load Temporary Add-on'</li>
+  <li>Select a file within the LeetHub root folder</li>
+  <li>Run "npm run setup" with the root folder to install the developer dependencies</li>
+</ol>
 
+## On chrome
 <ol>
   <li>Fork this repo and clone to your local machine</li>
   <li>Go to <a href="chrome://extensions">chrome://extensions</a> </li>
@@ -90,7 +106,7 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
   <li>Run "npm run setup" to install the developer dependencies</li>
 </ol>
 
-Other npm commands available:
+## Other npm commands available:
 
 ```
 npm run               Show list of commands available
