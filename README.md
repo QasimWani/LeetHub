@@ -98,7 +98,7 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
 
 ## On chrome
 <ol>
-  <li>Fork this repo and clone to your local machine</li>
+  <li>Fork the <a href="https://github.com/QasimWani/LeetHub">chrome LeetHub repo</a> and clone to your local machine</li>
   <li>Go to <a href="chrome://extensions">chrome://extensions</a> </li>
   <li>Enable <a href="https://www.mstoic.com/enable-developer-mode-in-chrome/">Developer mode</a> by toggling the switch on top right corner</li>
   <li>Click 'Load unpacked'</li>
