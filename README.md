@@ -36,6 +36,9 @@
   </td>
 </tr></table>
 
+## LeetHub progress and numbers (YouTube Video):
+[![LeetHub](https://user-images.githubusercontent.com/43754306/165053510-a757c95e-c3bc-49d5-995c-7a52368abd37.png)](https://www.youtube.com/watch?v=o33PIjqlOgw "LeetHub saves lives!")
+
 ## What is LeetHub?
 <p>A chrome extension that automatically pushes your code to GitHub when you pass all tests on a <a href="http://leetcode.com/">Leetcode</a> problem. </p>
 
