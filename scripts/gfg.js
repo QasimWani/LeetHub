@@ -56,23 +56,19 @@ function getProblemStatement() {
 }
 
 function getCode() {
-  const hackyScriptContent = `
-  // console.log("trying to get editor content");
+
+  const scriptContent = `
   var editor = ace.edit("ace-editor");
   var editorContent = editor.getValue();
-  // console.log(editorContent);
   var para = document.createElement("pre");
   para.innerText+=editorContent;
   para.setAttribute("id","codeDataLeetHub")
   document.body.appendChild(para);
-  // console.log(para);
   `;
-
-  // console.log(hackyScriptContent);
 
   var script = document.createElement('script');
   script.id = 'tmpScript';
-  script.appendChild(document.createTextNode(hackyScriptContent));
+  script.appendChild(document.createTextNode(scriptContent));
   (
     document.body ||
     document.head ||
@@ -110,7 +106,6 @@ const gfgLoader = setInterval(() => {
 
     const submitBtn = document.evaluate(".//button[text()='Submit']", document.body, null, XPathResult.ANY_TYPE, null).iterateNext();
 
-    // console.log("listening to events");
     submitBtn.addEventListener('click', function () {
       START_MONITOR = true;
       const submission = setInterval(() => {
