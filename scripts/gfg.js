@@ -13,7 +13,7 @@ const UPDATE_MSG = 'Updated solution - LeetHub';
 let START_MONITOR = true;
 const toKebabCase = (string) => {
   return string
-    .replace(/[^a-zA-Z0-9\. ]/g, '') //remove special chars
+    .replace(/[^a-zA-Z0-9\. ]/g, '') // remove special chars
     .replace(/([a-z])([A-Z])/g, '$1-$2') // get all lowercase letters that are near to uppercase ones
     .replace(/[\s_]+/g, '-') // replace all spaces and low dash
     .toLowerCase(); // convert to lower case
@@ -22,7 +22,7 @@ const toKebabCase = (string) => {
 function findGfgLanguage() {
   const ele = document.getElementsByClassName('filter-option')[0]
     .innerText;
-  let lang = ele.split('(')[0].trim();
+  const lang = ele.split('(')[0].trim();
   if (lang.length > 0 && languages[lang]) {
     return languages[lang];
   }
@@ -58,22 +58,17 @@ function getProblemStatement() {
 }
 
 function getCode() {
-  let hackyScriptContent = `
-  console.log("trying to get editor content");
+  const scriptContent = `
   var editorContent = editor.getValue();
-  // console.log(editorContent);
   var para = document.createElement("pre");
   para.innerText+=editorContent;
   para.setAttribute("id","codeDataLeetHub")
   document.body.appendChild(para);
-  // console.log(para);
   `;
-
-  // console.log(hackyScriptContent);
 
   var script = document.createElement('script');
   script.id = 'tmpScript';
-  script.appendChild(document.createTextNode(hackyScriptContent));
+  script.appendChild(document.createTextNode(scriptContent));
   (
     document.body ||
     document.head ||
@@ -81,7 +76,7 @@ function getCode() {
   ).appendChild(script);
   const text = document.getElementById('codeDataLeetHub').innerText;
 
-  let nodeDeletionScript = `
+  const nodeDeletionScript = `
   document.body.removeChild(para)
   `;
   var script = document.createElement('script');
@@ -93,7 +88,7 @@ function getCode() {
     document.documentElement
   ).appendChild(script);
 
-  return text ? text : '';
+  return text || '';
 }
 
 const gfgLoader = setInterval(() => {
@@ -108,13 +103,12 @@ const gfgLoader = setInterval(() => {
       'practice.geeksforgeeks.org/problems',
     )
   ) {
-    let submitBtn = document.getElementById('run');
+    const submitBtn = document.getElementById('run');
 
-    // console.log("listening to events");
     submitBtn.addEventListener('click', function () {
       START_MONITOR = true;
       const submission = setInterval(() => {
-        let output = document.getElementsByClassName('out')[0]
+        const output = document.getElementsByClassName('out')[0]
           .innerText;
         if (
           output.includes('Problem Solved Successfully') &&
@@ -132,10 +126,9 @@ const gfgLoader = setInterval(() => {
           language = findGfgLanguage();
 
           // format data
-          let probName = title + ` - GFG`;
+          const probName = `${title} - GFG`;
 
-          problemStatement =
-            `# ${title}\n## ${difficulty}\n` + problemStatement;
+          problemStatement = `# ${title}\n## ${difficulty}\n${problemStatement}`;
 
           // if language was found
           if (language !== null) {
