@@ -506,7 +506,7 @@ function parseStats() {
   for (let i = 0; i < relatedTags.length; i++) {
     allTags.push(relatedTags.item(i).innerText);
   }
-  let relatedTopics = allTags.join('| ');
+  let relatedTopics = allTags.join(' | ');
 
   // Format commit message
   return `Related Topics: ${relatedTopics}, Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
