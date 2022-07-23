@@ -109,7 +109,7 @@ const gfgLoader = setInterval(() => {
     submitBtn.addEventListener('click', function () {
       START_MONITOR = true;
       const submission = setInterval(() => {
-        const output = document.querySelectorAll('[class^="problems_content_pane"]')[0]
+        const output = document.querySelectorAll('[class^="problems_content"]')[0]
           .innerText;
         if (
           output.includes('Problem Solved Successfully') &&
