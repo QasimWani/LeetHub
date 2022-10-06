@@ -66,6 +66,7 @@ const upload = (
   msg,
   cb = undefined,
 ) => {
+  const languageName =  findLanguage().charAt(1).toUpperCase() + findLanguage().slice(2);
   // To validate user, load user object from GitHub.
   const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
 
@@ -95,7 +96,7 @@ const upload = (
             stats.hard = 0;
             stats.sha = {};
           }
-          const filePath = directory + filename;
+          const filePath = languageName + '/' + difficulty + '/' + directory + filename;
           // Only increment solved problems statistics once
           // New submission commits twice (README and problem)
           if (filename === 'README.md' && sha === null) {
