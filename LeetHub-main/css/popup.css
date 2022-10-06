@@ -1,0 +1,35 @@
+body {
+  width: 350px;
+  background-color: #dfd9d99d !important;
+  padding: 10px;
+  text-align: center;
+  transition: background-color 0.75s ease;
+  font-size: 13px;
+
+  font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif;
+}
+
+#title {
+  font-family: 'Norwester', 'Helvetica Neue', 'Lucida Grande',
+    sans-serif;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 0px;
+  margin-top: 10px;
+}
+
+#caption {
+  font-family: 'Norwester', 'Helvetica Neue', 'Lucida Grande',
+    sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  margin-bottom: 0px;
+}
+
+.onboarding {
+  font-family: sans-serif;
+  border-top: solid black 1px;
+  font-weight: 500;
+  padding-top: 2%;
+  font-size: medium;
+}
