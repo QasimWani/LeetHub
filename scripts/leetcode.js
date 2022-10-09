@@ -428,8 +428,9 @@ function getProblemNameSlug() {
 }
 
 function addLeadingZeros(title) {
+  const maxTitlePrefixLength = 4;
   var len = title.split('-')[0].length;
-  if (len < 4) {
+  if (len < maxTitlePrefixLength) {
     return '0'.repeat(4 - len) + title;
   }
   return title;
