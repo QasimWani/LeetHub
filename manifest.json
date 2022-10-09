@@ -3,7 +3,7 @@
   "name": "LeetHub",
   "description": "Automatically integrate your Leetcode & GeeksforGeeks submissions to GitHub",
   "homepage_url": "https://github.com/QasimWani/LeetHub",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "Qasim Wani",
   "browser_action": {
     "default_icon": "assets/thumbnail.png",
@@ -15,9 +15,7 @@
     "128": "assets/thumbnail.png"
   },
   "background": {
-    "scripts": [
-      "scripts/background.js"
-    ],
+    "scripts": ["scripts/background.js"],
     "persistent": false
   },
   "permissions": [
