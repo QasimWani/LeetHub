@@ -507,8 +507,18 @@ function parseStats() {
   const space = probStats[2].textContent;
   const spacePercentile = probStats[3].textContent;
 
+  /* Adding Related Topics in Commit Message */
+  const relatedTags = document.getElementsByClassName(
+    'topic-tag__1jni',
+  );
+  let allTags = [];
+  for (let i = 0; i < relatedTags.length; i++) {
+    allTags.push(relatedTags.item(i).innerText);
+  }
+  let relatedTopics = allTags.join(' | ');
+
   // Format commit message
-  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
+  return `Related Topics: ${relatedTopics}, Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
 }
 
 document.addEventListener('click', (event) => {
