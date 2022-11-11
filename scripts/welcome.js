@@ -2,8 +2,16 @@ const option = () => {
   return $('#type').val();
 };
 
+// simply removes any starting url before the string via slicing off everything after '/'
 const repositoryName = () => {
-  return $('#name').val().trim();
+  checkForUrl = $('#name').val().trim();
+  urlIndex = checkForUrl.lastIndexOf("/");
+  if (urlIndex !== -1){
+    return checkForUrl.slice(urlIndex+1)
+  }
+  else{
+    return checkForUrl;
+  }
 };
 
 /* Status codes for creating of repo */
