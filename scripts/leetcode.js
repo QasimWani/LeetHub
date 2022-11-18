@@ -268,13 +268,11 @@ function findCode(
 ) {
   /* Get the submission details url from the submission page. */
   var submissionURL;
-  const e = document.getElementsByClassName('status-column__3SUg');
+  const e = document.getElementsByClassName('text-success');
   if (checkElem(e)) {
     // for normal problem submisson
-    const submissionRef = e[1].innerHTML.split(' ')[1];
-    submissionURL =
-      'https://leetcode.com' +
-      submissionRef.split('=')[1].slice(1, -1);
+    const submissionRef = e[1].href;
+    submissionURL = submissionRef;
   } else {
     // for a submission in explore section
     const submissionRef = document.getElementById('result-state');
