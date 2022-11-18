@@ -272,9 +272,7 @@ function findCode(
   if (checkElem(e)) {
     // for normal problem submisson
     const submissionRef = e[1].href;
-    console.log(submissionRef);
     submissionURL = submissionRef;
-    console.log(submissionURL);
   } else {
     // for a submission in explore section
     const submissionRef = document.getElementById('result-state');
