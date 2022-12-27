@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "LeetHub",
+  "name": "LeetHub Test",
   "description": "Automatically integrate your Leetcode & GeeksforGeeks submissions to GitHub",
   "homepage_url": "https://github.com/QasimWani/LeetHub",
   "version": "1.1.2",

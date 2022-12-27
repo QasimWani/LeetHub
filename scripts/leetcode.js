@@ -281,6 +281,8 @@ function findCode(
     submissionURL = submissionRef.href;
   }
 
+  console.log(`submission URL: ${submissionURL}`)
+
   if (submissionURL != undefined) {
     /* Request for the submission details page */
     const xhttp = new XMLHttpRequest();
@@ -436,26 +438,39 @@ function addLeadingZeros(title) {
   return title;
 }
 
+// returns value from a "key":"value" pair in a given string. if key is not present, returns null
+function RegExKeyMatch(key, str){
+  const match = str.match(new RegExp(`"${key}":"([^"]+)"`))
+  return match ? match[1] : null
+}
+
 /* Parser function for the question and tags */
-function parseQuestion() {
+async function parseQuestion() {
+  var qtitle;
+  var qbody;
+  
+  // get base URL of leetcode problem
   var questionUrl = window.location.href;
-  if (questionUrl.endsWith('/submissions/')) {
+  if (questionUrl.includes('/submissions/')) {
     questionUrl = questionUrl.substring(
       0,
       questionUrl.lastIndexOf('/submissions/') + 1,
     );
   }
-  const questionElem = document.getElementsByClassName(
+  
+  var questionElem = document.getElementsByClassName(
     'content__u3I1 question-content__JfgR',
   );
-  const questionDescriptionElem = document.getElementsByClassName(
+
+  var questionDescriptionElem = document.getElementsByClassName(
     'question-description__3U1T',
   );
+
   if (checkElem(questionElem)) {
-    const qbody = questionElem[0].innerHTML;
+    qbody = questionElem[0].innerHTML;
 
     // Problem title.
-    let qtitle = document.getElementsByClassName('css-v3d350');
+    qtitle = document.getElementsByClassName('css-v3d350');
     if (checkElem(qtitle)) {
       qtitle = qtitle[0].innerHTML;
     } else {
@@ -477,7 +492,8 @@ function parseQuestion() {
     // Final formatting of the contents of the README for each problem
     const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
     return markdown;
-  } else if (checkElem(questionDescriptionElem)) {
+  } 
+  else if (checkElem(questionDescriptionElem)) {
     let questionTitle = document.getElementsByClassName(
       'question-title',
     );
@@ -492,20 +508,82 @@ function parseQuestion() {
 
     return markdown;
   }
+  else{
+    // user is using new version of LeetCode
+    
+    /* 
+     Many of the question details such as question title and difficulty is found in the
+     HTML file at the question base URL, under a script with the id "__NEXT_DATA__"
+     we can either query the entire html text which includes the script details or make
+     a DOM object, select the script, and query from that text. I chose the former, but this
+     can be changed if the latter is more efficient
+    */
 
-  return null;
+    // make a http request to the base URL to get html file
+    let basePage = await fetch(questionUrl, {method: "GET"})
+    let questionData = await basePage.text()
+    
+    // from the html text, get title and difficulty of question
+    let questionNo = RegExKeyMatch("questionFrontendId", questionData)
+    let questionName = RegExKeyMatch("title", questionData)
+    difficulty = RegExKeyMatch("difficulty", questionData)
+
+    // form title and get question description
+    qtitle = `${questionNo}. ${questionName}`
+    qbody = document.head.querySelector('meta[name="description"]').content
+    
+    if(!qtitle){ // either using explore section or something went wrong
+      // TODO: look for the explore question data 
+      return null;
+    }
+
+    // Final formatting of the contents of the README for each problem
+    const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
+    return markdown;
+  }
+}
+
+/* For LeetCode's new UI, percentage int and decimal are seperated, but contained in a single div.
+The function brings them together to a single string */
+function parsePercentileNew(elem){
+  let spans = Array.from(elem.querySelectorAll("span"))
+  let percentage = ""
+  spans.forEach(elem => {
+    percentage += elem.textContent
+  })
+
+  return percentage
 }
 
 /* Parser function for time/space stats */
 function parseStats() {
+  let time, timePercentile, space, spacePercentile;
   const probStats = document.getElementsByClassName('data__HC-i');
-  if (!checkElem(probStats)) {
-    return null;
+  
+  if (checkElem(probStats)) {
+    time = probStats[0].textContent;
+    timePercentile = probStats[1].textContent;
+    space = probStats[2].textContent;
+    spacePercentile = probStats[3].textContent;
   }
-  const time = probStats[0].textContent;
-  const timePercentile = probStats[1].textContent;
-  const space = probStats[2].textContent;
-  const spacePercentile = probStats[3].textContent;
+  else{
+    // user may be using a newer version of LeetCode
+    let newProbStats = document.getElementsByClassName("gap-y-2");
+    if(!checkElem(newProbStats)){
+      return null;
+    }
+
+    //for each stat (time, mem), get their values and percentiles
+    let stats = []
+    Array.from(newProbStats).forEach(stat => {
+      let [val, per] = stat.querySelectorAll("div")
+    
+      stats.push(val.querySelectorAll("*")[1].textContent)
+      stats.push(parsePercentileNew(per.querySelectorAll("*")[1]))
+    });
+
+    [time, timePercentile, space, spacePercentile] = stats
+  }
 
   // Format commit message
   return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
@@ -583,21 +661,49 @@ function getNotesIfAny() {
   return notes.trim();
 }
 
-const loader = setInterval(() => {
+const loader = setInterval(async () => {
   let code = null;
   let probStatement = null;
   let probStats = null;
   let probType;
-  const successTag = document.getElementsByClassName('success__3Ai7');
-  const resultState = document.getElementById('result-state');
-  var success = false;
-  // check success tag for a normal problem
-  if (
+
+  // try get success tag for a normal problem in both old and new versions
+  
+  // returns document query if there is an element with the correct class name and content
+  const successfulOld = () => {
+    const successTag = document.getElementsByClassName('success__3Ai7')
+
+    return (
     checkElem(successTag) &&
     successTag[0].className === 'success__3Ai7' &&
     successTag[0].innerText.trim() === 'Success'
+    ) ?
+    successTag : null
+  }
+
+  const successfulNew = () => {
+    const successTag = Array.from(document.getElementsByClassName("text-green-s")).filter(elem => elem.querySelector("svg"))
+
+    // check if both the success icon exists and it is accompanies by the "Accepted" tag
+    return (
+      checkElem(successTag) &&
+      successTag[0].querySelector("span")?.textContent == "Accepted"
+    ) ?
+    successTag : null
+  }
+
+  const successTag = successfulOld() || successfulNew() || [];
+
+  // TODO: try get result state for an explore section problem in both old and new versions
+  const resultState = document.getElementById('result-state');
+  
+  
+  var success = false;
+  // check success tag for a normal problem
+  if (
+    successTag.length
   ) {
-    console.log(successTag[0]);
+    //console.log(successTag[0]);
     success = true;
     probType = NORMAL_PROBLEM;
   }
@@ -613,9 +719,12 @@ const loader = setInterval(() => {
   }
 
   if (success) {
-    probStatement = parseQuestion();
+    probStatement = await parseQuestion();
     probStats = parseStats();
   }
+
+  console.log(probStatement)
+  console.log(probStats)
 
   if (probStatement !== null) {
     switch (probType) {
