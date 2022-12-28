@@ -23,6 +23,8 @@
     "https://api.github.com/*",
     "https://leetcode.com/*",
     "https://practice.geeksforgeeks.org/*",
+    "https://*.leetcode.com/*",
+    "https://*.leetcode.cn/*",
     "tabs",
     "unlimitedStorage",
     "storage"
@@ -32,10 +34,12 @@
       "matches": [
         "https://leetcode.com/*",
         "https://github.com/*",
-        "https://practice.geeksforgeeks.org/*"
+        "https://practice.geeksforgeeks.org/*",
+        "https://*.leetcode.com/*",
+        "https://*.leetcode.cn/*"
       ],
       "js": [
-        "scripts/leetcode.js",
+        "scripts/newleetcode.js",
         "scripts/authorize.js",
         "scripts/gfg.js"
       ],
