@@ -26,6 +26,9 @@ const readmeMsg = 'Create README - LeetHub';
 const discussionMsg = 'Prepend discussion post - LeetHub';
 const createNotesMsg = 'Attach NOTES - LeetHub';
 
+// cache the base URL html file used for parsing question details with the new LeetCode UI
+let newPageHTML = '';
+
 // problem types
 const NORMAL_PROBLEM = 0;
 const EXPLORE_SECTION_PROBLEM = 1;
@@ -36,9 +39,33 @@ let difficulty = '';
 /* state of upload for progress */
 let uploadState = { uploading: false };
 
+// generate HTML file for parsing question details with the new LeetCode UI
+async function generateBasePage(questionUrl){
+  // get base URL of leetcode problem
+  if (questionUrl.includes('/submissions/')) {
+    questionUrl = questionUrl.substring(
+      0,
+      questionUrl.lastIndexOf('/submissions/') + 1,
+    );
+  }
+    
+  /* 
+    Many of the question details such as question title and difficulty is found in the
+    HTML file at the question base URL, under a script with the id "__NEXT_DATA__"
+    we can either query the entire html text which includes the script details or make
+    a DOM object, select the script, and query from that text.
+  */
+
+  // make a http request to the base URL to get html file
+  let basePage = await fetch(questionUrl, {method: "GET"})
+  let questionData = await basePage.text()
+  
+  return questionData;
+}
+
 /* Get file extension for submission */
 function findLanguage() {
-  const tag = [
+  var tag = [
     ...document.getElementsByClassName(
       'ant-select-selection-selected-value',
     ),
@@ -51,6 +78,15 @@ function findLanguage() {
         return languages[elem]; // should generate respective file extension
       }
     }
+  }
+  else{
+    // user may be using new version of LeetCode
+    // returns an array of language tags submitted. first and last instance is the most recent submission
+    tag = Array.from(document.querySelectorAll('span[class*="leading-"]')).filter(elem => elem.textContent in languages)
+    if(!checkElem(tag)){ // something went wrong
+      return null
+    }
+    return languages[tag[0].textContent] // should generate respective file extension
   }
   return null;
 }
@@ -278,7 +314,7 @@ function findCode(
   } else {
     // for a submission in explore section
     const submissionRef = document.getElementById('result-state');
-    submissionURL = submissionRef.href;
+    submissionURL = submissionRef?.href;
   }
 
   console.log(`submission URL: ${submissionURL}`)
@@ -368,6 +404,34 @@ function findCode(
     xhttp.open('GET', submissionURL, true);
     xhttp.send();
   }
+  else{
+    // user may be using newer version of Leetcode.
+    // when submitted, user is directed to submission page with the code already present
+    // therefore we don't need to make a http request.
+
+    // code can be found from the <code> tag
+    code = ""
+    Array.from(document.querySelectorAll("code")[0].children).forEach((line) => {code += `${line.textContent}`})
+    
+    if(!msg){
+      // TODO: get statistics from submission page for new explore section??
+      return null;
+    }
+
+    if (code != null) {
+      setTimeout(function () {
+        uploadGit(
+          btoa(unescape(encodeURIComponent(code))),
+          problemName,
+          fileName,
+          msg,
+          action,
+          true,
+          cb,
+        );
+      }, 2000);
+    }
+  }
 }
 
 /* Main parser function for the code */
@@ -407,7 +471,7 @@ function convertToSlug(string) {
     .replace(/^-+/, '') // Trim - from start of text
     .replace(/-+$/, ''); // Trim - from end of text
 }
-function getProblemNameSlug() {
+async function getProblemNameSlug() {
   const questionElem = document.getElementsByClassName(
     'content__u3I1 question-content__JfgR',
   );
@@ -425,6 +489,28 @@ function getProblemNameSlug() {
     if (checkElem(qtitle)) {
       questionTitle = qtitle[0].innerText;
     }
+  }
+  else{
+    // user may be using newer version of LeetCode
+    // get the html text from the base URL
+    if(!newPageHTML){
+      newPageHTML = await generateBasePage(window.location.href);
+    }
+    // if newPageHTML returns null, return an error.
+    if(!newPageHTML){
+      console.error("Cannot find title of leetcode problem.")
+      return;
+    }
+
+    // from the html text, get title and difficulty of question
+    let questionNo = RegExKeyMatch("questionFrontendId", newPageHTML)
+    let questionName = RegExKeyMatch("title", newPageHTML)
+    if(!questionNo){ // user may be using explore section or something went wrong
+      // TODO: generate question title from 
+      return null;
+    }
+    
+    questionTitle = `${questionNo}. ${questionName}`
   }
   return addLeadingZeros(convertToSlug(questionTitle));
 }
@@ -511,32 +597,29 @@ async function parseQuestion() {
   else{
     // user is using new version of LeetCode
     
-    /* 
-     Many of the question details such as question title and difficulty is found in the
-     HTML file at the question base URL, under a script with the id "__NEXT_DATA__"
-     we can either query the entire html text which includes the script details or make
-     a DOM object, select the script, and query from that text. I chose the former, but this
-     can be changed if the latter is more efficient
-    */
-
-    // make a http request to the base URL to get html file
-    let basePage = await fetch(questionUrl, {method: "GET"})
-    let questionData = await basePage.text()
-    
+    // get the html text from the base URL
+    if(!newPageHTML){
+      newPageHTML = await generateBasePage(window.location.href);
+    }
+    // if newPageHTML returns null, return an error.
+    if(!newPageHTML){
+      console.error("Cannot find description of leetcode problem.")
+      return;
+    }
     // from the html text, get title and difficulty of question
-    let questionNo = RegExKeyMatch("questionFrontendId", questionData)
-    let questionName = RegExKeyMatch("title", questionData)
-    difficulty = RegExKeyMatch("difficulty", questionData)
+    let questionNo = RegExKeyMatch("questionFrontendId", newPageHTML)
+    let questionName = RegExKeyMatch("title", newPageHTML)
+    difficulty = RegExKeyMatch("difficulty", newPageHTML)
 
+    if(!questionNo){ // either using explore section or something went wrong
+      // TODO: look for the explore question data 
+      return null;
+    }
+    
     // form title and get question description
     qtitle = `${questionNo}. ${questionName}`
     qbody = document.head.querySelector('meta[name="description"]').content
     
-    if(!qtitle){ // either using explore section or something went wrong
-      // TODO: look for the explore question data 
-      return null;
-    }
-
     // Final formatting of the contents of the README for each problem
     const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
     return markdown;
@@ -631,6 +714,7 @@ document.addEventListener('click', (event) => {
 /* function to get the notes if there is any
  the note should be opened atleast once for this to work
  this is because the dom is populated after data is fetched by opening the note */
+// TODO: update function to support both old and new LeetCode UI
 function getNotesIfAny() {
   // there are no notes on expore
   if (document.URL.startsWith('https://leetcode.com/explore/'))
@@ -667,12 +751,13 @@ const loader = setInterval(async () => {
   let probStats = null;
   let probType;
 
-  // try get success tag for a normal problem in both old and new versions
   
-  // returns document query if there is an element with the correct class name and content
+  // query for old "Success" tag
   const successfulOld = () => {
     const successTag = document.getElementsByClassName('success__3Ai7')
 
+    // check if both the success tag exists, its accompanied by the "Success" text and it is not
+    // already processed
     return (
     checkElem(successTag) &&
     successTag[0].className === 'success__3Ai7' &&
@@ -680,18 +765,19 @@ const loader = setInterval(async () => {
     ) ?
     successTag : null
   }
-
+  // query for new "Accepted" tag
   const successfulNew = () => {
     const successTag = Array.from(document.getElementsByClassName("text-green-s")).filter(elem => elem.querySelector("svg"))
 
-    // check if both the success icon exists and it is accompanies by the "Accepted" tag
+    // check if both the success icon exists, its accompanied by the "Accepted" text and it is not
+    // already processed
     return (
       checkElem(successTag) &&
+      !successTag[0].classList.contains("marked_as_success") &&
       successTag[0].querySelector("span")?.textContent == "Accepted"
     ) ?
     successTag : null
   }
-
   const successTag = successfulOld() || successfulNew() || [];
 
   // TODO: try get result state for an explore section problem in both old and new versions
@@ -701,7 +787,7 @@ const loader = setInterval(async () => {
   var success = false;
   // check success tag for a normal problem
   if (
-    successTag.length
+    checkElem(successTag)
   ) {
     //console.log(successTag[0]);
     success = true;
@@ -723,9 +809,6 @@ const loader = setInterval(async () => {
     probStats = parseStats();
   }
 
-  console.log(probStatement)
-  console.log(probStats)
-
   if (probStatement !== null) {
     switch (probType) {
       case NORMAL_PROBLEM:
@@ -739,7 +822,7 @@ const loader = setInterval(async () => {
         return;
     }
 
-    const problemName = getProblemNameSlug();
+    const problemName = await getProblemNameSlug();
     const language = findLanguage();
     if (language !== null) {
       // start upload indicator here
@@ -771,6 +854,7 @@ const loader = setInterval(async () => {
 
       /* get the notes and upload it */
       /* only upload notes if there is any */
+      // NOTE: getNotesIfAny currently supportes only LeetCode's old UI
       notes = getNotesIfAny();
       if (notes.length > 0) {
         setTimeout(function () {
