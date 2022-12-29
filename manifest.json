@@ -39,6 +39,7 @@
         "https://*.leetcode.cn/*"
       ],
       "js": [
+        "scripts/leetcode.js",
         "scripts/newleetcode.js",
         "scripts/authorize.js",
         "scripts/gfg.js"

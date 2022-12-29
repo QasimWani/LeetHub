@@ -1,5 +1,5 @@
 /* Enum for languages supported by LeetCode. */
-const languages = {
+const programmingLanguages = {
   Python: '.py',
   Python3: '.py',
   'C++': '.cpp',
@@ -22,48 +22,21 @@ const languages = {
 };
 
 /* Commit messages */
-const readmeMsg = 'Create README - LeetHub';
-const discussionMsg = 'Prepend discussion post - LeetHub';
-const createNotesMsg = 'Attach NOTES - LeetHub';
+const readMeMsg = 'Create README - LeetHub';
 const pattern = /https?:\/\/.*leetcode.com\/problems\/.*\/submissions\/\d*/;
 
-// problem types
-const NORMAL_PROBLEM = 0;
-const EXPLORE_SECTION_PROBLEM = 1;
-
-/* Difficulty of most recenty submitted question */
-let difficulty = '';
-
 /* state of upload for progress */
-let uploadState = { uploading: false };
+let uploadingState = { uploading: false };
 let elem;
+let questionDict = {};
 
 /* Util function to check if an element exists */
-function checkElem(elem) {
+function checkElement(elem) {
   return elem && elem.length > 0;
 }
 
-/* Get file extension for submission */
-function findLanguage() {
-  const tag = [
-    ...document.getElementsByClassName(
-      'ant-select-selection-selected-value',
-    ),
-    ...document.getElementsByClassName('Select-value-label'),
-  ];
-  if (tag && tag.length > 0) {
-    for (let i = 0; i < tag.length; i += 1) {
-      const elem = tag[i].textContent;
-      if (elem !== undefined && languages[elem] !== undefined) {
-        return languages[elem]; // should generate respective file extension
-      }
-    }
-  }
-  return null;
-}
-
 /* Main function for uploading code to GitHub repo, and callback cb is called if success */
-const upload = (
+const uploadToGit = (
   token,
   hook,
   code,
@@ -107,9 +80,6 @@ const upload = (
           // New submission commits twice (README and problem)
           if (filename === 'README.md' && sha === null) {
             stats.solved += 1;
-            stats.easy += difficulty === 'Easy' ? 1 : 0;
-            stats.medium += difficulty === 'Medium' ? 1 : 0;
-            stats.hard += difficulty === 'Hard' ? 1 : 0;
           }
           stats.sha[filePath] = updatedSha; // update sha key.
           chrome.storage.local.set({ stats }, () => {
@@ -135,7 +105,7 @@ const upload = (
 /* Main function for updating code on GitHub Repo */
 /* Currently only used for prepending discussion posts to README */
 /* callback cb is called on success if it is defined */
-const update = (
+const updateOnGit = (
   token,
   hook,
   addition,
@@ -166,7 +136,7 @@ const update = (
         }
 
         /* Write file with new content to GitHub */
-        upload(
+        uploadToGit(
           token,
           hook,
           newContent,
@@ -185,7 +155,7 @@ const update = (
   xhr.send();
 };
 
-function uploadGit(
+function uploadOnGit(
   code,
   problemName,
   fileName,
@@ -195,11 +165,6 @@ function uploadGit(
   cb = undefined,
   _diff = undefined,
 ) {
-  // Assign difficulty
-  if (_diff && _diff !== undefined) {
-    difficulty = _diff.trim();
-  }
-
   /* Get necessary payload data */
   chrome.storage.local.get('leethub_token', (t) => {
     const token = t.leethub_token;
@@ -229,7 +194,7 @@ function uploadGit(
 
                 if (action === 'upload') {
                   /* Upload to git. */
-                  upload(
+                  uploadToGit(
                     token,
                     hook,
                     code,
@@ -241,7 +206,7 @@ function uploadGit(
                   );
                 } else if (action === 'update') {
                   /* Update on git */
-                  update(
+                  updateOnGit(
                     token,
                     hook,
                     code,
@@ -261,12 +226,12 @@ function uploadGit(
 }
 
 /* Function for finding and parsing the full code. */
-/* - At first find the submission details url. */
-/* - Then send a request for the details page. */
-/* - Finally, parse the code from the html reponse. */
+/* - The solution is available at the same page. */
+/* - Either get the monaco object from the window, or use dom manipulation*/
+/* - Here it gets the code from DOM manipulation */
 /* - Also call the callback if available when upload is success */
-function findCode(
-  uploadGit,
+function findSubmittedCode(
+  uploadOnGit,
   problemName,
   fileName,
   msg,
@@ -274,8 +239,8 @@ function findCode(
   cb = undefined,
 ) {
   let codeUnicoded = null;
-  /* Extract only the code */
 
+  /* Extract only the code */
   let codeDiv = document.querySelector('code');
   if (!codeDiv) {
     return null;
@@ -295,7 +260,7 @@ function findCode(
   }
   if (codeUnicoded !== null && code !== null) {
     setTimeout(function () {
-      uploadGit(
+      uploadOnGit(
         btoa(unescape(encodeURIComponent(code))),
         problemName,
         fileName,
@@ -308,7 +273,7 @@ function findCode(
   }
 }
 
-function convertToSlug(string) {
+function convertToSlugCase(string) {
   const a =
     'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;';
   const b =
@@ -326,12 +291,12 @@ function convertToSlug(string) {
     .replace(/^-+/, '') // Trim - from start of text
     .replace(/-+$/, ''); // Trim - from end of text
 }
-function getProblemNameSlug(questionTitle) {
-  return convertToSlug(questionTitle);
+function getProblemNameSlugCase(questionTitle) {
+  return convertToSlugCase(questionTitle);
 }
 
 /* Parser function for the question and tags */
-function parseQuestion() {
+function getQuestion() {
   var questionUrl = window.location.href;
   questionUrl = questionUrl.split('submissions')[0];
 
@@ -340,7 +305,7 @@ function parseQuestion() {
     question = question.content;
   }
   let qArray = question.split(' - ');
-  question = qArray.slice(1).join(' ');
+  question = qArray.slice(1).join(' - ');
 
   // Problem title.
   let qtitle = qArray[0].trim();
@@ -351,11 +316,11 @@ function parseQuestion() {
 }
 
 /* Parser function for time/space stats */
-function parseStats() {
+function getStats() {
   let probStats = document.getElementsByClassName(
     'text-label-1 dark:text-dark-label-1 ml-2 font-medium',
   );
-  if (!checkElem(probStats)) {
+  if (!checkElement(probStats)) {
     return null;
   }
   const percentageStats = document.getElementsByClassName(
@@ -363,7 +328,7 @@ function parseStats() {
   );
   let time = probStats[0].textContent;
   let space = probStats[1].textContent;
-  if (!checkElem(percentageStats)) {
+  if (!checkElement(percentageStats)) {
     return null;
   }
   let timePercentile = percentageStats[0].textContent;
@@ -372,46 +337,7 @@ function parseStats() {
   return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
 }
 
-document.addEventListener('click', (event) => {
-  const element = event.target;
-  const oldPath = window.location.pathname;
-
-  /* Act on Post button click */
-  /* Complex since "New" button shares many of the same properties as "Post button */
-  if (
-    element.classList.contains('icon__3Su4') ||
-    element.parentElement.classList.contains('icon__3Su4') ||
-    element.parentElement.classList.contains(
-      'btn-content-container__214G',
-    ) ||
-    element.parentElement.classList.contains('header-right__2UzF')
-  ) {
-    setTimeout(function () {
-      /* Only post if post button was clicked and url changed */
-      if (
-        oldPath !== window.location.pathname &&
-        oldPath ===
-          window.location.pathname.substring(0, oldPath.length) &&
-        !Number.isNaN(window.location.pathname.charAt(oldPath.length))
-      ) {
-        const date = new Date();
-        const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()} at ${date.getHours()}:${date.getMinutes()}`;
-        const addition = `[Discussion Post (created on ${currentDate})](${window.location})  \n`;
-        const problemName = window.location.pathname.split('/')[2]; // must be true.
-
-        uploadGit(
-          addition,
-          problemName,
-          'README.md',
-          discussionMsg,
-          'update',
-        );
-      }
-    }, 1000);
-  }
-});
-
-const loader = setInterval(() => {
+const mainFunction = setInterval(() => {
   let probStatement = null;
   let probStats = null;
 
@@ -420,8 +346,8 @@ const loader = setInterval(() => {
     : null;
 
   const language = languageDiv
-    ? languages[languageDiv.innerText]
-    : findLanguage();
+    ? programmingLanguages[languageDiv.innerText]
+    : null;
 
   // solution is accepted when the link changes, and a submission is made
   // basically on a accepted solution we observe a change in href and so we can say solution is accepted
@@ -433,14 +359,22 @@ const loader = setInterval(() => {
   var success = solution ? true : false;
   // check success tag for a normal problem
   if (success) {
-    probStatement = parseQuestion().markdown;
-    probStats = parseStats();
+    probStatement = getQuestion().markdown;
+    probStats = getStats();
   }
   if (probStatement !== null) {
-    const problemName = getProblemNameSlug(parseQuestion().title);
+    const problemName = getProblemNameSlugCase(getQuestion().title);
+    let filePath = problemName + problemName + language;
+    let readmeKey = language + problemName;
+    if (
+      questionDict[filePath] !== undefined ||
+      questionDict[readmeKey] !== undefined
+    ) {
+      return null;
+    }
     if (language !== null) {
       // start upload indicator here
-      startUpload();
+      startUploading();
       chrome.storage.local.get('stats', (s) => {
         const { stats } = s;
         const filePath = problemName + problemName + language;
@@ -455,96 +389,77 @@ const loader = setInterval(() => {
         /* Only create README if not already created */
         if (sha === null) {
           /* @TODO: Change this setTimeout to Promise */
-          uploadGit(
-            btoa(unescape(encodeURIComponent(probStatement))),
-            problemName,
-            'README.md',
-            readmeMsg,
-            'upload',
-          );
+          if (questionDict[readmeKey] === undefined) {
+            uploadOnGit(
+              btoa(unescape(encodeURIComponent(probStatement))),
+              problemName,
+              'README.md',
+              readMeMsg,
+              'upload',
+            );
+            questionDict[readmeKey] = Date.now();
+          }
         }
       });
-
-      /* Upload code to Git */
-      setTimeout(function () {
-        findCode(
-          uploadGit,
-          problemName,
-          problemName + language,
-          probStats,
-          'upload',
-          // callback is called when the code upload to git is a success
-          () => {
-            if (uploadState['countdown'])
-              clearTimeout(uploadState['countdown']);
-            delete uploadState['countdown'];
-            uploadState.uploading = false;
-            markUploaded();
-          },
-        ); // Encode `code` to base64
-      }, 1000);
+      if (questionDict[filePath] === undefined) {
+        /* Upload code to Git */
+        setTimeout(function () {
+          findSubmittedCode(
+            uploadOnGit,
+            problemName,
+            problemName + language,
+            probStats,
+            'upload',
+            // callback is called when the code upload to git is a success
+            () => {
+              if (uploadingState['countdown'])
+                clearTimeout(uploadingState['countdown']);
+              delete uploadingState['countdown'];
+              uploadingState.uploading = false;
+              markTheUploaded();
+            },
+          ); // Encode `code` to base64
+          questionDict[filePath] = Date.now();
+        }, 1000);
+      }
     }
   }
 }, 1000);
 
 /* Since we dont yet have callbacks/promises that helps to find out if things went bad */
 /* we will start 10 seconds counter and even after that upload is not complete, then we conclude its failed */
-function startUploadCountDown() {
-  uploadState.uploading = true;
-  uploadState['countdown'] = setTimeout(() => {
-    if ((uploadState.uploading = true)) {
+function startUploadCountdown() {
+  uploadingState.uploading = true;
+  uploadingState['countdown'] = setTimeout(() => {
+    if ((uploadingState.uploading = true)) {
       // still uploading, then it failed
-      uploadState.uploading = false;
-      markUploadFailed();
+      uploadingState.uploading = false;
+      markUploadFail();
     }
   }, 10000);
 }
 
 /* we will need specific anchor element that is specific to the page you are in Eg. Explore */
-function insertToAnchorElement(elem) {
-  if (document.URL.startsWith('https://leetcode.com/explore/')) {
-    // means we are in explore page
-    action = document.getElementsByClassName('action');
-    if (
-      checkElem(action) &&
-      checkElem(action[0].getElementsByClassName('row')) &&
-      checkElem(
-        action[0]
-          .getElementsByClassName('row')[0]
-          .getElementsByClassName('col-sm-6'),
-      ) &&
-      action[0]
-        .getElementsByClassName('row')[0]
-        .getElementsByClassName('col-sm-6').length > 1
-    ) {
-      target = action[0]
-        .getElementsByClassName('row')[0]
-        .getElementsByClassName('col-sm-6')[1];
-      elem.className = 'pull-left';
-      if (target.childNodes.length > 0)
-        target.childNodes[0].prepend(elem);
-    }
-  } else {
-    if (
-      checkElem(
-        document.getElementsByClassName(
-          'ml-auto flex items-center space-x-4',
-        ),
-      )
-    ) {
-      let target = document.getElementsByClassName(
+function insertToAnchor(elem) {
+  if (
+    checkElement(
+      document.getElementsByClassName(
         'ml-auto flex items-center space-x-4',
-      )[0];
-      elem.className =
-        'px-3 py-1.5 font-medium items-center whitespace-nowrap transition-all focus:outline-none inline-flex bg-fill-3 dark:bg-dark-fill-3 hover:bg-fill-2 dark:hover:bg-dark-fill-2 text-label-2 dark:text-dark-label-2 rounded-lg';
-      if (target.childNodes.length > 0)
-        target.childNodes[0].prepend(elem);
-    }
+      ),
+    )
+  ) {
+    let target = document.getElementsByClassName(
+      'ml-auto flex items-center space-x-4',
+    )[0];
+    elem.className =
+      'px-3 py-1.5 font-medium items-center whitespace-nowrap transition-all focus:outline-none inline-flex bg-fill-3 dark:bg-dark-fill-3 hover:bg-fill-2 dark:hover:bg-dark-fill-2 text-label-2 dark:text-dark-label-2 rounded-lg';
+    if (target.childNodes.length > 0)
+      target.childNodes[0].prepend(elem);
   }
 }
 
 /* start upload will inject a spinner on left side to the "Run Code" button */
-function startUpload() {
+function startUploading() {
   try {
     elem = document.getElementById('leethub_progress_anchor_element');
     if (!elem) {
@@ -553,9 +468,9 @@ function startUpload() {
       elem.style = 'margin-right: 20px;padding-top: 2px;';
     }
     elem.innerHTML = `<div id="leethub_progress_elem" class="leethub_progress"></div>`;
-    insertToAnchorElement(elem);
+    insertToAnchor(elem);
     // start the countdown
-    startUploadCountDown();
+    startUploadCountdown();
   } catch (error) {
     // generic exception handler for time being so that existing feature doesnt break but
     // error gets logged
@@ -564,7 +479,7 @@ function startUpload() {
 }
 
 /* This will create a tick mark before "Run Code" button signalling LeetHub has done its job */
-function markUploaded() {
+function markTheUploaded() {
   elem = document.getElementById('leethub_progress_elem');
   if (elem) {
     elem.className = '';
@@ -575,7 +490,7 @@ function markUploaded() {
 }
 
 /* This will create a failed tick mark before "Run Code" button signalling that upload failed */
-function markUploadFailed() {
+function markUploadFail() {
   elem = document.getElementById('leethub_progress_elem');
   if (elem) {
     elem.className = '';
@@ -609,10 +524,10 @@ chrome.storage.local.get('isSync', (data) => {
   }
 });
 
-injectStyle();
+injectCode();
 
 /* inject css style required for the upload progress feature */
-function injectStyle() {
+function injectCode() {
   const style = document.createElement('style');
   style.textContent =
     '.leethub_progress {pointer-events: none;width: 2.0em;height: 2.0em;border: 0.4em solid transparent;border-color: #eee;border-top-color: #3E67EC;border-radius: 50%;animation: loadingspin 1s linear infinite;} @keyframes loadingspin { 100% { transform: rotate(360deg) }}';
