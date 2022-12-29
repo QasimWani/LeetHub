@@ -43,11 +43,9 @@ let uploadState = { uploading: false };
 async function generateBasePage(questionUrl){
   // get base URL of leetcode problem
   if (questionUrl.includes('/submissions/')) {
-    questionUrl = questionUrl.substring(
-      0,
-      questionUrl.lastIndexOf('/submissions/') + 1,
-    );
+    questionUrl = questionUrl.replace(/\/submissions\/.*/, '/description/')
   }
+
     
   /* 
     Many of the question details such as question title and difficulty is found in the
@@ -59,8 +57,10 @@ async function generateBasePage(questionUrl){
   // make a http request to the base URL to get html file
   let basePage = await fetch(questionUrl, {method: "GET"})
   let questionData = await basePage.text()
+
+  let script = questionData.match(/<script id="__NEXT_DATA__".*>.*<\/script>/)
   
-  return questionData;
+  return script ? script[0] : null;
 }
 
 /* Get file extension for submission */
@@ -608,10 +608,10 @@ async function parseQuestion() {
     }
     // from the html text, get title and difficulty of question
     let questionNo = RegExKeyMatch("questionFrontendId", newPageHTML)
-    let questionName = RegExKeyMatch("title", newPageHTML)
+    let questionName = RegExKeyMatch("title", newPageHTML) || RegExKeyMatch("questionTitle", newPageHTML)
     difficulty = RegExKeyMatch("difficulty", newPageHTML)
 
-    if(!questionNo){ // either using explore section or something went wrong
+    if(!(questionNo || questionName)){ // either using explore section or something went wrong
       // TODO: look for the explore question data 
       return null;
     }
@@ -808,6 +808,10 @@ const loader = setInterval(async () => {
     probStatement = await parseQuestion();
     probStats = parseStats();
   }
+
+  console.log(success);
+  console.log(probStatement)
+  console.log(probStats)
 
   if (probStatement !== null) {
     switch (probType) {
