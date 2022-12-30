@@ -1,3 +1,5 @@
+const LHLocalStorage = require("./LHLocalStorage.js");
+
 /* Enum for languages supported by LeetCode. */
 const languages = {
   Python: '.py',
@@ -38,6 +40,12 @@ let difficulty = '';
 
 /* state of upload for progress */
 let uploadState = { uploading: false };
+let uploaded = false;
+
+// leecode quesiton title cache (LHLocalStorage)
+// only initialised when either question title is detected or needed.
+let LHStorage = null;
+let titleCached = false;
 
 // generate HTML file for parsing question details with the new LeetCode UI
 async function generateBasePage(questionUrl){
@@ -62,6 +70,8 @@ async function generateBasePage(questionUrl){
   
   return script ? script[0] : null;
 }
+
+
 
 /* Get file extension for submission */
 function findLanguage() {
@@ -411,7 +421,7 @@ function findCode(
 
     // code can be found from the <code> tag
     code = ""
-    Array.from(document.querySelectorAll("code")[0].children).forEach((line) => {code += `${line.textContent}`})
+    Array.from(document.querySelectorAll("code")[0]?.children).forEach((line) => {code += `${line.textContent}`})
     
     if(!msg){
       // TODO: get statistics from submission page for new explore section??
@@ -711,6 +721,71 @@ document.addEventListener('click', (event) => {
   }
 });
 
+// Leetcode's new UI means that we cannot obtain notes on description page when on submission page
+// This generates a submission button to allow users to manually submit notes on the submission page.
+function generateNoteSubmissionButton(){
+  // find anchor for note submission
+  const noteSection = Array.from(document.querySelectorAll("textarea")).filter(
+    elem => elem.getAttribute("name") == "notes"
+  );
+  if(checkElem(noteSection)){
+    // get style from submit button
+    style = Array.from(document.getElementsByTagName("button")).filter(
+      elem => elem.classList.contains("bg-green-s")
+    )[0]?.className;
+    // place new button with this style under the note section
+    submitNotesButton = document.createElement("button");
+    submitNotesButton.appendChild(document.createTextNode("Submit Notes - LeetHub")); // adds text to button
+    submitNotesButton.className = `${style} leethub-notes-submission`; // add submit button's style as well as an indicator class
+    submitNotesButton.style.cssText += "margin: 1em 0;";// add some margin for space
+    submitNotesButton.addEventListener("click", onNoteSubmission); // add event listener
+
+    noteSection[0].after(submitNotesButton);
+    return submitNotesButton;
+  }
+
+  return null;
+}
+
+// Leetcode's new UI means that we cannot obtain notes on description page when on submission page
+// This runs once the note submission button is clicked.
+async function onNoteSubmission(e){
+  const button = e.target;
+  if(button.classList.contains("cursor-not-allowed")){
+    // button disabled (maybe user already uploaded to GitHub)
+    console.log("button is disabled");
+    return;
+  }
+  button.className += ' cursor-not-allowed opacity-50'; // leetcode's classes for disabled buttons
+  // get notes from textarea before the button
+  const notes = button.previousSibling?.textContent;
+  if(!notes){
+    console.error("cannot find notes section");
+    return;
+  }
+  // If there's any notes, upload it to git
+  if (notes.length > 0) {
+    let problemName = await getProblemNameSlug();
+    setTimeout(function () {
+      if (notes != undefined && notes.length != 0) {
+        console.log('Create Notes');
+        // means we can upload the notes too
+        uploadGit(
+          btoa(unescape(encodeURIComponent(notes))),
+          problemName,
+          'NOTES.md',
+          createNotesMsg,
+          'upload',
+        );
+      }
+    }, 500);
+  }
+  else{
+    console.log("no notes added")
+    button.className = button.className.remove(/ cursor-not-allowed opacity-50/)
+  }
+}
+
 /* function to get the notes if there is any
  the note should be opened atleast once for this to work
  this is because the dom is populated after data is fetched by opening the note */
@@ -742,7 +817,33 @@ function getNotesIfAny() {
       }
     }
   }
+  else{
+    // user may be using new version of LeetCode
+    if(!checkElem(
+      document.getElementsByClassName("leethub-notes-submission")
+    )){
+      // generate a button for submitting notes
+      let button = setTimeout(generateNoteSubmissionButton(), 500)
+      if(!button){
+        console.error("could not generate button");
+      }
+    }
+  }
   return notes.trim();
+}
+
+function checkForTitle(){
+  // check to see if problem title is visible (eg. if user on description page)
+  const qNameOld = document.getElementsByClassName('css-v3d350');
+  const qNameNew = Array.from(document.querySelectorAll("span.mr-2")).filter(
+    elem => elem.textContent.match(/\d+[.][\s]?.*/)
+  )
+  qName = qNameOld || qNameNew || []
+  if(checkElem(qName)){
+    LHStorage = new LHLocalStorage() // hover over object methods for descriptions
+    LHStorage.setQuestionTitle(qNameNew[0].textContent)
+    titleCached = true;
+  }
 }
 
 const loader = setInterval(async () => {
@@ -751,6 +852,15 @@ const loader = setInterval(async () => {
   let probStats = null;
   let probType;
 
+  // check if title is visible to cache
+  if(!titleCached){
+    checkForTitle()
+  }
+
+  // do not reupload once uploaded
+  if(uploaded){
+    return;
+  }
   
   // query for old "Success" tag
   const successfulOld = () => {
@@ -808,10 +918,6 @@ const loader = setInterval(async () => {
     probStatement = await parseQuestion();
     probStats = parseStats();
   }
-
-  console.log(success);
-  console.log(probStatement)
-  console.log(probStats)
 
   if (probStatement !== null) {
     switch (probType) {
@@ -967,6 +1073,7 @@ function startUpload() {
 
 /* This will create a tick mark before "Run Code" button signalling LeetHub has done its job */
 function markUploaded() {
+  uploaded = true;
   elem = document.getElementById('leethub_progress_elem');
   if (elem) {
     elem.className = '';
