@@ -1,7 +1,6 @@
 {
   "name": "LeetHub",
   "version": "0.0.9",
-  "type": "module",
   "private": true,
   "description": "Automatically integrate your code with LeetCode and GitHub",
   "scripts": {
@@ -22,7 +21,5 @@
     "eslint-plugin-react-hooks": "^4.0.0",
     "prettier": "^2.2.1"
   },
-  "dependencies": {
-    "browserify": "^17.0.0"
-  }
+  "dependencies": {}
 }
