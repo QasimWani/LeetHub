@@ -1,40 +1,47 @@
 <h1 align="center">
   <a href="https://standardjs.com"><img src="assets/octocode.png" alt="LeetHub - Automatically sync your code to GitHub." width="400"></a>
   <br>
-  LeetHub - Automatically sync your code to GitHub.
+  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi">LeetHub</a> - Automatically sync your code to GitHub.
   <br>
   <br>
 </h1>
 
 <p align="center">
-  <a href="https://github.com/QasimWani/LeetHub/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/></a>
-  <a href="https://discord.gg/anXT9vErxu"><img src="https://img.shields.io/discord/781373810251137074" alt="discord"></a>
-  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/v/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="chrome-webstore"/></a>
-  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/d/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="users"></a>
+  <a href="https://github.com/QasimWani/LeetHub/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/>
+  </a>
+  <a href="https://discord.gg/anXT9vErxu">
+    <img src="https://img.shields.io/discord/781373810251137074" alt="discord">
+  </a>
+  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi">
+    <img src="https://img.shields.io/chrome-web-store/v/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="chrome-webstore"/>
+  </a>
+  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi">
+    <img src="https://img.shields.io/chrome-web-store/d/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="users">
+  </a>
   <a href="https://github.com/QasimWani/LeetHub/graphs/contributors" alt="Contributors">
     <img src="https://img.shields.io/github/contributors/QasimWani/LeetHub" />
-</a>
-  <a href="https://twitter.com/intent/tweet?text=LeetHub%20-%20Automatically%20sync%20your%20code%20to%20GitHub%20after%20solving%20any%20leetcode%20problems!&url=https://github.com/QasimWani/LeetHub&hashtags=javascript,github,leetcode,coding,interview,chrome"> <img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social"> </a>
- 
-
+  </a>
+  <a href="https://twitter.com/intent/tweet?text=LeetHub%20-%20Automatically%20sync%20your%20code%20to%20GitHub%20after%20solving%20any%20leetcode%20problems!&url=https://github.com/QasimWani/LeetHub&hashtags=javascript,github,leetcode,coding,interview,chrome">
+    <img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social">
+  </a>
 </p>
+
+<div align="center">
+  <a href="https://www.producthunt.com/posts/leethub?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-leethub" target="_blank">
+    <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=275757&theme=light" alt="LeetHub - Automatically sync your code b/w Leetcode & GitHub. | Product Hunt" />
+  </a>
+
+  [![Chrome](https://user-images.githubusercontent.com/53124886/111952712-34f12300-8aee-11eb-9fdd-ad579a1eb235.png)](https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi) [![Firefox](https://user-images.githubusercontent.com/53124886/126341427-4a4e57aa-767a-467e-83d2-b31fa3564441.png)](https://addons.mozilla.org/en-US/firefox/addon/leethub/)
+</div>
+
+
 
 ## Top 5 Trending JavaScript Repositories
 
 
-### Available on:
-
-<table style="border-collapse: separate;"><tr>
-  <td style="border-spacing:2em 0"> 
-      <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi">
-        <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimg.talkandroid.com%2Fuploads%2F2014%2F10%2Fchrome_web_store_logo_new.png&f=1&nofb=1" alt="Chrome WebStore" height=152.19123505976 width=200/>
-      </a>  
-  </td>
-  <td style="border-spacing:2em 0"> 
-      <a href="https://www.producthunt.com/posts/leethub?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-leethub" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=275757&theme=light" alt="LeetHub - Automatically sync your code b/w Leetcode & GitHub. | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-
-  </td>
-</tr></table>
+## LeetHub progress and numbers (YouTube Video):
+[![LeetHub](https://user-images.githubusercontent.com/43754306/165053510-a757c95e-c3bc-49d5-995c-7a52368abd37.png)](https://www.youtube.com/watch?v=o33PIjqlOgw "LeetHub saves lives!")
 
 ## What is LeetHub?
 <p>A chrome extension that automatically pushes your code to GitHub when you pass all tests on a <a href="http://leetcode.com/">Leetcode</a> problem. </p>
@@ -54,7 +61,7 @@ Moreover, pushing code manually to GitHub from Leetcode is very time consuming. 
 
 ## How does LeetHub work?     
 
-<h4> Your LeetHub portfolio could like <a href="https://github.com/QasimWani/leetcode"> this </a>!  </h4>
+<h4> Your LeetHub portfolio could look like <a href="https://github.com/tanyarajhans/LeetCode"> this</a>!  </h4>
 <p>It's as simple as:</p>
 <ol>
   <li>After installation, launch LeetHub.</li>
@@ -97,7 +104,7 @@ npm run               Show list of commands available
 npm run format        Auto-format JavaScript, HTML/CSS
 npm run format-test   Test all code is formatted properly
 npm run lint          Lint JavaScript
-npm run lint-test     Test all code is linted proprely
+npm run lint-test     Test all code is linted properly
 ```
 
 # License
