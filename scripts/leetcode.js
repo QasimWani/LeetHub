@@ -1229,6 +1229,14 @@ function insertToAnchorElement(elem) {
       if (target.childNodes.length > 0)
         target.childNodes[0].prepend(elem);
     }
+    else{
+      // user may be using new version of LeetCode
+      let a = document.querySelectorAll("div.mr-2.flex") // look for div near the run button
+      if(!checkElem(a)){ return; }
+      
+      let target = a[a.length - 1] // choose bottom most element if there are multiple matches
+      target.appendChild(elem)
+    }
   }
 }
 
