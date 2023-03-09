@@ -21,6 +21,17 @@ const languages = {
   Oracle: '.sql',
 };
 
+/* used class names */
+const SUCCESS_ELEMENT_CLASS_NAME =
+  'text-green-s dark:text-dark-green-s flex items-center gap-2 text-[16px] font-medium leading-6';
+const STATS_CLASS_NAME =
+  'flex items-center justify-between gap-4 flex-wrap gap-y-2';
+const QUESTION_TITLE_CLASS_NAME =
+  'mr-2 text-lg font-medium text-label-1 dark:text-dark-label-1';
+const LANGUAGE_CLASS_NAME =
+  'inline-flex items-center whitespace-nowrap text-xs rounded-full bg-blue-0 dark:bg-dark-blue-0 text-blue-s dark:text-dark-blue-s px-3 py-1 font-medium leading-4';
+const QUESTION_DESCRIPTION_CLASS_NAME = '_1l1MA';
+const QUESTION_DIFFICULTY_BASE_CLASS_NAME = `bg-{0} dark:bg-dark-{0} text-{0}`;
 /* Commit messages */
 const readmeMsg = 'Create README - LeetHub';
 const discussionMsg = 'Prepend discussion post - LeetHub';
@@ -29,6 +40,8 @@ const createNotesMsg = 'Attach NOTES - LeetHub';
 // problem types
 const NORMAL_PROBLEM = 0;
 const EXPLORE_SECTION_PROBLEM = 1;
+
+let preloadedQuestionMarkdown = '';
 
 /* Difficulty of most recenty submitted question */
 let difficulty = '';
@@ -39,9 +52,7 @@ let uploadState = { uploading: false };
 /* Get file extension for submission */
 function findLanguage() {
   const tag = [
-    ...document.getElementsByClassName(
-      'ant-select-selection-selected-value',
-    ),
+    ...document.getElementsByClassName(LANGUAGE_CLASS_NAME),
     ...document.getElementsByClassName('Select-value-label'),
   ];
   if (tag && tag.length > 0) {
@@ -266,105 +277,31 @@ function findCode(
   action,
   cb = undefined,
 ) {
-  /* Get the submission details url from the submission page. */
-  var submissionURL;
-  const e = document.getElementsByClassName('status-column__3SUg');
-  if (checkElem(e)) {
-    // for normal problem submisson
-    const submissionRef = e[1].innerHTML.split(' ')[1];
-    submissionURL =
-      'https://leetcode.com' +
-      submissionRef.split('=')[1].slice(1, -1);
-  } else {
-    // for a submission in explore section
-    const submissionRef = document.getElementById('result-state');
-    submissionURL = submissionRef.href;
+  /* send response directly */
+  const code = document
+    .getElementsByTagName('code')[0]
+    .innerText?.replace(/\\u[\dA-F]{4}/gi, function (match) {
+      return String.fromCharCode(
+        parseInt(match.replace(/\\u/g, ''), 16),
+      );
+    });
+
+  if (!msg) {
+    msg = parseStats();
   }
 
-  if (submissionURL != undefined) {
-    /* Request for the submission details page */
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        /* received submission details as html reponse. */
-        var doc = new DOMParser().parseFromString(
-          this.responseText,
-          'text/html',
-        );
-        /* the response has a js object called pageData. */
-        /* Pagedata has the details data with code about that submission */
-        var scripts = doc.getElementsByTagName('script');
-        for (var i = 0; i < scripts.length; i++) {
-          var text = scripts[i].innerText;
-          if (text.includes('pageData')) {
-            /* Considering the pageData as text and extract the substring
-            which has the full code */
-            var firstIndex = text.indexOf('submissionCode');
-            var lastIndex = text.indexOf('editCodeUrl');
-            var slicedText = text.slice(firstIndex, lastIndex);
-            /* slicedText has code as like as. (submissionCode: 'Details code'). */
-            /* So finding the index of first and last single inverted coma. */
-            var firstInverted = slicedText.indexOf("'");
-            var lastInverted = slicedText.lastIndexOf("'");
-            /* Extract only the code */
-            var codeUnicoded = slicedText.slice(
-              firstInverted + 1,
-              lastInverted,
-            );
-            /* The code has some unicode. Replacing all unicode with actual characters */
-            var code = codeUnicoded.replace(
-              /\\u[\dA-F]{4}/gi,
-              function (match) {
-                return String.fromCharCode(
-                  parseInt(match.replace(/\\u/g, ''), 16),
-                );
-              },
-            );
-
-            /*
-            for a submisssion in explore section we do not get probStat beforehand
-            so, parse statistics from submisson page
-            */
-            if (!msg) {
-              slicedText = text.slice(
-                text.indexOf('runtime'),
-                text.indexOf('memory'),
-              );
-              const resultRuntime = slicedText.slice(
-                slicedText.indexOf("'") + 1,
-                slicedText.lastIndexOf("'"),
-              );
-              slicedText = text.slice(
-                text.indexOf('memory'),
-                text.indexOf('total_correct'),
-              );
-              const resultMemory = slicedText.slice(
-                slicedText.indexOf("'") + 1,
-                slicedText.lastIndexOf("'"),
-              );
-              msg = `Time: ${resultRuntime}, Memory: ${resultMemory} - LeetHub`;
-            }
-
-            if (code != null) {
-              setTimeout(function () {
-                uploadGit(
-                  btoa(unescape(encodeURIComponent(code))),
-                  problemName,
-                  fileName,
-                  msg,
-                  action,
-                  true,
-                  cb,
-                );
-              }, 2000);
-            }
-          }
-        }
-      }
-    };
-
-    xhttp.open('GET', submissionURL, true);
-    xhttp.send();
+  if (code != null) {
+    setTimeout(function () {
+      uploadGit(
+        btoa(unescape(encodeURIComponent(code))),
+        problemName,
+        fileName,
+        msg,
+        action,
+        true,
+        cb,
+      );
+    }, 2000);
   }
 }
 
@@ -406,24 +343,8 @@ function convertToSlug(string) {
     .replace(/-+$/, ''); // Trim - from end of text
 }
 function getProblemNameSlug() {
-  const questionElem = document.getElementsByClassName(
-    'content__u3I1 question-content__JfgR',
-  );
-  const questionDescriptionElem = document.getElementsByClassName(
-    'question-description__3U1T',
-  );
-  let questionTitle = 'unknown-problem';
-  if (checkElem(questionElem)) {
-    let qtitle = document.getElementsByClassName('css-v3d350');
-    if (checkElem(qtitle)) {
-      questionTitle = qtitle[0].innerHTML;
-    }
-  } else if (checkElem(questionDescriptionElem)) {
-    let qtitle = document.getElementsByClassName('question-title');
-    if (checkElem(qtitle)) {
-      questionTitle = qtitle[0].innerText;
-    }
-  }
+  //get the problem name slug from the url of the question
+  const questionTitle = window.location.href?.split('/')[4];
   return addLeadingZeros(convertToSlug(questionTitle));
 }
 
@@ -445,27 +366,32 @@ function parseQuestion() {
       questionUrl.lastIndexOf('/submissions/') + 1,
     );
   }
-  const questionElem = document.getElementsByClassName(
-    'content__u3I1 question-content__JfgR',
+
+  const qtitleElem = document.getElementsByClassName(
+    QUESTION_TITLE_CLASS_NAME,
   );
   const questionDescriptionElem = document.getElementsByClassName(
-    'question-description__3U1T',
+    QUESTION_DESCRIPTION_CLASS_NAME,
   );
-  if (checkElem(questionElem)) {
-    const qbody = questionElem[0].innerHTML;
-
+  if (checkElem(qtitleElem)) {
     // Problem title.
-    let qtitle = document.getElementsByClassName('css-v3d350');
-    if (checkElem(qtitle)) {
-      qtitle = qtitle[0].innerHTML;
-    } else {
-      qtitle = 'unknown-problem';
-    }
-
+    let qtitle =
+      qtitleElem[0].textContent ??
+      qtitleElem[0].innerText ??
+      'unknown-problem';
+    let qDescription =
+      questionDescriptionElem[0].textContent ??
+      'We could not find the description for this problem. Please visit the problem page to view the description.';
     // Problem difficulty, each problem difficulty has its own class.
-    const isHard = document.getElementsByClassName('css-t42afm');
-    const isMedium = document.getElementsByClassName('css-dcmtd5');
-    const isEasy = document.getElementsByClassName('css-14oi08n');
+    const isHard = document.getElementsByClassName(
+      QUESTION_DIFFICULTY_BASE_CLASS_NAME.format('pink'),
+    );
+    const isMedium = document.getElementsByClassName(
+      QUESTION_DIFFICULTY_BASE_CLASS_NAME.format('yellow'),
+    );
+    const isEasy = document.getElementsByClassName(
+      QUESTION_DIFFICULTY_BASE_CLASS_NAME.format('olive'),
+    );
 
     if (checkElem(isEasy)) {
       difficulty = 'Easy';
@@ -475,12 +401,11 @@ function parseQuestion() {
       difficulty = 'Hard';
     }
     // Final formatting of the contents of the README for each problem
-    const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
+    const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qDescription}`;
     return markdown;
   } else if (checkElem(questionDescriptionElem)) {
-    let questionTitle = document.getElementsByClassName(
-      'question-title',
-    );
+    let questionTitle =
+      document.getElementsByClassName('question-title');
     if (checkElem(questionTitle)) {
       questionTitle = questionTitle[0].innerText;
     } else {
@@ -498,17 +423,23 @@ function parseQuestion() {
 
 /* Parser function for time/space stats */
 function parseStats() {
-  const probStats = document.getElementsByClassName('data__HC-i');
-  if (!checkElem(probStats)) {
+  try {
+    const [timeDiv, spaceDiv] =
+      document.getElementsByClassName(STATS_CLASS_NAME);
+
+    const time = timeDiv?.children?.[0]?.children[1].textContent;
+    const timePercentile =
+      timeDiv?.children?.[1]?.children[1].textContent;
+    const space = spaceDiv?.children?.[0]?.children[1].textContent;
+    const spacePercentile =
+      spaceDiv?.children?.[1]?.children[1].textContent;
+
+    // Format commit message
+    return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
+  } catch (err) {
+    console.log(`❌ Error occurred while parsing stats`, err);
     return null;
   }
-  const time = probStats[0].textContent;
-  const timePercentile = probStats[1].textContent;
-  const space = probStats[2].textContent;
-  const spacePercentile = probStats[3].textContent;
-
-  // Format commit message
-  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
 }
 
 document.addEventListener('click', (event) => {
@@ -536,7 +467,7 @@ document.addEventListener('click', (event) => {
         const date = new Date();
         const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()} at ${date.getHours()}:${date.getMinutes()}`;
         const addition = `[Discussion Post (created on ${currentDate})](${window.location})  \n`;
-        const problemName = window.location.pathname.split('/')[2]; // must be true.
+        const problemName = getProblemNameSlug();
 
         uploadGit(
           addition,
@@ -588,16 +519,17 @@ const loader = setInterval(() => {
   let probStatement = null;
   let probStats = null;
   let probType;
-  const successTag = document.getElementsByClassName('success__3Ai7');
+  const successTag = document.getElementsByClassName(
+    SUCCESS_ELEMENT_CLASS_NAME,
+  );
   const resultState = document.getElementById('result-state');
   var success = false;
   // check success tag for a normal problem
   if (
     checkElem(successTag) &&
-    successTag[0].className === 'success__3Ai7' &&
-    successTag[0].innerText.trim() === 'Success'
+    successTag[0].className === SUCCESS_ELEMENT_CLASS_NAME &&
+    successTag[0].innerText.trim() === 'Accepted'
   ) {
-    console.log(successTag[0]);
     success = true;
     probType = NORMAL_PROBLEM;
   }
@@ -611,9 +543,8 @@ const loader = setInterval(() => {
     success = true;
     probType = EXPLORE_SECTION_PROBLEM;
   }
-
   if (success) {
-    probStatement = parseQuestion();
+    probStatement = parseQuestion() || preloadedQuestionMarkdown;
     probStats = parseStats();
   }
 
@@ -698,6 +629,11 @@ const loader = setInterval(() => {
         ); // Encode `code` to base64
       }, 1000);
     }
+  } else {
+    /* Load Problem ahead */
+    if (!preloadedQuestionMarkdown)
+      preloadedQuestionMarkdown = parseQuestion();
+    // console.log(`🚀 ~ file: leetcode.js:727 ~ loader ~ preloadedQuestionMarkdown:`, preloadedQuestionMarkdown)
   }
 }, 1000);
 
@@ -824,3 +760,15 @@ function injectStyle() {
     '.leethub_progress {pointer-events: none;width: 2.0em;height: 2.0em;border: 0.4em solid transparent;border-color: #eee;border-top-color: #3E67EC;border-radius: 50%;animation: loadingspin 1s linear infinite;} @keyframes loadingspin { 100% { transform: rotate(360deg) }}';
   document.head.append(style);
 }
+
+String.prototype.format = function () {
+  // store arguments in an array
+  var args = arguments;
+  // use replace to iterate over the string
+  // select the match and check if the related argument is present
+  // if yes, replace the match with the argument
+  return this.replace(/{([0-9]+)}/g, function (match, index) {
+    // check if the argument is present
+    return typeof args[index] == 'undefined' ? match : args[index];
+  });
+};
