@@ -21,9 +21,17 @@ const languages = {
   Oracle: '.sql',
 };
 
+/* used class names */
 const SUCCESS_ELEMENT_CLASS_NAME =
   'text-green-s dark:text-dark-green-s flex items-center gap-2 text-[16px] font-medium leading-6';
-const QUESTION_TITLE_CLASS_NAME = 'text-lg font-medium leading-6';
+const STATS_CLASS_NAME =
+  'flex items-center justify-between gap-4 flex-wrap gap-y-2';
+const QUESTION_TITLE_CLASS_NAME =
+  'mr-2 text-lg font-medium text-label-1 dark:text-dark-label-1';
+const LANGUAGE_CLASS_NAME =
+  'inline-flex items-center whitespace-nowrap text-xs rounded-full bg-blue-0 dark:bg-dark-blue-0 text-blue-s dark:text-dark-blue-s px-3 py-1 font-medium leading-4';
+const QUESTION_DESCRIPTION_CLASS_NAME = '_1l1MA';
+const QUESTION_DIFFICULTY_BASE_CLASS_NAME = `bg-{0} dark:bg-dark-{0} text-{0}`;
 /* Commit messages */
 const readmeMsg = 'Create README - LeetHub';
 const discussionMsg = 'Prepend discussion post - LeetHub';
@@ -44,9 +52,7 @@ let uploadState = { uploading: false };
 /* Get file extension for submission */
 function findLanguage() {
   const tag = [
-    ...document.getElementsByClassName(
-      'inline-flex items-center whitespace-nowrap text-xs rounded-full bg-blue-0 dark:bg-dark-blue-0 text-blue-s dark:text-dark-blue-s px-3 py-1 font-medium leading-4',
-    ),
+    ...document.getElementsByClassName(LANGUAGE_CLASS_NAME),
     ...document.getElementsByClassName('Select-value-label'),
   ];
   if (tag && tag.length > 0) {
@@ -362,10 +368,11 @@ function parseQuestion() {
   }
 
   const qtitleElem = document.getElementsByClassName(
-    'mr-2 text-lg font-medium text-label-1 dark:text-dark-label-1',
+    QUESTION_TITLE_CLASS_NAME,
   );
-  const questionDescriptionElem =
-    document.getElementsByClassName('_1l1MA');
+  const questionDescriptionElem = document.getElementsByClassName(
+    QUESTION_DESCRIPTION_CLASS_NAME,
+  );
   if (checkElem(qtitleElem)) {
     // Problem title.
     let qtitle =
@@ -377,13 +384,13 @@ function parseQuestion() {
       'We could not find the description for this problem. Please visit the problem page to view the description.';
     // Problem difficulty, each problem difficulty has its own class.
     const isHard = document.getElementsByClassName(
-      'bg-pink dark:bg-dark-pink text-pink',
+      QUESTION_DIFFICULTY_BASE_CLASS_NAME.format('pink'),
     );
     const isMedium = document.getElementsByClassName(
-      'bg-yellow dark:bg-dark-yellow text-yellow',
+      QUESTION_DIFFICULTY_BASE_CLASS_NAME.format('yellow'),
     );
     const isEasy = document.getElementsByClassName(
-      'bg-olive dark:bg-dark-olive text-olive',
+      QUESTION_DIFFICULTY_BASE_CLASS_NAME.format('olive'),
     );
 
     if (checkElem(isEasy)) {
@@ -417,9 +424,8 @@ function parseQuestion() {
 /* Parser function for time/space stats */
 function parseStats() {
   try {
-    const [timeDiv, spaceDiv] = document.getElementsByClassName(
-      'flex items-center justify-between gap-4 flex-wrap gap-y-2',
-    );
+    const [timeDiv, spaceDiv] =
+      document.getElementsByClassName(STATS_CLASS_NAME);
 
     const time = timeDiv?.children?.[0]?.children[1].textContent;
     const timePercentile =
@@ -754,3 +760,15 @@ function injectStyle() {
     '.leethub_progress {pointer-events: none;width: 2.0em;height: 2.0em;border: 0.4em solid transparent;border-color: #eee;border-top-color: #3E67EC;border-radius: 50%;animation: loadingspin 1s linear infinite;} @keyframes loadingspin { 100% { transform: rotate(360deg) }}';
   document.head.append(style);
 }
+
+String.prototype.format = function () {
+  // store arguments in an array
+  var args = arguments;
+  // use replace to iterate over the string
+  // select the match and check if the related argument is present
+  // if yes, replace the match with the argument
+  return this.replace(/{([0-9]+)}/g, function (match, index) {
+    // check if the argument is present
+    return typeof args[index] == 'undefined' ? match : args[index];
+  });
+};
