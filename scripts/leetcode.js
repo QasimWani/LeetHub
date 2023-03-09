@@ -23,7 +23,7 @@ const languages = {
 
 const SUCCESS_ELEMENT_CLASS_NAME =
   'text-green-s dark:text-dark-green-s flex items-center gap-2 text-[16px] font-medium leading-6';
-
+const QUESTION_TITLE_CLASS_NAME = 'text-lg font-medium leading-6';
 /* Commit messages */
 const readmeMsg = 'Create README - LeetHub';
 const discussionMsg = 'Prepend discussion post - LeetHub';
@@ -32,6 +32,8 @@ const createNotesMsg = 'Attach NOTES - LeetHub';
 // problem types
 const NORMAL_PROBLEM = 0;
 const EXPLORE_SECTION_PROBLEM = 1;
+
+let preloadedQuestionMarkdown = '';
 
 /* Difficulty of most recenty submitted question */
 let difficulty = '';
@@ -43,7 +45,7 @@ let uploadState = { uploading: false };
 function findLanguage() {
   const tag = [
     ...document.getElementsByClassName(
-      'ant-select-selection-selected-value',
+      'inline-flex items-center whitespace-nowrap text-xs rounded-full bg-blue-0 dark:bg-dark-blue-0 text-blue-s dark:text-dark-blue-s px-3 py-1 font-medium leading-4',
     ),
     ...document.getElementsByClassName('Select-value-label'),
   ];
@@ -409,24 +411,8 @@ function convertToSlug(string) {
     .replace(/-+$/, ''); // Trim - from end of text
 }
 function getProblemNameSlug() {
-  const questionElem = document.getElementsByClassName(
-    'content__u3I1 question-content__JfgR',
-  );
-  const questionDescriptionElem = document.getElementsByClassName(
-    'question-description__3U1T',
-  );
-  let questionTitle = 'unknown-problem';
-  if (checkElem(questionElem)) {
-    let qtitle = document.getElementsByClassName('css-v3d350');
-    if (checkElem(qtitle)) {
-      questionTitle = qtitle[0].innerHTML;
-    }
-  } else if (checkElem(questionDescriptionElem)) {
-    let qtitle = document.getElementsByClassName('question-title');
-    if (checkElem(qtitle)) {
-      questionTitle = qtitle[0].innerText;
-    }
-  }
+  //get the problem name slug from the url of the question
+  const questionTitle = window.location.href?.split('/')[4];
   return addLeadingZeros(convertToSlug(questionTitle));
 }
 
@@ -448,27 +434,31 @@ function parseQuestion() {
       questionUrl.lastIndexOf('/submissions/') + 1,
     );
   }
-  const questionElem = document.getElementsByClassName(
-    'content__u3I1 question-content__JfgR',
-  );
-  const questionDescriptionElem = document.getElementsByClassName(
-    'question-description__3U1T',
-  );
-  if (checkElem(questionElem)) {
-    const qbody = questionElem[0].innerHTML;
 
+  const qtitleElem = document.getElementsByClassName(
+    'mr-2 text-lg font-medium text-label-1 dark:text-dark-label-1',
+  );
+  const questionDescriptionElem =
+    document.getElementsByClassName('_1l1MA');
+  if (checkElem(qtitleElem)) {
     // Problem title.
-    let qtitle = document.getElementsByClassName('css-v3d350');
-    if (checkElem(qtitle)) {
-      qtitle = qtitle[0].innerHTML;
-    } else {
-      qtitle = 'unknown-problem';
-    }
-
+    let qtitle =
+      qtitleElem[0].textContent ??
+      qtitleElem[0].innerText ??
+      'unknown-problem';
+    let qDescription =
+      questionDescriptionElem[0].textContent ??
+      'We could not find the description for this problem. Please visit the problem page to view the description.';
     // Problem difficulty, each problem difficulty has its own class.
-    const isHard = document.getElementsByClassName('css-t42afm');
-    const isMedium = document.getElementsByClassName('css-dcmtd5');
-    const isEasy = document.getElementsByClassName('css-14oi08n');
+    const isHard = document.getElementsByClassName(
+      'bg-pink dark:bg-dark-pink text-pink',
+    );
+    const isMedium = document.getElementsByClassName(
+      'bg-yellow dark:bg-dark-yellow text-yellow',
+    );
+    const isEasy = document.getElementsByClassName(
+      'bg-olive dark:bg-dark-olive text-olive',
+    );
 
     if (checkElem(isEasy)) {
       difficulty = 'Easy';
@@ -478,12 +468,11 @@ function parseQuestion() {
       difficulty = 'Hard';
     }
     // Final formatting of the contents of the README for each problem
-    const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
+    const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qDescription}`;
     return markdown;
   } else if (checkElem(questionDescriptionElem)) {
-    let questionTitle = document.getElementsByClassName(
-      'question-title',
-    );
+    let questionTitle =
+      document.getElementsByClassName('question-title');
     if (checkElem(questionTitle)) {
       questionTitle = questionTitle[0].innerText;
     } else {
@@ -598,7 +587,9 @@ const loader = setInterval(() => {
   let probStatement = null;
   let probStats = null;
   let probType;
-  const successTag = document.getElementsByClassName(SUCCESS_ELEMENT_CLASS_NAME);
+  const successTag = document.getElementsByClassName(
+    SUCCESS_ELEMENT_CLASS_NAME,
+  );
   const resultState = document.getElementById('result-state');
   var success = false;
   // check success tag for a normal problem
@@ -620,9 +611,8 @@ const loader = setInterval(() => {
     success = true;
     probType = EXPLORE_SECTION_PROBLEM;
   }
-
   if (success) {
-    probStatement = parseQuestion();
+    probStatement = parseQuestion() || preloadedQuestionMarkdown;
     probStats = parseStats();
   }
 
@@ -707,6 +697,11 @@ const loader = setInterval(() => {
         ); // Encode `code` to base64
       }, 1000);
     }
+  } else {
+    /* Load Problem ahead */
+    if (!preloadedQuestionMarkdown)
+      preloadedQuestionMarkdown = parseQuestion();
+    // console.log(`🚀 ~ file: leetcode.js:727 ~ loader ~ preloadedQuestionMarkdown:`, preloadedQuestionMarkdown)
   }
 }, 1000);
 
