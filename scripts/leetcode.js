@@ -21,6 +21,9 @@ const languages = {
   Oracle: '.sql',
 };
 
+const SUCCESS_ELEMENT_CLASS_NAME =
+  'text-green-s dark:text-dark-green-s flex items-center gap-2 text-[16px] font-medium leading-6';
+
 /* Commit messages */
 const readmeMsg = 'Create README - LeetHub';
 const discussionMsg = 'Prepend discussion post - LeetHub';
@@ -498,17 +501,24 @@ function parseQuestion() {
 
 /* Parser function for time/space stats */
 function parseStats() {
-  const probStats = document.getElementsByClassName('data__HC-i');
-  if (!checkElem(probStats)) {
+  try {
+    const [timeDiv, spaceDiv] = document.getElementsByClassName(
+      'flex items-center justify-between gap-4 flex-wrap gap-y-2',
+    );
+
+    const time = timeDiv?.children?.[0]?.children[1].textContent;
+    const timePercentile =
+      timeDiv?.children?.[1]?.children[1].textContent;
+    const space = spaceDiv?.children?.[0]?.children[1].textContent;
+    const spacePercentile =
+      spaceDiv?.children?.[1]?.children[1].textContent;
+
+    // Format commit message
+    return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
+  } catch (err) {
+    console.log(`❌ Error occurred while parsing stats`, err);
     return null;
   }
-  const time = probStats[0].textContent;
-  const timePercentile = probStats[1].textContent;
-  const space = probStats[2].textContent;
-  const spacePercentile = probStats[3].textContent;
-
-  // Format commit message
-  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
 }
 
 document.addEventListener('click', (event) => {
