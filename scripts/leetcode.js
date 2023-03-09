@@ -598,16 +598,15 @@ const loader = setInterval(() => {
   let probStatement = null;
   let probStats = null;
   let probType;
-  const successTag = document.getElementsByClassName('success__3Ai7');
+  const successTag = document.getElementsByClassName(SUCCESS_ELEMENT_CLASS_NAME);
   const resultState = document.getElementById('result-state');
   var success = false;
   // check success tag for a normal problem
   if (
     checkElem(successTag) &&
-    successTag[0].className === 'success__3Ai7' &&
-    successTag[0].innerText.trim() === 'Success'
+    successTag[0].className === SUCCESS_ELEMENT_CLASS_NAME &&
+    successTag[0].innerText.trim() === 'Accepted'
   ) {
-    console.log(successTag[0]);
     success = true;
     probType = NORMAL_PROBLEM;
   }
