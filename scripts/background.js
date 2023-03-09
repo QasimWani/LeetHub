@@ -14,7 +14,8 @@ function handleMessage(request) {
 
     /* Set token */
     chrome.storage.local.set({ leethub_token: request.token }, () => {
-      window.localStorage[request.KEY] = request.token;
+      window.localStorage[request.KEY ?? 'leethub_token'] =
+        request.token;
     });
 
     /* Close pipe */
