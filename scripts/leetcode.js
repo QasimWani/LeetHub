@@ -19,6 +19,10 @@ const languages = {
   MySQL: '.sql',
   'MS SQL Server': '.sql',
   Oracle: '.sql',
+  Racket : '.rkt', 
+  Erlang : '.erl', 
+  Elixir : '.ex', 
+  Dart : '.dart'
 };
 
 /* Commit messages */
