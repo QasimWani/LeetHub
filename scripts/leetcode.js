@@ -39,10 +39,7 @@ let uploadState = { uploading: false };
 /* Get file extension for submission */
 function findLanguage() {
   const tag = [
-    ...document.getElementsByClassName(
-      'ant-select-selection-selected-value',
-    ),
-    ...document.getElementsByClassName('Select-value-label'),
+    ...document.getElementsByTagName("div")[133]
   ];
   if (tag && tag.length > 0) {
     for (let i = 0; i < tag.length; i += 1) {
