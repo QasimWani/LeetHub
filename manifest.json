@@ -3,7 +3,7 @@
   "name": "LeetHub",
   "description": "Automatically integrate your Leetcode & GeeksforGeeks submissions to GitHub",
   "homepage_url": "https://github.com/maxgoodwin/LeetHub-Firefox",
-  "version": "1.1.1.3",
+  "version": "1.1.1.4",
   "author": "Max Goodwin",
   "browser_action": {
     "default_icon": "assets/thumbnail.png",
