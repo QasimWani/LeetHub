@@ -424,7 +424,16 @@ function getProblemNameSlug() {
       questionTitle = qtitle[0].innerText;
     }
   }
-  return convertToSlug(questionTitle);
+  return addLeadingZeros(convertToSlug(questionTitle));
+}
+
+function addLeadingZeros(title) {
+  const maxTitlePrefixLength = 4;
+  var len = title.split('-')[0].length;
+  if (len < maxTitlePrefixLength) {
+    return '0'.repeat(4 - len) + title;
+  }
+  return title;
 }
 
 /* Parser function for the question and tags */
