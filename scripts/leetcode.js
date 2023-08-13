@@ -1,7 +1,6 @@
 /* Constants used through out the code */
 const constant = {
   elementTags: {
-    questionTag: "xFUwe",
     problemStatsTag: "mt-3",
     percentileStatsTag: "mt-2",
     difficulty: {
@@ -9,7 +8,6 @@ const constant = {
       medium: ".text-yellow",       /* .text-yellow is for medium problem */
       hard: ".text-pink"            /* .text-pink is for hard problem */
     },
-    problemNameTag: "a.mr-2.text-label-1",
     submitButtonTag: '[data-e2e-locator="console-submit-button"]',
     successTag: 'span[data-e2e-locator="submission-result"]',
   },
@@ -102,6 +100,26 @@ const constant = {
           compileError
           lastTestcase
         }
+      }`,
+      getQuestionTitle: `query consolePanelConfig($titleSlug: String!) {
+        question(titleSlug: $titleSlug) {
+          questionId
+          questionFrontendId
+          questionTitle
+          enableDebugger
+          enableRunCode
+          enableSubmit
+          enableTestMode
+          exampleTestcaseList
+          metaData
+        }
+      }`,
+      getProblemStatement: `query questionContent($titleSlug: String!) {
+        question(titleSlug: $titleSlug) {
+          content
+          mysqlSchemas
+          dataSchemas
+        }
       }`
     }
   },
@@ -133,7 +151,7 @@ const readmeMsg = 'Create README - LeetHub';
 const discussionMsg = 'Prepend discussion post - LeetHub';
 const createNotesMsg = 'Attach NOTES - LeetHub';
 
-// problem types
+/* problem types */
 const NORMAL_PROBLEM = 0;
 const EXPLORE_SECTION_PROBLEM = 1;
 
@@ -145,7 +163,7 @@ let uploadState = {
   uploading: false
 };
 
-// *------------------------------------------------ UTILITIES------------------------------------------------------
+/* ------------------------------------------------ UTILITIES------------------------------------------------------ */
 
 /* Util function to check if an element exists */
 function checkElem(elem) {
@@ -217,7 +235,7 @@ function parseCode() {
 }
 
 
-// *-----------------------------------------GIT FUNCTIONS------------------------------------------------------------
+/* ----------------------------------------- GIT FUNCTIONS ------------------------------------------------------------ */
 
 /* we will need specific anchor element that is specific to the page you are in Eg. Explore */
 function insertToAnchorElement(elem) {
@@ -286,7 +304,7 @@ function startUpload() {
   }
 }
 
-// Helper function to check if a file already exists in the directory
+/* Helper function to check if a file already exists in the directory */
 function checkFileExists(token, hook, directory, filename, cb) {
   const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
   const xhr = new XMLHttpRequest();
@@ -313,7 +331,7 @@ function checkFileExists(token, hook, directory, filename, cb) {
   xhr.send();
 }
 
-// Main function for uploading code to GitHub repo, and callback cb is called if success
+/* Main function for uploading code to GitHub repo, and callback cb is called if success */
 const upload = (token, hook, code, directory, filename, msg, cb = undefined) => {
   checkFileExists(token, hook, directory, filename, (fileExists, sha) => {
     // Define Payload
@@ -472,7 +490,7 @@ function markUploaded() {
 }
 
 
-// *------------------------------------------------ LEETCODE WEB PAGE PARSING ------------------------------------------------------
+/* ------------------------------------------------ LEETCODE WEB PAGE PARSING FUNCTIONS ------------------------------------------------------ */
 
 /* Get file extension for submission */
 function findLanguageExtension() {
@@ -515,12 +533,12 @@ function findCode(uploadGit, problemNameSlug, fileName, msg, action, cb = undefi
     .then(response => response.json())
     .then((submissions) => {
       if (!submissions) return;
-      
+
       const submissionId = submissions.data.questionSubmissionList.submissions[0].id;
 
       const variables = {
         submissionId: submissionId
-      } 
+      }
 
       const requestOptions = {
         method: 'POST',
@@ -576,16 +594,35 @@ function parseProblemDifficulty() {
 
 /* Parser function for the question and tags */
 function parseQuestion() {
-  const questionElem = document.getElementsByClassName(constant.elementTags.questionTag);
-  if (checkElem(questionElem)) {
-    const qbody = questionElem[0].innerHTML;
-    difficulty = parseProblemDifficulty();
+  const currentURL = window.location.href;
+  const titleSlug = currentURL.split('/')[4];
+  const variables = {
+    titleSlug: titleSlug,
+  };
 
-    /* Markdown content initialization */
-    const markdown = `<h3>${difficulty}</h3><hr>${qbody}`;
-    return markdown;
-  }
-  return null;
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: constant.url.payload.getProblemStatement,
+      variables: variables
+    })
+  };
+
+  /* Fetching question title and question id from graphql query to fetch problem statement */
+  return new Promise((resolve, reject) => {
+    fetch(constant.url.apiURL, requestOptions)
+      .then(response => response.json())
+      .then((questionData) => {
+        const problemStatement = questionData.data.question.content;
+        resolve(problemStatement);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  })
 }
 
 /* Parser function for time/space stats */
@@ -605,103 +642,137 @@ function parseStats() {
     return null;
   }
 
-  // Format commit message
+  // Format commit message 
   return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
 }
 
 function getProblemNameSlug() {
-  const problemNameElement = document.querySelector(constant.elementTags.problemNameTag);
-  if (problemNameElement) {
-    const problemName = problemNameElement.textContent;
-    chrome.storage.local.set({ problemName: problemName });
-    return addLeadingZeros(convertToSlug(problemName));
-  }
-  return null;
+  const currentURL = window.location.href;
+  const titleSlug = currentURL.split('/')[4];
+  const variables = {
+    titleSlug: titleSlug,
+  };
+
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: constant.url.payload.getQuestionTitle,
+      variables: variables
+    })
+  };
+
+  /* Fetching question title and question id from graphql query to fetch problem statement */
+  return new Promise((resolve, reject) => {
+    fetch(constant.url.apiURL, requestOptions)
+      .then(response => response.json())
+      .then((questionData) => {
+        const problemName = questionData.data.question.questionId + ". " + questionData.data.question.questionTitle;
+        const problemNameSlug = addLeadingZeros(convertToSlug(problemName));
+        resolve({ problemName, problemNameSlug });
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  })
+}
+
+function parserFunction() {
+  return new Promise((resolve, reject) => {
+    setTimeout(function () {
+      // Get the current URL
+      currentURL = window.location.href;
+
+      // Get the current URL
+      if (currentURL.endsWith('/submissions/')) {
+        try {
+
+          // Checking if code has been accepted or not
+          successTag = document.querySelector(constant.elementTags.successTag).textContent;
+
+          if (checkElem(successTag) && successTag === 'Accepted') {
+            problemType = NORMAL_PROBLEM;
+
+            // Parse problem statistics
+            problemStats = parseStats();
+
+            // Find language extension of the submission 
+            languageExtension = findLanguageExtension();
+
+            // Get problem name and slug 
+            getProblemNameSlug()
+              .then(({ problemName, problemNameSlug }) => {
+                // Parse the problem statement 
+                parseQuestion()
+                  .then((problemStatement) => {
+                    const questionUrl = currentURL.substring(0, currentURL.indexOf('/submissions/'));
+
+                    // Modify the problem statement to include a link to the question 
+                    problemStatement = `<h2><a href="${questionUrl}">${problemName}</a></h2>` + problemStatement;
+
+                    // Check if all required data is available 
+                    if (languageExtension && problemStatement && problemNameSlug && problemName) {
+                      startUpload();
+
+                      uploadGit(btoa(problemStatement), problemNameSlug, 'README.md', readmeMsg, 'upload');
+
+                      findCode(
+                        uploadGit,
+                        problemNameSlug,
+                        problemNameSlug + languageExtension,
+                        problemStats,
+                        'upload',
+                        // Callback is called when the code upload to Git is successful 
+                        () => {
+                          if (uploadState['countdown']) {
+                            clearTimeout(uploadState['countdown']);
+                          }
+                          delete uploadState['countdown'];
+                          uploadState.uploading = false;
+                          markUploaded();
+                        }
+                      );
+                    }
+                  });
+              });
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }, 5000);
+  });
 }
 
 /* Interval function to check if code has been submitted */
 function loaderFunction() {
   try {
+
     const submitButton = document.querySelector(constant.elementTags.submitButtonTag);
-    let currentURL = window.location.href;
 
-    /* Fetches problem statement and problem name from description page */
-    if ((currentURL.endsWith('/description/') || currentURL.includes('/problems/')) && !currentURL.endsWith('/submissions/')) {
-      const problemStatement = parseQuestion();
-      const problemNameSlug = getProblemNameSlug();
-      if (problemStatement != null && problemNameSlug != null) {
-        try {
-          chrome.storage.local.set({ problemStatement, problemNameSlug });
-        } catch (err) {
-          console.error(err);
-        }
-      }
+    if (!flag) {
+      submitButton.addEventListener('click', function () {
+        clearInterval(loaderInterval);
+        parserFunction()
+          .then(() => {
+            loaderInterval = setInterval(loaderFunction, 1000);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      });
+      flag = true;
     }
-
-    submitButton.addEventListener('click', function () {
-      clearInterval(loaderInterval);
-      if (!flag) {
-        setTimeout(function () {
-          currentURL = window.location.href;
-          if (currentURL.endsWith('/submissions/')) {
-            try {
-
-              // Checking if code has been accepted or not
-              successTag = document.querySelector(constant.elementTags.successTag).textContent;
-
-              if (checkElem(successTag) && successTag === 'Accepted') {
-                success = true;
-                problemType = NORMAL_PROBLEM;
-                problemStats = parseStats();
-                languageExtension = findLanguageExtension();
-
-                chrome.storage.local.get(['problemStatement', 'problemNameSlug', 'problemName'], function (result) {
-                  let problemStatement = result.problemStatement;
-                  const problemNameSlug = result.problemNameSlug;
-                  const problemName = result.problemName;
-
-                  const questionUrl = currentURL.substring(0, currentURL.indexOf('/submissions/'));
-
-                  problemStatement = `<h2><a href="${questionUrl}">${problemName}</a></h2>` + problemStatement;
-
-                  if (languageExtension && problemStatement && problemNameSlug && problemName) {
-                    startUpload();
-
-                    uploadGit(btoa(problemStatement), problemNameSlug, 'README.md', readmeMsg, 'upload');
-
-                    findCode(uploadGit, problemNameSlug, problemNameSlug + languageExtension, problemStats, 'upload',
-                      // callback is called when the code upload to git is a success
-                      () => {
-                        if (uploadState['countdown']) {
-                          clearTimeout(uploadState['countdown']);
-                        }
-                        delete uploadState['countdown'];
-                        uploadState.uploading = false;
-                        markUploaded();
-                        flag = false;
-                        loaderInterval = setInterval(loaderFunction, 1000);
-                      },
-                    );
-                  }
-                });
-              }
-            } catch (err) {
-              console.error(err);
-            }
-          }
-        }, 5000);
-        flag = true;
-      }
-    });
   }
   catch (err) {
-    // console.error(err);
+    console.error(err);
   }
 }
 
 let flag = false;
 let successTag = null;
-let success = false;
 let problemType;
 let problemStats;
 let languageExtension;
@@ -736,5 +807,5 @@ chrome.storage.local.get('isSync', (data) => {
   }
 });
 
-// inject the style
+/* inject the style */
 injectStyle();
