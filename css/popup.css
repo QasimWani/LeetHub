@@ -26,6 +26,18 @@ body {
   margin-bottom: 0px;
 }
 
+#social-icon-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+#socials p {
+  font-weight: bold;
+}
+
 .onboarding {
   font-family: sans-serif;
   border-top: solid black 1px;
