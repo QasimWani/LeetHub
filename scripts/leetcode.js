@@ -1,25 +1,132 @@
-/* Enum for languages supported by LeetCode. */
-const languages = {
-  Python: '.py',
-  Python3: '.py',
-  'C++': '.cpp',
-  C: '.c',
-  Java: '.java',
-  'C#': '.cs',
-  JavaScript: '.js',
-  Javascript: '.js',
-  Ruby: '.rb',
-  Swift: '.swift',
-  Go: '.go',
-  Kotlin: '.kt',
-  Scala: '.scala',
-  Rust: '.rs',
-  PHP: '.php',
-  TypeScript: '.ts',
-  MySQL: '.sql',
-  'MS SQL Server': '.sql',
-  Oracle: '.sql',
-};
+/* Constants used through out the code */
+const constant = {
+  elementTags: {
+    questionTag: "xFUwe",
+    problemStatsTag: "mt-3",
+    percentileStatsTag: "mt-2",
+    difficulty: {
+      easy: ".text-olive",          /* .text-olive is for easy problem */
+      medium: ".text-yellow",       /* .text-yellow is for medium problem */
+      hard: ".text-pink"            /* .text-pink is for hard problem */
+    },
+    problemNameTag: "a.mr-2.text-label-1",
+    submitButtonTag: '[data-e2e-locator="console-submit-button"]',
+    successTag: 'span[data-e2e-locator="submission-result"]',
+  },
+  regex: {
+    percentageRegex: /(\d+(\.\d+)?%)/
+  },
+  url: {
+    apiURL: "https://leetcode.com/graphql",
+    payload: {
+      getAllSubmissions: `query submissionList($offset: Int!, $limit: Int!, $lastKey: String, $questionSlug: String!, $lang: Int, $status: Int) {
+        questionSubmissionList(
+        offset: $offset
+        limit: $limit
+        lastKey: $lastKey
+        questionSlug: $questionSlug
+        lang: $lang
+        status: $status
+        ) {
+          lastKey
+          hasNext
+          submissions {
+            id
+            title
+            titleSlug
+            status
+            statusDisplay
+            lang
+            langName
+            runtime
+            timestamp
+            url
+            isPending
+            memory
+            hasNotes
+            notes
+          }
+      }
+      }`,
+      getSubmission: `query submissionDetails($submissionId: Int!) {
+        submissionDetails(submissionId: $submissionId) {
+          runtime
+          runtimeDisplay
+          runtimePercentile
+          runtimeDistribution
+          memory
+          memoryDisplay
+          memoryPercentile
+          memoryDistribution
+          code
+          timestamp
+          statusCode
+          user {
+            username
+            profile {
+              realName
+              userAvatar
+            }
+          }
+          lang {
+            name
+            verboseName
+          }
+          question {
+            questionId
+            acRate
+            difficulty
+            freqBar
+            frontendQuestionId: questionFrontendId
+            isFavor
+            paidOnly: isPaidOnly
+            content
+            status
+            title
+            titleSlug
+            topicTags {
+              name
+              id
+              slug
+            }
+            hasSolution
+            hasVideoSolution
+          }
+          notes
+          topicTags {
+            tagId
+            slug
+            name
+          }
+          runtimeError
+          compileError
+          lastTestcase
+        }
+      }`
+    }
+  },
+  languages: {
+    'Python': '.py',
+    'Python3': '.py',
+    'C++': '.cpp',
+    'C': '.c',
+    'Java': '.java',
+    'C#': '.cs',
+    'JavaScript': '.js',
+    'Javascript': '.js',
+    'Ruby': '.rb',
+    'Swift': '.swift',
+    'Go': '.go',
+    'Kotlin': '.kt',
+    'Scala': '.scala',
+    'Rust': '.rs',
+    'PHP': '.php',
+    'TypeScript': '.ts',
+    'MySQL': '.sql',
+    'MS SQL Server': '.sql',
+    'Oracle': '.sql',
+  }
+}
 
 /* Commit messages */
 const readmeMsg = 'Create README - LeetHub';
@@ -34,9 +141,11 @@ const EXPLORE_SECTION_PROBLEM = 1;
 let difficulty = '';
 
 /* state of upload for progress */
-let uploadState = { uploading: false };
+let uploadState = {
+  uploading: false
+};
 
-/* ------------------------------------------------ UTILITY FUNCTIONS ------------------------------------------------------ */
+// *------------------------------------------------ UTILITIES------------------------------------------------------
 
 /* Util function to check if an element exists */
 function checkElem(elem) {
@@ -62,6 +171,7 @@ function convertToSlug(string) {
     .replace(/-+$/, ''); // Trim - from end of text
 }
 
+
 function addLeadingZeros(title) {
   const maxTitlePrefixLength = 4;
   var len = title.split('-')[0].length;
@@ -79,6 +189,7 @@ function injectStyle() {
   document.head.append(style);
 }
 
+
 /* This will create a failed tick mark before "Run Code" button signalling that upload failed */
 function markUploadFailed() {
   elem = document.getElementById('leethub_progress_elem');
@@ -86,17 +197,6 @@ function markUploadFailed() {
     elem.className = '';
     style =
       'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid red;border-right:7px solid red;';
-    elem.style = style;
-  }
-}
-
-/* This will create a tick mark before "Run Code" button signalling LeetHub has done its job */
-function markUploaded() {
-  elem = document.getElementById('leethub_progress_elem');
-  if (elem) {
-    elem.className = '';
-    style =
-      'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid #78b13f;border-right:7px solid #78b13f;';
     elem.style = style;
   }
 }
@@ -115,6 +215,9 @@ function parseCode() {
   }
   return null;
 }
+
+
+// *-----------------------------------------GIT FUNCTIONS------------------------------------------------------------
 
 /* we will need specific anchor element that is specific to the page you are in Eg. Explore */
 function insertToAnchorElement(elem) {
@@ -150,8 +253,6 @@ function insertToAnchorElement(elem) {
   }
 }
 
-/* ----------------------------------------- GIT FUNCTIONS ------------------------------------------------------------ */
-
 /* Since we dont yet have callbacks/promises that helps to find out if things went bad */
 /* we will start 10 seconds counter and even after that upload is not complete, then we conclude its failed */
 function startUploadCountDown() {
@@ -185,88 +286,119 @@ function startUpload() {
   }
 }
 
-/* Main function for uploading code to GitHub repo, and callback cb is called if success */
-const upload = (
-  token,
-  hook,
-  code,
-  directory,
-  filename,
-  sha,
-  msg,
-  cb = undefined,
-) => {
-  // To validate user, load user object from GitHub.
+// Helper function to check if a file already exists in the directory
+function checkFileExists(token, hook, directory, filename, cb) {
   const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
-
-  /* Define Payload */
-  let data = {
-    message: msg,
-    content: code,
-    sha,
-  };
-
-  data = JSON.stringify(data);
-
   const xhr = new XMLHttpRequest();
   xhr.addEventListener('readystatechange', function () {
     if (xhr.readyState === 4) {
-      if (xhr.status === 200 || xhr.status === 201) {
-        const updatedSha = JSON.parse(xhr.responseText).content.sha; // get updated SHA.
-
-        chrome.storage.local.get('stats', (data2) => {
-          let { stats } = data2;
-          if (stats === null || stats === {} || stats === undefined) {
-            // create stats object
-            stats = {};
-            stats.solved = 0;
-            stats.easy = 0;
-            stats.medium = 0;
-            stats.hard = 0;
-            stats.sha = {};
-          }
-          const filePath = directory + filename;
-          // Only increment solved problems statistics once
-          // New submission commits twice (README and problem)
-          if (filename === 'README.md' && sha === null) {
-            stats.solved += 1;
-            stats.easy += difficulty === 'Easy' ? 1 : 0;
-            stats.medium += difficulty === 'Medium' ? 1 : 0;
-            stats.hard += difficulty === 'Hard' ? 1 : 0;
-          }
-          stats.sha[filePath] = updatedSha; // update sha key.
-          chrome.storage.local.set({ stats }, () => {
-            console.log(
-              `Successfully committed ${filename} to github`,
-            );
-
-            // if callback is defined, call it
-            if (cb !== undefined) {
-              cb();
-            }
-          });
-        });
+      if (xhr.status === 200) {
+        // File exists, get the SHA of the existing file
+        const response = JSON.parse(xhr.responseText);
+        const sha = response.sha;
+        cb(true, sha);
+      } else if (xhr.status === 404) {
+        // File doesn't exist
+        cb(false, null);
+      } else {
+        // Error occurred
+        cb(false, null);
       }
     }
   });
-  xhr.open('PUT', URL, true);
+
+  xhr.open('GET', URL, true);
   xhr.setRequestHeader('Authorization', `token ${token}`);
   xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-  xhr.send(data);
+  xhr.send();
+}
+
+// Main function for uploading code to GitHub repo, and callback cb is called if success
+const upload = (token, hook, code, directory, filename, msg, cb = undefined) => {
+  checkFileExists(token, hook, directory, filename, (fileExists, sha) => {
+    // Define Payload
+    let data = {
+      message: msg,
+      content: code,
+    };
+
+    // If file exists, update the data with the SHA of the existing file
+    if (fileExists && sha) {
+      data.sha = sha;
+    }
+
+    data = JSON.stringify(data);
+
+    const URL = `https://api.github.com/repos/${hook}/contents/${directory}/${filename}`;
+
+    const xhr = new XMLHttpRequest();
+    xhr.addEventListener('readystatechange', function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200 || xhr.status === 201) {
+          const response = JSON.parse(xhr.responseText);
+          const updatedSha = response.content.sha; // Get updated SHA.
+
+          if (filename === 'README.md' && sha === null) {
+            // If it's the README and sha is null, it means it's a new problem, so update stats
+            chrome.storage.local.get('stats', (data2) => {
+              let { stats } = data2;
+              if (stats === null || stats === {} || stats === undefined) {
+                stats = {};
+                stats.solved = 0;
+                stats.easy = 0;
+                stats.medium = 0;
+                stats.hard = 0;
+                stats.sha = {};
+              }
+              const filePath = `${directory}/${filename}`;
+              stats.solved += 1;
+              stats.easy += difficulty === 'Easy' ? 1 : 0;
+              stats.medium += difficulty === 'Medium' ? 1 : 0;
+              stats.hard += difficulty === 'Hard' ? 1 : 0;
+              stats.sha[filePath] = updatedSha; // update sha key.
+              chrome.storage.local.set({ stats }, () => {
+                console.log(`Successfully committed ${filename} to GitHub`);
+
+                // If callback is defined, call it
+                if (cb !== undefined) {
+                  cb();
+                }
+              });
+            });
+          } else {
+            // For other files, simply update the stats
+            const filePath = `${directory}/${filename}`;
+            chrome.storage.local.get('stats', (data2) => {
+              let { stats } = data2;
+              if (stats !== null && stats !== {} && stats !== undefined) {
+                stats.sha[filePath] = updatedSha; // update sha key.
+                chrome.storage.local.set({ stats });
+              }
+            });
+
+            console.log(`Successfully committed ${filename} to GitHub`);
+
+            // If callback is defined, call it
+            if (cb !== undefined) {
+              cb();
+            }
+          }
+        }
+      }
+    });
+
+    xhr.open('PUT', URL, true);
+    xhr.setRequestHeader('Authorization', `token ${token}`);
+    xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+    xhr.send(data);
+  });
 };
 
 /* Main function for updating code on GitHub Repo */
 /* Currently only used for prepending discussion posts to README */
 /* callback cb is called on success if it is defined */
-const update = (
-  token,
-  hook,
-  addition,
-  directory,
-  msg,
-  prepend,
-  cb = undefined,
-) => {
+const update = (token, hook, addition, directory, msg, prepend, cb = undefined) => {
+
   const URL = `https://api.github.com/repos/${hook}/contents/${directory}/README.md`;
 
   /* Read from existing file on GitHub */
@@ -275,30 +407,18 @@ const update = (
     if (xhr.readyState === 4) {
       if (xhr.status === 200 || xhr.status === 201) {
         const response = JSON.parse(xhr.responseText);
-        const existingContent = decodeURIComponent(
-          escape(atob(response.content)),
-        );
+        const existingContent = atob(response.content);
+
         let newContent = '';
 
         /* Discussion posts prepended at top of README */
         /* Future implementations may require appending to bottom of file */
         if (prepend) {
-          newContent = btoa(
-            unescape(encodeURIComponent(addition + existingContent)),
-          );
+          newContent = btoa(addition + existingContent);
         }
 
         /* Write file with new content to GitHub */
-        upload(
-          token,
-          hook,
-          newContent,
-          directory,
-          'README.md',
-          response.sha,
-          msg,
-          cb,
-        );
+        upload(token, hook, newContent, directory, 'README.md', response.sha, msg, cb);
       }
     }
   });
@@ -308,16 +428,7 @@ const update = (
   xhr.send();
 };
 
-function uploadGit(
-  code,
-  problemName,
-  fileName,
-  msg,
-  action,
-  prepend = true,
-  cb = undefined,
-  _diff = undefined,
-) {
+function uploadGit(code, problemNameSlug, fileName, msg, action, prepend = true, cb = undefined, _diff = undefined) {
   // Assign difficulty
   if (_diff && _diff !== undefined) {
     difficulty = _diff.trim();
@@ -334,47 +445,13 @@ function uploadGit(
           chrome.storage.local.get('leethub_hook', (h) => {
             const hook = h.leethub_hook;
             if (hook) {
-              /* Get SHA, if it exists */
 
-              /* to get unique key */
-              const filePath = problemName + fileName;
-              chrome.storage.local.get('stats', (s) => {
-                const { stats } = s;
-                let sha = null;
-
-                if (
-                  stats !== undefined &&
-                  stats.sha !== undefined &&
-                  stats.sha[filePath] !== undefined
-                ) {
-                  sha = stats.sha[filePath];
-                }
-
-                if (action === 'upload') {
-                  /* Upload to git. */
-                  upload(
-                    token,
-                    hook,
-                    code,
-                    problemName,
-                    fileName,
-                    sha,
-                    msg,
-                    cb,
-                  );
-                } else if (action === 'update') {
-                  /* Update on git */
-                  update(
-                    token,
-                    hook,
-                    code,
-                    problemName,
-                    msg,
-                    prepend,
-                    cb,
-                  );
-                }
-              });
+              if (action === 'upload') {
+                upload(token, hook, code, problemNameSlug, fileName, msg, cb);
+              }
+              else if (action === 'update') {
+                update(token, hook, code, problemNameSlug, msg, prepend, cb);
+              }
             }
           });
         }
@@ -383,448 +460,253 @@ function uploadGit(
   });
 }
 
-/* ----------------------------------------- LEETCODE WEB PAGE PARSING FUNCTIONS ------------------------------------------------------------ */
+/* This will create a tick mark before "Run Code" button signalling LeetHub has done its job */
+function markUploaded() {
+  elem = document.getElementById('leethub_progress_elem');
+  if (elem) {
+    elem.className = '';
+    style =
+      'display: inline-block;transform: rotate(45deg);height:24px;width:12px;border-bottom:7px solid #78b13f;border-right:7px solid #78b13f;';
+    elem.style = style;
+  }
+}
 
+
+// *------------------------------------------------ LEETCODE WEB PAGE PARSING ------------------------------------------------------
 
 /* Get file extension for submission */
-function findLanguage() {
-  const tag = [
-    ...document.getElementsByClassName(
-      'ant-select-selection-selected-value',
-    ),
-    ...document.getElementsByClassName('Select-value-label'),
-  ];
-  if (tag && tag.length > 0) {
-    for (let i = 0; i < tag.length; i += 1) {
-      const elem = tag[i].textContent;
-      if (elem !== undefined && languages[elem] !== undefined) {
-        return languages[elem]; // should generate respective file extension
-      }
-    }
+function findLanguageExtension() {
+  const languageElement = document.querySelector('div.relative.notranslate button div');
+  const language = languageElement.textContent;
+  if (language !== undefined && constant.languages[language] !== undefined) {
+
+    // Return the respective file extension or language identifier
+    return constant.languages[language];
   }
   return null;
 }
 
+
 /* Function for finding and parsing the full code. */
-/* - At first find the submission details url. */
-/* - Then send a request for the details page. */
-/* - Finally, parse the code from the html reponse. */
-/* - Also call the callback if available when upload is success */
-function findCode(
-  uploadGit,
-  problemName,
-  fileName,
-  msg,
-  action,
-  cb = undefined,
-) {
-  /* Get the submission details url from the submission page. */
-  var submissionURL;
-  const e = document.getElementsByClassName('status-column__3SUg');
-  if (checkElem(e)) {
-    // for normal problem submisson
-    const submissionRef = e[1].innerHTML.split(' ')[1];
-    submissionURL =
-      'https://leetcode.com' +
-      submissionRef.split('=')[1].slice(1, -1);
-  } else {
-    // for a submission in explore section
-    const submissionRef = document.getElementById('result-state');
-    submissionURL = submissionRef.href;
-  }
+function findCode(uploadGit, problemNameSlug, fileName, msg, action, cb = undefined) {
+  const currentURL = window.location.href;
+  const questionSlug = currentURL.split('/')[4];
+  const variables = {
+    questionSlug: questionSlug,
+    limit: 20,
+    offset: 0,
+    lastKey: null,
+    status: 10
+  };
 
-  if (submissionURL != undefined) {
-    /* Request for the submission details page */
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        /* received submission details as html reponse. */
-        var doc = new DOMParser().parseFromString(
-          this.responseText,
-          'text/html',
-        );
-        /* the response has a js object called pageData. */
-        /* Pagedata has the details data with code about that submission */
-        var scripts = doc.getElementsByTagName('script');
-        for (var i = 0; i < scripts.length; i++) {
-          var text = scripts[i].innerText;
-          if (text.includes('pageData')) {
-            /* Considering the pageData as text and extract the substring
-            which has the full code */
-            var firstIndex = text.indexOf('submissionCode');
-            var lastIndex = text.indexOf('editCodeUrl');
-            var slicedText = text.slice(firstIndex, lastIndex);
-            /* slicedText has code as like as. (submissionCode: 'Details code'). */
-            /* So finding the index of first and last single inverted coma. */
-            var firstInverted = slicedText.indexOf("'");
-            var lastInverted = slicedText.lastIndexOf("'");
-            /* Extract only the code */
-            var codeUnicoded = slicedText.slice(
-              firstInverted + 1,
-              lastInverted,
-            );
-            /* The code has some unicode. Replacing all unicode with actual characters */
-            var code = codeUnicoded.replace(
-              /\\u[\dA-F]{4}/gi,
-              function (match) {
-                return String.fromCharCode(
-                  parseInt(match.replace(/\\u/g, ''), 16),
-                );
-              },
-            );
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: constant.url.payload.getAllSubmissions,
+      variables: variables
+    })
+  };
 
-            /*
-            for a submisssion in explore section we do not get probStat beforehand
-            so, parse statistics from submisson page
-            */
-            if (!msg) {
-              slicedText = text.slice(
-                text.indexOf('runtime'),
-                text.indexOf('memory'),
-              );
-              const resultRuntime = slicedText.slice(
-                slicedText.indexOf("'") + 1,
-                slicedText.lastIndexOf("'"),
-              );
-              slicedText = text.slice(
-                text.indexOf('memory'),
-                text.indexOf('total_correct'),
-              );
-              const resultMemory = slicedText.slice(
-                slicedText.indexOf("'") + 1,
-                slicedText.lastIndexOf("'"),
-              );
-              msg = `Time: ${resultRuntime}, Memory: ${resultMemory} - LeetHub`;
-            }
+  /* Fetching submission ID from graphql query to fetch code of the submission */
+  fetch(constant.url.apiURL, requestOptions)
+    .then(response => response.json())
+    .then((submissions) => {
+      if (!submissions) return;
+      
+      const submissionId = submissions.data.questionSubmissionList.submissions[0].id;
 
-            if (code != null) {
-              setTimeout(function () {
-                uploadGit(
-                  btoa(unescape(encodeURIComponent(code))),
-                  problemName,
-                  fileName,
-                  msg,
-                  action,
-                  true,
-                  cb,
-                );
-              }, 2000);
-            }
+      const variables = {
+        submissionId: submissionId
+      } 
+
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: constant.url.payload.getSubmission,
+          variables: variables
+        })
+      };
+
+      /* Fetching code based on the submission id extracted from the above request */
+      fetch(constant.url.apiURL, requestOptions)
+        .then(response => response.json())
+        .then((submission) => {
+          let code = submission.data.submissionDetails.code;
+
+          code = code.replace(
+            /\\u[\dA-F]{4}/gi,
+            function (match) {
+              return String.fromCharCode(
+                parseInt(match.replace(/\\u/g, ''), 16),
+              );
+            },
+          );
+
+          if (code != null) {
+            setTimeout(function () {
+              uploadGit(btoa(code), problemNameSlug, fileName, msg, action, true, cb);
+            }, 5000);
           }
-        }
-      }
-    };
+        });
+    });
+}
 
-    xhttp.open('GET', submissionURL, true);
-    xhttp.send();
+/* Function for parsing the difficulty level of the problem. */
+function parseProblemDifficulty() {
+  let difficulty = null;
+
+  const difficultySelectors = [constant.elementTags.difficulty.easy,
+  constant.elementTags.difficulty.medium,
+  constant.elementTags.difficulty.hard];
+
+  const selectedElement = document.querySelector(difficultySelectors.join(', '));
+
+  if (selectedElement) {
+    difficulty = selectedElement.innerText;
   }
+  return difficulty
 }
 
-
-function convertToSlug(string) {
-  const a =
-    'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;';
-  const b =
-    'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------';
-  const p = new RegExp(a.split('').join('|'), 'g');
-
-  return string
-    .toString()
-    .toLowerCase()
-    .replace(/\s+/g, '-') // Replace spaces with -
-    .replace(p, (c) => b.charAt(a.indexOf(c))) // Replace special characters
-    .replace(/&/g, '-and-') // Replace & with 'and'
-    .replace(/[^\w\-]+/g, '') // Remove all non-word characters
-    .replace(/\-\-+/g, '-') // Replace multiple - with single -
-    .replace(/^-+/, '') // Trim - from start of text
-    .replace(/-+$/, ''); // Trim - from end of text
-}
-function getProblemNameSlug() {
-  const questionElem = document.getElementsByClassName(
-    'content__u3I1 question-content__JfgR',
-  );
-  const questionDescriptionElem = document.getElementsByClassName(
-    'question-description__3U1T',
-  );
-  let questionTitle = 'unknown-problem';
-  if (checkElem(questionElem)) {
-    let qtitle = document.getElementsByClassName('css-v3d350');
-    if (checkElem(qtitle)) {
-      questionTitle = qtitle[0].innerHTML;
-    }
-  } else if (checkElem(questionDescriptionElem)) {
-    let qtitle = document.getElementsByClassName('question-title');
-    if (checkElem(qtitle)) {
-      questionTitle = qtitle[0].innerText;
-    }
-  }
-  return addLeadingZeros(convertToSlug(questionTitle));
-}
 
 /* Parser function for the question and tags */
 function parseQuestion() {
-  var questionUrl = window.location.href;
-  if (questionUrl.endsWith('/submissions/')) {
-    questionUrl = questionUrl.substring(
-      0,
-      questionUrl.lastIndexOf('/submissions/') + 1,
-    );
-  }
-  const questionElem = document.getElementsByClassName(
-    'content__u3I1 question-content__JfgR',
-  );
-  const questionDescriptionElem = document.getElementsByClassName(
-    'question-description__3U1T',
-  );
+  const questionElem = document.getElementsByClassName(constant.elementTags.questionTag);
   if (checkElem(questionElem)) {
     const qbody = questionElem[0].innerHTML;
+    difficulty = parseProblemDifficulty();
 
-    // Problem title.
-    let qtitle = document.getElementsByClassName('css-v3d350');
-    if (checkElem(qtitle)) {
-      qtitle = qtitle[0].innerHTML;
-    } else {
-      qtitle = 'unknown-problem';
-    }
-
-    // Problem difficulty, each problem difficulty has its own class.
-    const isHard = document.getElementsByClassName('css-t42afm');
-    const isMedium = document.getElementsByClassName('css-dcmtd5');
-    const isEasy = document.getElementsByClassName('css-14oi08n');
-
-    if (checkElem(isEasy)) {
-      difficulty = 'Easy';
-    } else if (checkElem(isMedium)) {
-      difficulty = 'Medium';
-    } else if (checkElem(isHard)) {
-      difficulty = 'Hard';
-    }
-    // Final formatting of the contents of the README for each problem
-    const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
-    return markdown;
-  } else if (checkElem(questionDescriptionElem)) {
-    let questionTitle = document.getElementsByClassName(
-      'question-title',
-    );
-    if (checkElem(questionTitle)) {
-      questionTitle = questionTitle[0].innerText;
-    } else {
-      questionTitle = 'unknown-problem';
-    }
-
-    const questionBody = questionDescriptionElem[0].innerHTML;
-    const markdown = `<h2>${questionTitle}</h2><hr>${questionBody}`;
-
+    /* Markdown content initialization */
+    const markdown = `<h3>${difficulty}</h3><hr>${qbody}`;
     return markdown;
   }
-
   return null;
 }
 
 /* Parser function for time/space stats */
 function parseStats() {
-  const probStats = document.getElementsByClassName('data__HC-i');
-  if (!checkElem(probStats)) {
+  const problemStats = document.getElementsByClassName(constant.elementTags.problemStatsTag);
+  const percentileStats = document.getElementsByClassName(constant.elementTags.percentileStatsTag);
+
+  const percentageRegex = constant.regex.percentageRegex;
+
+  const time = problemStats.item(0).textContent;
+  const timePercentile = percentileStats.item(0).textContent.match(percentageRegex)[0];
+
+  const space = problemStats.item(1).textContent;
+  const spacePercentile = percentileStats.item(1).textContent.match(percentageRegex)[0];
+
+  if (!checkElem(problemStats)) {
     return null;
   }
-  const time = probStats[0].textContent;
-  const timePercentile = probStats[1].textContent;
-  const space = probStats[2].textContent;
-  const spacePercentile = probStats[3].textContent;
 
   // Format commit message
   return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
 }
 
-document.addEventListener('click', (event) => {
-  const element = event.target;
-  const oldPath = window.location.pathname;
+function getProblemNameSlug() {
+  const problemNameElement = document.querySelector(constant.elementTags.problemNameTag);
+  if (problemNameElement) {
+    const problemName = problemNameElement.textContent;
+    chrome.storage.local.set({ problemName: problemName });
+    return addLeadingZeros(convertToSlug(problemName));
+  }
+  return null;
+}
 
-  /* Act on Post button click */
-  /* Complex since "New" button shares many of the same properties as "Post button */
-  if (
-    element.classList.contains('icon__3Su4') ||
-    element.parentElement.classList.contains('icon__3Su4') ||
-    element.parentElement.classList.contains(
-      'btn-content-container__214G',
-    ) ||
-    element.parentElement.classList.contains('header-right__2UzF')
-  ) {
-    setTimeout(function () {
-      /* Only post if post button was clicked and url changed */
-      if (
-        oldPath !== window.location.pathname &&
-        oldPath ===
-        window.location.pathname.substring(0, oldPath.length) &&
-        !Number.isNaN(window.location.pathname.charAt(oldPath.length))
-      ) {
-        const date = new Date();
-        const currentDate = `${date.getDate()}/${date.getMonth()}/${date.getFullYear()} at ${date.getHours()}:${date.getMinutes()}`;
-        const addition = `[Discussion Post (created on ${currentDate})](${window.location})  \n`;
-        const problemName = window.location.pathname.split('/')[2]; // must be true.
+/* Interval function to check if code has been submitted */
+function loaderFunction() {
+  try {
+    const submitButton = document.querySelector(constant.elementTags.submitButtonTag);
+    let currentURL = window.location.href;
 
-        uploadGit(
-          addition,
-          problemName,
-          'README.md',
-          discussionMsg,
-          'update',
-        );
+    /* Fetches problem statement and problem name from description page */
+    if ((currentURL.endsWith('/description/') || currentURL.includes('/problems/')) && !currentURL.endsWith('/submissions/')) {
+      const problemStatement = parseQuestion();
+      const problemNameSlug = getProblemNameSlug();
+      if (problemStatement != null && problemNameSlug != null) {
+        try {
+          chrome.storage.local.set({ problemStatement, problemNameSlug });
+        } catch (err) {
+          console.error(err);
+        }
       }
-    }, 1000);
-  }
-});
-
-// /* function to get the notes if there is any
-//  the note should be opened atleast once for this to work
-//  this is because the dom is populated after data is fetched by opening the note */
-// function getNotesIfAny() {
-//   // there are no notes on expore
-//   if (document.URL.startsWith('https://leetcode.com/explore/'))
-//     return '';
-
-//   notes = '';
-//   if (
-//     checkElem(document.getElementsByClassName('notewrap__eHkN')) &&
-//     checkElem(
-//       document
-//         .getElementsByClassName('notewrap__eHkN')[0]
-//         .getElementsByClassName('CodeMirror-code'),
-//     )
-//   ) {
-//     notesdiv = document
-//       .getElementsByClassName('notewrap__eHkN')[0]
-//       .getElementsByClassName('CodeMirror-code')[0];
-//     if (notesdiv) {
-//       for (i = 0; i < notesdiv.childNodes.length; i++) {
-//         if (notesdiv.childNodes[i].childNodes.length == 0) continue;
-//         text = notesdiv.childNodes[i].childNodes[0].innerText;
-//         if (text) {
-//           notes = `${notes}\n${text.trim()}`.trim();
-//         }
-//       }
-//     }
-//   }
-//   return notes.trim();
-// }
-
-const loader = setInterval(() => {
-  let code = null;
-  let probStatement = null;
-  let probStats = null;
-  let probType;
-  const successTag = document.getElementsByClassName('success__3Ai7');
-  const resultState = document.getElementById('result-state');
-  var success = false;
-  // check success tag for a normal problem
-  if (
-    checkElem(successTag) &&
-    successTag[0].className === 'success__3Ai7' &&
-    successTag[0].innerText.trim() === 'Success'
-  ) {
-    console.log(successTag[0]);
-    success = true;
-    probType = NORMAL_PROBLEM;
-  }
-
-  // check success state for a explore section problem
-  else if (
-    resultState &&
-    resultState.className === 'text-success' &&
-    resultState.innerText === 'Accepted'
-  ) {
-    success = true;
-    probType = EXPLORE_SECTION_PROBLEM;
-  }
-
-  if (success) {
-    probStatement = parseQuestion();
-    probStats = parseStats();
-  }
-
-  if (probStatement !== null) {
-    switch (probType) {
-      case NORMAL_PROBLEM:
-        successTag[0].classList.add('marked_as_success');
-        break;
-      case EXPLORE_SECTION_PROBLEM:
-        resultState.classList.add('marked_as_success');
-        break;
-      default:
-        console.error(`Unknown problem type ${probType}`);
-        return;
     }
 
-    const problemName = getProblemNameSlug();
-    const language = findLanguage();
-    if (language !== null) {
-      // start upload indicator here
-      startUpload();
-      chrome.storage.local.get('stats', (s) => {
-        const { stats } = s;
-        const filePath = problemName + problemName + language;
-        let sha = null;
-        if (
-          stats !== undefined &&
-          stats.sha !== undefined &&
-          stats.sha[filePath] !== undefined
-        ) {
-          sha = stats.sha[filePath];
-        }
-
-        /* Only create README if not already created */
-        if (sha === null) {
-          /* @TODO: Change this setTimeout to Promise */
-          uploadGit(
-            btoa(unescape(encodeURIComponent(probStatement))),
-            problemName,
-            'README.md',
-            readmeMsg,
-            'upload',
-          );
-        }
-      });
-
-      /* get the notes and upload it */
-      /* only upload notes if there is any */
-      notes = getNotesIfAny();
-      if (notes.length > 0) {
+    submitButton.addEventListener('click', function () {
+      clearInterval(loaderInterval);
+      if (!flag) {
         setTimeout(function () {
-          if (notes != undefined && notes.length != 0) {
-            console.log('Create Notes');
-            // means we can upload the notes too
-            uploadGit(
-              btoa(unescape(encodeURIComponent(notes))),
-              problemName,
-              'NOTES.md',
-              createNotesMsg,
-              'upload',
-            );
-          }
-        }, 500);
-      }
+          currentURL = window.location.href;
+          if (currentURL.endsWith('/submissions/')) {
+            try {
 
-      /* Upload code to Git */
-      setTimeout(function () {
-        findCode(
-          uploadGit,
-          problemName,
-          problemName + language,
-          probStats,
-          'upload',
-          // callback is called when the code upload to git is a success
-          () => {
-            if (uploadState['countdown'])
-              clearTimeout(uploadState['countdown']);
-            delete uploadState['countdown'];
-            uploadState.uploading = false;
-            markUploaded();
-          },
-        ); // Encode `code` to base64
-      }, 1000);
-    }
+              // Checking if code has been accepted or not
+              successTag = document.querySelector(constant.elementTags.successTag).textContent;
+
+              if (checkElem(successTag) && successTag === 'Accepted') {
+                success = true;
+                problemType = NORMAL_PROBLEM;
+                problemStats = parseStats();
+                languageExtension = findLanguageExtension();
+
+                chrome.storage.local.get(['problemStatement', 'problemNameSlug', 'problemName'], function (result) {
+                  let problemStatement = result.problemStatement;
+                  const problemNameSlug = result.problemNameSlug;
+                  const problemName = result.problemName;
+
+                  const questionUrl = currentURL.substring(0, currentURL.indexOf('/submissions/'));
+
+                  problemStatement = `<h2><a href="${questionUrl}">${problemName}</a></h2>` + problemStatement;
+
+                  if (languageExtension && problemStatement && problemNameSlug && problemName) {
+                    startUpload();
+
+                    uploadGit(btoa(problemStatement), problemNameSlug, 'README.md', readmeMsg, 'upload');
+
+                    findCode(uploadGit, problemNameSlug, problemNameSlug + languageExtension, problemStats, 'upload',
+                      // callback is called when the code upload to git is a success
+                      () => {
+                        if (uploadState['countdown']) {
+                          clearTimeout(uploadState['countdown']);
+                        }
+                        delete uploadState['countdown'];
+                        uploadState.uploading = false;
+                        markUploaded();
+                        flag = false;
+                        loaderInterval = setInterval(loaderFunction, 1000);
+                      },
+                    );
+                  }
+                });
+              }
+            } catch (err) {
+              console.error(err);
+            }
+          }
+        }, 5000);
+        flag = true;
+      }
+    });
   }
-}, 1000);
+  catch (err) {
+    // console.error(err);
+  }
+}
+
+let flag = false;
+let successTag = null;
+let success = false;
+let problemType;
+let problemStats;
+let languageExtension;
+
+let loaderInterval = setInterval(loaderFunction, 1000);
 
 /* Sync to local storage */
 chrome.storage.local.get('isSync', (data) => {
@@ -839,10 +721,14 @@ chrome.storage.local.get('isSync', (data) => {
   if (!data || !data.isSync) {
     keys.forEach((key) => {
       chrome.storage.sync.get(key, (data) => {
-        chrome.storage.local.set({ [key]: data[key] });
+        chrome.storage.local.set({
+          [key]: data[key]
+        });
       });
     });
-    chrome.storage.local.set({ isSync: true }, (data) => {
+    chrome.storage.local.set({
+      isSync: true
+    }, (data) => {
       console.log('LeetHub Synced to local values');
     });
   } else {
