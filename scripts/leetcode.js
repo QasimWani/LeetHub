@@ -19,6 +19,7 @@ const languages = {
   MySQL: '.sql',
   'MS SQL Server': '.sql',
   Oracle: '.sql',
+  Pandas: '.py',
 };
 
 /* Commit messages */
@@ -79,7 +80,7 @@ const upload = (
   data = JSON.stringify(data);
 
   const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
+  xhr.addEventListener('readystatechange', function() {
     if (xhr.readyState === 4) {
       if (xhr.status === 200 || xhr.status === 201) {
         const updatedSha = JSON.parse(xhr.responseText).content.sha; // get updated SHA.
@@ -141,7 +142,7 @@ const update = (
 
   /* Read from existing file on GitHub */
   const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
+  xhr.addEventListener('readystatechange', function() {
     if (xhr.readyState === 4) {
       if (xhr.status === 200 || xhr.status === 201) {
         const response = JSON.parse(xhr.responseText);
@@ -284,7 +285,7 @@ function findCode(
   if (submissionURL != undefined) {
     /* Request for the submission details page */
     const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
+    xhttp.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
         /* received submission details as html reponse. */
         var doc = new DOMParser().parseFromString(
@@ -314,7 +315,7 @@ function findCode(
             /* The code has some unicode. Replacing all unicode with actual characters */
             var code = codeUnicoded.replace(
               /\\u[\dA-F]{4}/gi,
-              function (match) {
+              function(match) {
                 return String.fromCharCode(
                   parseInt(match.replace(/\\u/g, ''), 16),
                 );
@@ -346,7 +347,7 @@ function findCode(
             }
 
             if (code != null) {
-              setTimeout(function () {
+              setTimeout(function() {
                 uploadGit(
                   btoa(unescape(encodeURIComponent(code))),
                   problemName,
@@ -525,12 +526,12 @@ document.addEventListener('click', (event) => {
     ) ||
     element.parentElement.classList.contains('header-right__2UzF')
   ) {
-    setTimeout(function () {
+    setTimeout(function() {
       /* Only post if post button was clicked and url changed */
       if (
         oldPath !== window.location.pathname &&
         oldPath ===
-          window.location.pathname.substring(0, oldPath.length) &&
+        window.location.pathname.substring(0, oldPath.length) &&
         !Number.isNaN(window.location.pathname.charAt(oldPath.length))
       ) {
         const date = new Date();
@@ -664,7 +665,7 @@ const loader = setInterval(() => {
       /* only upload notes if there is any */
       notes = getNotesIfAny();
       if (notes.length > 0) {
-        setTimeout(function () {
+        setTimeout(function() {
           if (notes != undefined && notes.length != 0) {
             console.log('Create Notes');
             // means we can upload the notes too
@@ -680,7 +681,7 @@ const loader = setInterval(() => {
       }
 
       /* Upload code to Git */
-      setTimeout(function () {
+      setTimeout(function() {
         findCode(
           uploadGit,
           problemName,
