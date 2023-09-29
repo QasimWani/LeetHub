@@ -219,31 +219,19 @@ function uploadGit(
                 ) {
                   sha = stats.sha[filePath];
                 }
+                const uniqueFileName = `${fileName}-${Math.random()}`;
 
-                if (action === 'upload') {
-                  /* Upload to git. */
-                  upload(
-                    token,
-                    hook,
-                    code,
-                    problemName,
-                    fileName,
-                    sha,
-                    msg,
-                    cb,
-                  );
-                } else if (action === 'update') {
-                  /* Update on git */
-                  update(
-                    token,
-                    hook,
-                    code,
-                    problemName,
-                    msg,
-                    prepend,
-                    cb,
-                  );
-                }
+                /* Upload to git. */
+                upload(
+                  token,
+                  hook,
+                  code,
+                  problemName,
+                  uniqueFileName,
+                  sha,
+                  msg,
+                  cb,
+                );
               });
             }
           });
