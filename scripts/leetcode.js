@@ -492,19 +492,6 @@ function markUploaded() {
 
 /* ------------------------------------------------ LEETCODE WEB PAGE PARSING FUNCTIONS ------------------------------------------------------ */
 
-/* Get file extension for submission */
-function findLanguageExtension() {
-  const languageElement = document.querySelector('div.relative.notranslate button div');
-  const language = languageElement.textContent;
-  if (language !== undefined && constant.languages[language] !== undefined) {
-
-    // Return the respective file extension or language identifier
-    return constant.languages[language];
-  }
-  return null;
-}
-
-
 /* Function for finding and parsing the full code. */
 function findCode(uploadGit, problemNameSlug, fileName, msg, action, cb = undefined) {
   const currentURL = window.location.href;
@@ -557,6 +544,9 @@ function findCode(uploadGit, problemNameSlug, fileName, msg, action, cb = undefi
         .then((submission) => {
           let code = submission.data.submissionDetails.code;
 
+          // Find language extension of the submission 
+          let languageExtension = submission.data.submissionDetails.lang.name;
+
           code = code.replace(
             /\\u[\dA-F]{4}/gi,
             function (match) {
@@ -568,7 +558,7 @@ function findCode(uploadGit, problemNameSlug, fileName, msg, action, cb = undefi
 
           if (code != null) {
             setTimeout(function () {
-              uploadGit(btoa(code), problemNameSlug, fileName, msg, action, true, cb);
+              uploadGit(btoa(code), problemNameSlug, fileName + "." + languageExtension, msg, action, true, cb);
             }, 5000);
           }
         });
@@ -633,10 +623,10 @@ function parseStats() {
   const percentageRegex = constant.regex.percentageRegex;
 
   const time = problemStats.item(0).textContent;
-  const timePercentile = percentileStats.item(0).textContent.match(percentageRegex)[0];
+  const timePercentile = percentileStats.item(2).textContent ? percentileStats.item(2).textContent.match(percentageRegex)[0] : null;
 
   const space = problemStats.item(1).textContent;
-  const spacePercentile = percentileStats.item(1).textContent.match(percentageRegex)[0];
+  const spacePercentile = percentileStats.item(3).textContent ? percentileStats.item(3).textContent.match(percentageRegex)[0] : null;
 
   if (!checkElem(problemStats)) {
     return null;
@@ -686,7 +676,7 @@ function parserFunction() {
       currentURL = window.location.href;
 
       // Get the current URL
-      if (currentURL.endsWith('/submissions/')) {
+      if (!currentURL.endsWith('/description/')) {
         try {
 
           // Checking if code has been accepted or not
@@ -697,9 +687,6 @@ function parserFunction() {
 
             // Parse problem statistics
             problemStats = parseStats();
-
-            // Find language extension of the submission 
-            languageExtension = findLanguageExtension();
 
             // Get problem name and slug 
             getProblemNameSlug()
@@ -713,7 +700,7 @@ function parserFunction() {
                     problemStatement = `<h2><a href="${questionUrl}">${problemName}</a></h2>` + problemStatement;
 
                     // Check if all required data is available 
-                    if (languageExtension && problemStatement && problemNameSlug && problemName) {
+                    if (problemStatement && problemNameSlug && problemName) {
                       startUpload();
 
                       uploadGit(btoa(problemStatement), problemNameSlug, 'README.md', readmeMsg, 'upload');
@@ -721,7 +708,7 @@ function parserFunction() {
                       findCode(
                         uploadGit,
                         problemNameSlug,
-                        problemNameSlug + languageExtension,
+                        problemNameSlug,
                         problemStats,
                         'upload',
                         // Callback is called when the code upload to Git is successful 
@@ -755,6 +742,7 @@ function loaderFunction() {
     if (!flag) {
       submitButton.addEventListener('click', function () {
         clearInterval(loaderInterval);
+        successTag = null;
         parserFunction()
           .then(() => {
             loaderInterval = setInterval(loaderFunction, 1000);
@@ -775,7 +763,6 @@ let flag = false;
 let successTag = null;
 let problemType;
 let problemStats;
-let languageExtension;
 
 let loaderInterval = setInterval(loaderFunction, 1000);
 
