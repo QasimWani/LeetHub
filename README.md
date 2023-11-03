@@ -108,3 +108,5 @@ npm run lint-test     Test all code is linted properly
 ```
 
 #### And that should be it! Get Hacking...
+
+# JavaScript Style Guide
