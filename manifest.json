@@ -5,6 +5,7 @@
   "homepage_url": "https://github.com/QasimWani/LeetHub",
   "version": "1.1.2",
   "author": "Qasim Wani",
+  "co-author": "Mustafa Bawany",
   "browser_action": {
     "default_icon": "assets/thumbnail.png",
     "default_popup": "popup.html"
