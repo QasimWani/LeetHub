@@ -493,7 +493,7 @@ function markUploaded() {
 /* ------------------------------------------------ LEETCODE WEB PAGE PARSING FUNCTIONS ------------------------------------------------------ */
 
 /* Function for finding and parsing the full code. */
-function findCode(uploadGit, problemNameSlug, fileName, msg, action, cb = undefined) {
+function findCode(uploadGit, problemNameSlug, fileName, action, cb = undefined) {
   const currentURL = window.location.href;
   const questionSlug = currentURL.split('/')[4];
   const variables = {
@@ -545,7 +545,7 @@ function findCode(uploadGit, problemNameSlug, fileName, msg, action, cb = undefi
           let code = submission.data.submissionDetails.code;
 
           // Find language extension of the submission 
-          let languageExtension = submission.data.submissionDetails.lang.name;
+          let languageExtension = constant.languages[submission.data.submissionDetails.lang.verboseName];
 
           code = code.replace(
             /\\u[\dA-F]{4}/gi,
@@ -556,9 +556,16 @@ function findCode(uploadGit, problemNameSlug, fileName, msg, action, cb = undefi
             },
           );
 
+          const timePercentile = parseFloat(submission.data.submissionDetails.runtimePercentile).toFixed(2);
+          const time = submission.data.submissionDetails.runtimeDisplay;
+          const space = submission.data.submissionDetails.memory;
+          const spacePercentile = parseFloat(submission.data.submissionDetails.memoryPercentile).toFixed(2);
+
+          const msg = formatStats(time, timePercentile, space, spacePercentile);
+
           if (code != null) {
             setTimeout(function () {
-              uploadGit(btoa(code), problemNameSlug, fileName + "." + languageExtension, msg, action, true, cb);
+              uploadGit(btoa(code), problemNameSlug, fileName + languageExtension, msg, action, true, cb);
             }, 5000);
           }
         });
@@ -615,25 +622,10 @@ function parseQuestion() {
   })
 }
 
-/* Parser function for time/space stats */
-function parseStats() {
-  const problemStats = document.getElementsByClassName(constant.elementTags.problemStatsTag);
-  const percentileStats = document.getElementsByClassName(constant.elementTags.percentileStatsTag);
-
-  const percentageRegex = constant.regex.percentageRegex;
-
-  const time = problemStats.item(0).textContent;
-  const timePercentile = percentileStats.item(2).textContent ? percentileStats.item(2).textContent.match(percentageRegex)[0] : null;
-
-  const space = problemStats.item(1).textContent;
-  const spacePercentile = percentileStats.item(3).textContent ? percentileStats.item(3).textContent.match(percentageRegex)[0] : null;
-
-  if (!checkElem(problemStats)) {
-    return null;
-  }
-
+/* Formatter function for time/space stats */
+function formatStats(time, timePercentile, space, spacePercentile) {
   // Format commit message 
-  return `Time: ${time} (${timePercentile}), Space: ${space} (${spacePercentile}) - LeetHub`;
+  return `Time: ${time} (${timePercentile}%), Space: ${space} (${spacePercentile}%) - LeetHub`;
 }
 
 function getProblemNameSlug() {
@@ -685,9 +677,6 @@ function parserFunction() {
           if (checkElem(successTag) && successTag === 'Accepted') {
             problemType = NORMAL_PROBLEM;
 
-            // Parse problem statistics
-            problemStats = parseStats();
-
             // Get problem name and slug 
             getProblemNameSlug()
               .then(({ problemName, problemNameSlug }) => {
@@ -709,7 +698,6 @@ function parserFunction() {
                         uploadGit,
                         problemNameSlug,
                         problemNameSlug,
-                        problemStats,
                         'upload',
                         // Callback is called when the code upload to Git is successful 
                         () => {
