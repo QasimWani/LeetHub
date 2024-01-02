@@ -2,6 +2,7 @@
 const languages = {
   Python: '.py',
   Python3: '.py',
+  Pandas: '.py',
   'C++': '.cpp',
   C: '.c',
   Java: '.java',

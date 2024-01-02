@@ -7,44 +7,43 @@
 </h1>
 
 <p align="center">
-  <a href="https://github.com/QasimWani/LeetHub/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/>
-  </a>
-  <a href="https://discord.gg/anXT9vErxu">
-    <img src="https://img.shields.io/discord/781373810251137074" alt="discord">
-  </a>
-  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi">
-    <img src="https://img.shields.io/chrome-web-store/v/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="chrome-webstore"/>
-  </a>
-  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi">
-    <img src="https://img.shields.io/chrome-web-store/d/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="users">
-  </a>
+  <a href="https://github.com/maxgoodwin/LeetHub-Firefox/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"/></a>
+  <a href="https://discord.gg/anXT9vErxu"><img src="https://img.shields.io/discord/781373810251137074" alt="discord"></a>
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/leethub/"><img src="https://img.shields.io/amo/v/LeetHub.svg" alt="mozilla add-on"/></a>
+  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/v/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="chrome-webstore"/></a>
+  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img src="https://img.shields.io/chrome-web-store/d/aciombdipochlnkbpcbgdpjffcfdbggi.svg" alt="users"></a>
   <a href="https://github.com/QasimWani/LeetHub/graphs/contributors" alt="Contributors">
     <img src="https://img.shields.io/github/contributors/QasimWani/LeetHub" />
-  </a>
-  <a href="https://twitter.com/intent/tweet?text=LeetHub%20-%20Automatically%20sync%20your%20code%20to%20GitHub%20after%20solving%20any%20leetcode%20problems!&url=https://github.com/QasimWani/LeetHub&hashtags=javascript,github,leetcode,coding,interview,chrome">
-    <img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social">
-  </a>
+</a>
+  <a href="https://twitter.com/intent/tweet?text=LeetHub%20-%20Automatically%20sync%20your%20code%20to%20GitHub%20after%20solving%20any%20leetcode%20problems!&url=https://github.com/QasimWani/LeetHub&hashtags=javascript,github,leetcode,coding,interview,chrome"> <img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social"> </a>
+ 
+
 </p>
-
-<div align="center">
-  <a href="https://www.producthunt.com/posts/leethub?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-leethub" target="_blank">
-    <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=275757&theme=light" alt="LeetHub - Automatically sync your code b/w Leetcode & GitHub. | Product Hunt" />
-  </a>
-
-  [![Chrome](https://user-images.githubusercontent.com/53124886/111952712-34f12300-8aee-11eb-9fdd-ad579a1eb235.png)](https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi) [![Firefox](https://user-images.githubusercontent.com/53124886/126341427-4a4e57aa-767a-467e-83d2-b31fa3564441.png)](https://addons.mozilla.org/en-US/firefox/addon/leethub/)
-</div>
-
-
 
 ## Top 5 Trending JavaScript Repositories
 
 
-## LeetHub progress and numbers (YouTube Video):
-[![LeetHub](https://user-images.githubusercontent.com/43754306/165053510-a757c95e-c3bc-49d5-995c-7a52368abd37.png)](https://www.youtube.com/watch?v=o33PIjqlOgw "LeetHub saves lives!")
+### Available on:
+
+<table style="border-collapse: separate;"><tr>
+  <td style="border-spacing:2em 0"> 
+      <a href="https://addons.mozilla.org/en-US/firefox/addon/leethub/">
+        <img src="https://i.ibb.co/BLMCfKB/Firefox-Add-ons.jpg" alt="Mozilla add-ons" height=152.19123505976 width=270.161955728/>
+      </a>  
+  </td>
+  <td style="border-spacing:2em 0"> 
+      <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi">
+        <img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimg.talkandroid.com%2Fuploads%2F2014%2F10%2Fchrome_web_store_logo_new.png&f=1&nofb=1" alt="Chrome WebStore" height=152.19123505976 width=200/>
+      </a>  
+  </td>
+  <td style="border-spacing:2em 0"> 
+      <a href="https://www.producthunt.com/posts/leethub?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-leethub" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=275757&theme=light" alt="LeetHub - Automatically sync your code b/w Leetcode & GitHub. | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
+  </td>
+</tr></table>
 
 ## What is LeetHub?
-<p>A chrome extension that automatically pushes your code to GitHub when you pass all tests on a <a href="http://leetcode.com/">Leetcode</a> problem. </p>
+<p>A firefox and chrome extension that automatically pushes your code to GitHub when you pass all tests on a <a href="http://leetcode.com/">Leetcode</a> problem. </p>
 
 
 ## How fast is it really?
@@ -74,7 +73,7 @@ Moreover, pushing code manually to GitHub from Leetcode is very time consuming. 
 #### BONUS: Star [this repository](https://github.com/QasimWani/LeetHub) for further development of features. If you want a particular feature, simply [request](https://github.com/QasimWani/LeetHub/labels/feature) for it!
 
 
-## Why did I build LeetHub?
+## Why was LeetHub built?
 <p>
 The coding interview is arguably the most important part of your interview process, given you get the interview first. As someone who's received multiple internship offers from Fortune 100 companies, getting the interview in the first place is not easy!<br>
 And that's what LeetHub is supposed to do: indirectly improving your coding skills while improving your portfolio to ACE that interview at <em>insert_name_here</em>!
@@ -87,9 +86,19 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
 
 
 # How to set up LeetHub for local development?
-
+## On firefox
 <ol>
   <li>Fork this repo and clone to your local machine</li>
+  <li>Go to <a href="about:debugging">about:debugging</a></li>
+  <li>Click <a href="about:debugging#/runtime/this-firefox">'This Firefox'</a> in the left tab</li>
+  <li>Click 'Load Temporary Add-on'</li>
+  <li>Select a file within the LeetHub root folder</li>
+  <li>Run "npm run setup" with the root folder to install the developer dependencies</li>
+</ol>
+
+## On chrome
+<ol>
+  <li>Fork the <a href="https://github.com/QasimWani/LeetHub">chrome LeetHub repo</a> and clone to your local machine</li>
   <li>Go to <a href="chrome://extensions">chrome://extensions</a> </li>
   <li>Enable <a href="https://www.mstoic.com/enable-developer-mode-in-chrome/">Developer mode</a> by toggling the switch on top right corner</li>
   <li>Click 'Load unpacked'</li>
@@ -97,7 +106,7 @@ And that's what LeetHub is supposed to do: indirectly improving your coding skil
   <li>Run "npm run setup" to install the developer dependencies</li>
 </ol>
 
-Other npm commands available:
+## Other npm commands available:
 
 ```
 npm run               Show list of commands available

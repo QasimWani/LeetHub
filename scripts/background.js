@@ -22,7 +22,7 @@ function handleMessage(request) {
       console.log('Closed pipe.');
     });
 
-    chrome.tabs.getSelected(null, function (tab) {
+		chrome.tabs.query({active: true}, function (tab) {
       chrome.tabs.remove(tab.id);
     });
 
@@ -37,7 +37,7 @@ function handleMessage(request) {
     alert(
       'Something went wrong while trying to authenticate your profile!',
     );
-    chrome.tabs.getSelected(null, function (tab) {
+		chrome.tabs.query({active: true}, function (tab) {
       chrome.tabs.remove(tab.id);
     });
   }
