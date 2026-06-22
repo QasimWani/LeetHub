@@ -1,3 +1,4 @@
+/* global LEETHUB_CLIENT_ID, LEETHUB_CLIENT_SECRET */
 /* 
     (needs patch) 
     IMPLEMENTATION OF AUTHENTICATION ROUTE AFTER REDIRECT FROM GITHUB.
@@ -13,9 +14,15 @@ const localAuth = {
       'https://github.com/login/oauth/access_token';
     this.AUTHORIZATION_URL =
       'https://github.com/login/oauth/authorize';
-    this.CLIENT_ID = 'beb4f0aa19ab8faf5004';
-    this.CLIENT_SECRET = '843f835609c7ef02ef0f2f1645bc49514c0e65a6';
-    this.REDIRECT_URL = 'https://github.com/'; // for example, https://github.com
+    this.CLIENT_ID =
+      typeof LEETHUB_CLIENT_ID !== 'undefined'
+        ? LEETHUB_CLIENT_ID
+        : 'SET_YOUR_CLIENT_ID';
+    this.CLIENT_SECRET =
+      typeof LEETHUB_CLIENT_SECRET !== 'undefined'
+        ? LEETHUB_CLIENT_SECRET
+        : 'SET_YOUR_CLIENT_SECRET';
+    this.REDIRECT_URL = 'https://github.com/';
     this.SCOPES = ['repo'];
   },
 
@@ -30,8 +37,22 @@ const localAuth = {
         chrome.tabs.remove(tab.id, function () {});
       });
     } else {
-      // eslint-disable-next-line
-      this.requestToken(url.match(/\?code=([\w\/\-]+)/)[1]);
+      const codeMatch = url.match(/\?code=([\w/-]+)/);
+      const stateMatch = url.match(/[&?]state=([^&]+)/);
+      if (!codeMatch) return;
+
+      const code = codeMatch[1];
+      const returnedState = stateMatch ? stateMatch[1] : null;
+
+      chrome.storage.local.get('leethub_oauth_state', (data) => {
+        const savedState = data.leethub_oauth_state;
+        if (!savedState || savedState !== returnedState) {
+          console.error('OAuth state mismatch — possible CSRF.');
+          return;
+        }
+        chrome.storage.local.remove('leethub_oauth_state');
+        this.requestToken(code);
+      });
     }
   },
 
@@ -72,8 +93,6 @@ const localAuth = {
    * @param token The OAuth2 token given to the application from the provider.
    */
   finish(token) {
-    /* Get username */
-    // To validate user, load user object from GitHub.
     const AUTHENTICATION_URL = 'https://api.github.com/user';
 
     const xhr = new XMLHttpRequest();
@@ -86,7 +105,7 @@ const localAuth = {
             isSuccess: true,
             token,
             username,
-            KEY: this.KEY,
+            KEY: 'leethub_token',
           });
         }
       }
@@ -97,7 +116,7 @@ const localAuth = {
   },
 };
 
-localAuth.init(); // load params.
+localAuth.init();
 const link = window.location.href;
 
 /* Check for open pipe */

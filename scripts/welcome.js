@@ -6,6 +6,16 @@ const repositoryName = () => {
   return $('#name').val().trim();
 };
 
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
+function isValidRepoName(name) {
+  return /^[a-zA-Z0-9._-]+$/.test(name) && name.length <= 100;
+}
+
 /* Status codes for creating of repo */
 
 const statusCode = (res, status, name) => {
@@ -55,7 +65,11 @@ const statusCode = (res, status, name) => {
       chrome.storage.local.set({ mode_type: 'commit' }, () => {
         $('#error').hide();
         $('#success').html(
-          `Successfully created <a target="blank" href="${res.html_url}">${name}</a>. Start <a href="http://leetcode.com">LeetCoding</a>!`,
+          `Successfully created <a target="blank" href="${escapeHtml(
+            res.html_url,
+          )}">${escapeHtml(
+            name,
+          )}</a>. Start <a href="https://leetcode.com">LeetCoding</a>!`,
         );
         $('#success').show();
         $('#unlink').show();
@@ -107,7 +121,11 @@ const linkStatusCode = (status, name) => {
     case 301:
       $('#success').hide();
       $('#error').html(
-        `Error linking <a target="blank" href="${`https://github.com/${name}`}">${name}</a> to LeetHub. <br> This repository has been moved permenantly. Try creating a new one.`,
+        `Error linking <a target="blank" href="https://github.com/${escapeHtml(
+          name,
+        )}">${escapeHtml(
+          name,
+        )}</a> to LeetHub. <br> This repository has been moved permenantly. Try creating a new one.`,
       );
       $('#error').show();
       break;
@@ -115,7 +133,11 @@ const linkStatusCode = (status, name) => {
     case 403:
       $('#success').hide();
       $('#error').html(
-        `Error linking <a target="blank" href="${`https://github.com/${name}`}">${name}</a> to LeetHub. <br> Forbidden action. Please make sure you have the right access to this repository.`,
+        `Error linking <a target="blank" href="https://github.com/${escapeHtml(
+          name,
+        )}">${escapeHtml(
+          name,
+        )}</a> to LeetHub. <br> Forbidden action. Please make sure you have the right access to this repository.`,
       );
       $('#error').show();
       break;
@@ -123,7 +145,11 @@ const linkStatusCode = (status, name) => {
     case 404:
       $('#success').hide();
       $('#error').html(
-        `Error linking <a target="blank" href="${`https://github.com/${name}`}">${name}</a> to LeetHub. <br> Resource not found. Make sure you enter the right repository name.`,
+        `Error linking <a target="blank" href="https://github.com/${escapeHtml(
+          name,
+        )}">${escapeHtml(
+          name,
+        )}</a> to LeetHub. <br> Resource not found. Make sure you enter the right repository name.`,
       );
       $('#error').show();
       break;
@@ -176,7 +202,11 @@ const linkRepo = (token, name) => {
             () => {
               $('#error').hide();
               $('#success').html(
-                `Successfully linked <a target="blank" href="${res.html_url}">${name}</a> to LeetHub. Start <a href="http://leetcode.com">LeetCoding</a> now!`,
+                `Successfully linked <a target="blank" href="${escapeHtml(
+                  res.html_url,
+                )}">${escapeHtml(
+                  name,
+                )}</a> to LeetHub. Start <a href="https://leetcode.com">LeetCoding</a> now!`,
               );
               $('#success').show();
               $('#unlink').show();
@@ -250,6 +280,12 @@ $('#hook_button').on('click', () => {
   } else if (!repositoryName()) {
     $('#error').text(
       'No repository name added - Enter the name of your repository!',
+    );
+    $('#name').focus();
+    $('#error').show();
+  } else if (!isValidRepoName(repositoryName())) {
+    $('#error').text(
+      'Invalid repository name - Use only letters, numbers, hyphens, underscores, and dots (max 100 chars).',
     );
     $('#name').focus();
     $('#error').show();

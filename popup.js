@@ -10,14 +10,8 @@ $('#authenticate').on('click', () => {
 });
 
 /* Get URL for welcome page */
-$('#welcome_URL').attr(
-  'href',
-  chrome.runtime.getURL('welcome.html')
-);
-$('#hook_URL').attr(
-  'href',
-  chrome.runtime.getURL('welcome.html')
-);
+$('#welcome_URL').attr('href', chrome.runtime.getURL('welcome.html'));
+$('#hook_URL').attr('href', chrome.runtime.getURL('welcome.html'));
 
 chrome.storage.local.get('leethub_token', (data) => {
   const token = data.leethub_token;
@@ -49,9 +43,17 @@ chrome.storage.local.get('leethub_token', (data) => {
                   }
                   const leethubHook = data3.leethub_hook;
                   if (leethubHook) {
-                    $('#repo_url').html(
-                      `<a target="blank" style="color: cadetblue !important; font-size:0.8em;" href="https://github.com/${leethubHook}">${leethubHook}</a>`,
+                    const safeHook = leethubHook.replace(
+                      /[^a-zA-Z0-9./_-]/g,
+                      '',
                     );
+                    const anchor = document.createElement('a');
+                    anchor.target = 'blank';
+                    anchor.style =
+                      'color: cadetblue !important; font-size:0.8em;';
+                    anchor.href = `https://github.com/${safeHook}`;
+                    anchor.textContent = safeHook;
+                    $('#repo_url').empty().append(anchor);
                   }
                 },
               );

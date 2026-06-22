@@ -706,7 +706,7 @@ const loader = setInterval(() => {
 function startUploadCountDown() {
   uploadState.uploading = true;
   uploadState['countdown'] = setTimeout(() => {
-    if ((uploadState.uploading = true)) {
+    if (uploadState.uploading === true) {
       // still uploading, then it failed
       uploadState.uploading = false;
       markUploadFailed();
