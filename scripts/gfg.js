@@ -1,3 +1,5 @@
+/* global languages, getSHA, uploadGit, encodeToBase64 */
+
 /* Enum for languages supported by GeeksForGeeks. */
 // const gfgLanguages = {
 //   Python3: '.py',
@@ -30,8 +32,9 @@ function findGfgLanguage() {
 }
 
 function findTitle() {
-  const ele = document.querySelector('[class^="problems_header_content__title"] > h3')
-    .innerText;
+  const ele = document.querySelector(
+    '[class^="problems_header_content__title"] > h3',
+  ).innerText;
   if (ele != null) {
     return ele;
   }
@@ -39,7 +42,9 @@ function findTitle() {
 }
 
 function findDifficulty() {
-  const ele = document.querySelectorAll('[class^="problems_header_description"]')[0].children[0].innerText;
+  const ele = document.querySelectorAll(
+    '[class^="problems_header_description"]',
+  )[0].children[0].innerText;
 
   if (ele != null) {
     if (ele.trim() == 'Basic' || ele.trim() === 'School') {
@@ -51,12 +56,13 @@ function findDifficulty() {
 }
 
 function getProblemStatement() {
-  const ele = document.querySelector('[class^="problems_problem_content"]');
+  const ele = document.querySelector(
+    '[class^="problems_problem_content"]',
+  );
   return `${ele.outerHTML}`;
 }
 
 function getCode() {
-
   const scriptContent = `
   var editor = ace.edit("ace-editor");
   var editorContent = editor.getValue();
@@ -103,14 +109,22 @@ const gfgLoader = setInterval(() => {
       'practice.geeksforgeeks.org/problems',
     )
   ) {
-
-    const submitBtn = document.evaluate(".//button[text()='Submit']", document.body, null, XPathResult.ANY_TYPE, null).iterateNext();
+    const submitBtn = document
+      .evaluate(
+        ".//button[text()='Submit']",
+        document.body,
+        null,
+        XPathResult.ANY_TYPE,
+        null,
+      )
+      .iterateNext();
 
     submitBtn.addEventListener('click', function () {
       START_MONITOR = true;
       const submission = setInterval(() => {
-        const output = document.querySelectorAll('[class^="problems_content"]')[0]
-          .innerText;
+        const output = document.querySelectorAll(
+          '[class^="problems_content"]',
+        )[0].innerText;
         if (
           output.includes('Problem Solved Successfully') &&
           START_MONITOR
@@ -137,19 +151,12 @@ const gfgLoader = setInterval(() => {
               const { stats } = s;
               const filePath =
                 probName + toKebabCase(title + language);
-              let sha = null;
-              if (
-                stats !== undefined &&
-                stats.sha !== undefined &&
-                stats.sha[filePath] !== undefined
-              ) {
-                sha = stats.sha[filePath];
-              }
+              const sha = getSHA(stats, filePath);
 
               // Only create README if not already created
               // if (sha === null) {
               uploadGit(
-                btoa(unescape(encodeURIComponent(problemStatement))),
+                encodeToBase64(problemStatement),
                 probName,
                 'README.md',
                 README_MSG,
@@ -163,7 +170,7 @@ const gfgLoader = setInterval(() => {
               if (code !== '') {
                 setTimeout(function () {
                   uploadGit(
-                    btoa(unescape(encodeURIComponent(code))),
+                    encodeToBase64(code),
                     probName,
                     toKebabCase(title + language),
                     SUBMIT_MSG,
