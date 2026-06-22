@@ -1,3 +1,4 @@
+/* global LEETHUB_CLIENT_ID, LEETHUB_CLIENT_SECRET */
 // eslint-disable-next-line no-unused-vars
 const oAuth2 = {
   /**
@@ -9,9 +10,15 @@ const oAuth2 = {
       'https://github.com/login/oauth/access_token';
     this.AUTHORIZATION_URL =
       'https://github.com/login/oauth/authorize';
-    this.CLIENT_ID = 'beb4f0aa19ab8faf5004';
-    this.CLIENT_SECRET = '843f835609c7ef02ef0f2f1645bc49514c0e65a6';
-    this.REDIRECT_URL = 'https://github.com/'; // for example, https://github.com
+    this.CLIENT_ID =
+      typeof LEETHUB_CLIENT_ID !== 'undefined'
+        ? LEETHUB_CLIENT_ID
+        : 'SET_YOUR_CLIENT_ID';
+    this.CLIENT_SECRET =
+      typeof LEETHUB_CLIENT_SECRET !== 'undefined'
+        ? LEETHUB_CLIENT_SECRET
+        : 'SET_YOUR_CLIENT_SECRET';
+    this.REDIRECT_URL = 'https://github.com/';
     this.SCOPES = ['repo'];
   },
 
@@ -19,17 +26,21 @@ const oAuth2 = {
    * Begin
    */
   begin() {
-    this.init(); // secure token params.
+    this.init();
 
-    let url = `${this.AUTHORIZATION_URL}?client_id=${this.CLIENT_ID}&redirect_uri${this.REDIRECT_URL}&scope=`;
+    const state = crypto.getRandomValues(new Uint32Array(2)).join('');
+    chrome.storage.local.set({ leethub_oauth_state: state });
+
+    let url = `${this.AUTHORIZATION_URL}?client_id=${
+      this.CLIENT_ID
+    }&redirect_uri=${encodeURIComponent(this.REDIRECT_URL)}&scope=`;
 
     for (let i = 0; i < this.SCOPES.length; i += 1) {
       url += this.SCOPES[i];
     }
+    url += `&state=${state}`;
 
     chrome.storage.local.set({ pipe_leethub: true }, () => {
-      // opening pipe temporarily
-
       chrome.tabs.create({ url, active: true }, function () {
         window.close();
         chrome.tabs.getCurrent(function (tab) {

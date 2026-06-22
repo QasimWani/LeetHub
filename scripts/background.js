@@ -5,17 +5,12 @@ function handleMessage(request) {
     request.isSuccess === true
   ) {
     /* Set username */
-    chrome.storage.local.set(
-      { leethub_username: request.username },
-      () => {
-        window.localStorage.leethub_username = request.username;
-      },
-    );
+    chrome.storage.local.set({
+      leethub_username: request.username,
+    });
 
     /* Set token */
-    chrome.storage.local.set({ leethub_token: request.token }, () => {
-      window.localStorage[request.KEY] = request.token;
-    });
+    chrome.storage.local.set({ leethub_token: request.token });
 
     /* Close pipe */
     chrome.storage.local.set({ pipe_leethub: false }, () => {
@@ -28,11 +23,11 @@ function handleMessage(request) {
 
     /* Go to onboarding for UX */
     const urlOnboarding = chrome.runtime.getURL('welcome.html');
-    chrome.tabs.create({ url: urlOnboarding, active: true }); // creates new tab
+    chrome.tabs.create({ url: urlOnboarding, active: true });
   } else if (
     request &&
     request.closeWebPage === true &&
-    request.isSuccess === true
+    request.isSuccess === false
   ) {
     alert(
       'Something went wrong while trying to authenticate your profile!',
