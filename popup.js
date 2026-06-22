@@ -10,14 +10,8 @@ $('#authenticate').on('click', () => {
 });
 
 /* Get URL for welcome page */
-$('#welcome_URL').attr(
-  'href',
-  chrome.runtime.getURL('welcome.html')
-);
-$('#hook_URL').attr(
-  'href',
-  chrome.runtime.getURL('welcome.html')
-);
+$('#welcome_URL').attr('href', chrome.runtime.getURL('welcome.html'));
+$('#hook_URL').attr('href', chrome.runtime.getURL('welcome.html'));
 
 chrome.storage.local.get('leethub_token', (data) => {
   const token = data.leethub_token;
@@ -69,8 +63,16 @@ chrome.storage.local.get('leethub_token', (data) => {
             action = true;
             $('#auth_mode').show();
           });
+        } else {
+          console.error(
+            `LeetHub: unexpected GitHub API status ${xhr.status}`,
+            xhr.responseText,
+          );
         }
       }
+    });
+    xhr.addEventListener('error', function () {
+      console.error('LeetHub: network error validating GitHub token');
     });
     xhr.open('GET', AUTHENTICATION_URL, true);
     xhr.setRequestHeader('Authorization', `token ${token}`);

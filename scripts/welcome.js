@@ -90,8 +90,31 @@ const createRepo = (token, name) => {
   const xhr = new XMLHttpRequest();
   xhr.addEventListener('readystatechange', function () {
     if (xhr.readyState === 4) {
-      statusCode(JSON.parse(xhr.responseText), xhr.status, name);
+      let res;
+      try {
+        res = JSON.parse(xhr.responseText);
+      } catch (e) {
+        console.error(
+          `LeetHub: failed to parse response when creating repo ${name}:`,
+          e,
+        );
+        $('#success').hide();
+        $('#error').text(
+          `Error creating ${name} - Unexpected response from GitHub. Check your network connection and try again.`,
+        );
+        $('#error').show();
+        return;
+      }
+      statusCode(res, xhr.status, name);
     }
+  });
+  xhr.addEventListener('error', function () {
+    console.error(`LeetHub: network error creating repo ${name}`);
+    $('#success').hide();
+    $('#error').text(
+      `Error creating ${name} - Network error. Check your connection and try again.`,
+    );
+    $('#error').show();
   });
 
   xhr.open('POST', AUTHENTICATION_URL, true);
@@ -148,7 +171,21 @@ const linkRepo = (token, name) => {
   const xhr = new XMLHttpRequest();
   xhr.addEventListener('readystatechange', function () {
     if (xhr.readyState === 4) {
-      const res = JSON.parse(xhr.responseText);
+      let res;
+      try {
+        res = JSON.parse(xhr.responseText);
+      } catch (e) {
+        console.error(
+          `LeetHub: failed to parse response when linking repo ${name}:`,
+          e,
+        );
+        $('#success').hide();
+        $('#error').text(
+          `Error linking ${name} - Unexpected response from GitHub. Check your network connection and try again.`,
+        );
+        $('#error').show();
+        return;
+      }
       const bool = linkStatusCode(xhr.status, name);
       if (xhr.status === 200) {
         // BUG FIX
@@ -206,6 +243,15 @@ const linkRepo = (token, name) => {
         }
       }
     }
+  });
+
+  xhr.addEventListener('error', function () {
+    console.error(`LeetHub: network error linking repo ${name}`);
+    $('#success').hide();
+    $('#error').text(
+      `Error linking ${name} - Network error. Check your connection and try again.`,
+    );
+    $('#error').show();
   });
 
   xhr.open('GET', AUTHENTICATION_URL, true);

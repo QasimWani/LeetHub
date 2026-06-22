@@ -34,7 +34,7 @@ const EXPLORE_SECTION_PROBLEM = 1;
 let difficulty = '';
 
 /* state of upload for progress */
-let uploadState = { uploading: false };
+const uploadState = { uploading: false };
 
 /* Get file extension for submission */
 function findLanguage() {
@@ -82,7 +82,16 @@ const upload = (
   xhr.addEventListener('readystatechange', function () {
     if (xhr.readyState === 4) {
       if (xhr.status === 200 || xhr.status === 201) {
-        const updatedSha = JSON.parse(xhr.responseText).content.sha; // get updated SHA.
+        let updatedSha;
+        try {
+          updatedSha = JSON.parse(xhr.responseText).content.sha;
+        } catch (e) {
+          console.error(
+            `LeetHub: failed to parse GitHub response for ${filename}:`,
+            e,
+          );
+          return;
+        }
 
         chrome.storage.local.get('stats', (data2) => {
           let { stats } = data2;
@@ -116,8 +125,18 @@ const upload = (
             }
           });
         });
+      } else {
+        console.error(
+          `LeetHub: GitHub API error ${xhr.status} uploading ${filename}:`,
+          xhr.responseText,
+        );
       }
     }
+  });
+  xhr.addEventListener('error', function () {
+    console.error(
+      `LeetHub: network error uploading ${filename} to GitHub`,
+    );
   });
   xhr.open('PUT', URL, true);
   xhr.setRequestHeader('Authorization', `token ${token}`);
@@ -144,7 +163,16 @@ const update = (
   xhr.addEventListener('readystatechange', function () {
     if (xhr.readyState === 4) {
       if (xhr.status === 200 || xhr.status === 201) {
-        const response = JSON.parse(xhr.responseText);
+        let response;
+        try {
+          response = JSON.parse(xhr.responseText);
+        } catch (e) {
+          console.error(
+            'LeetHub: failed to parse GitHub response for README update:',
+            e,
+          );
+          return;
+        }
         const existingContent = decodeURIComponent(
           escape(atob(response.content)),
         );
@@ -169,8 +197,18 @@ const update = (
           msg,
           cb,
         );
+      } else {
+        console.error(
+          `LeetHub: GitHub API error ${xhr.status} reading ${directory}/README.md:`,
+          xhr.responseText,
+        );
       }
     }
+  });
+  xhr.addEventListener('error', function () {
+    console.error(
+      `LeetHub: network error reading ${directory}/README.md from GitHub`,
+    );
   });
   xhr.open('GET', URL, true);
   xhr.setRequestHeader('Authorization', `token ${token}`);
@@ -196,60 +234,62 @@ function uploadGit(
   /* Get necessary payload data */
   chrome.storage.local.get('leethub_token', (t) => {
     const token = t.leethub_token;
-    if (token) {
-      chrome.storage.local.get('mode_type', (m) => {
-        const mode = m.mode_type;
-        if (mode === 'commit') {
-          /* Get hook */
-          chrome.storage.local.get('leethub_hook', (h) => {
-            const hook = h.leethub_hook;
-            if (hook) {
-              /* Get SHA, if it exists */
-
-              /* to get unique key */
-              const filePath = problemName + fileName;
-              chrome.storage.local.get('stats', (s) => {
-                const { stats } = s;
-                let sha = null;
-
-                if (
-                  stats !== undefined &&
-                  stats.sha !== undefined &&
-                  stats.sha[filePath] !== undefined
-                ) {
-                  sha = stats.sha[filePath];
-                }
-
-                if (action === 'upload') {
-                  /* Upload to git. */
-                  upload(
-                    token,
-                    hook,
-                    code,
-                    problemName,
-                    fileName,
-                    sha,
-                    msg,
-                    cb,
-                  );
-                } else if (action === 'update') {
-                  /* Update on git */
-                  update(
-                    token,
-                    hook,
-                    code,
-                    problemName,
-                    msg,
-                    prepend,
-                    cb,
-                  );
-                }
-              });
-            }
-          });
-        }
-      });
+    if (!token) {
+      console.warn('LeetHub: missing GitHub token, skipping upload');
+      return;
     }
+    chrome.storage.local.get('mode_type', (m) => {
+      const mode = m.mode_type;
+      if (mode !== 'commit') {
+        console.warn(
+          `LeetHub: mode is '${mode}', not 'commit'; skipping upload`,
+        );
+        return;
+      }
+      /* Get hook */
+      chrome.storage.local.get('leethub_hook', (h) => {
+        const hook = h.leethub_hook;
+        if (!hook) {
+          console.warn(
+            'LeetHub: no repository hook configured, skipping upload',
+          );
+          return;
+        }
+        /* Get SHA, if it exists */
+
+        /* to get unique key */
+        const filePath = problemName + fileName;
+        chrome.storage.local.get('stats', (s) => {
+          const { stats } = s;
+          let sha = null;
+
+          if (
+            stats !== undefined &&
+            stats.sha !== undefined &&
+            stats.sha[filePath] !== undefined
+          ) {
+            sha = stats.sha[filePath];
+          }
+
+          if (action === 'upload') {
+            /* Upload to git. */
+            upload(
+              token,
+              hook,
+              code,
+              problemName,
+              fileName,
+              sha,
+              msg,
+              cb,
+            );
+          } else if (action === 'update') {
+            /* Update on git */
+            update(token, hook, code, problemName, msg, prepend, cb);
+          }
+        });
+      });
+    });
   });
 }
 
@@ -267,105 +307,121 @@ function findCode(
   cb = undefined,
 ) {
   /* Get the submission details url from the submission page. */
-  var submissionURL;
+  let submissionURL;
   const e = document.getElementsByClassName('status-column__3SUg');
   if (checkElem(e)) {
     // for normal problem submisson
     const submissionRef = e[1].innerHTML.split(' ')[1];
-    submissionURL =
-      'https://leetcode.com' +
-      submissionRef.split('=')[1].slice(1, -1);
+    submissionURL = `https://leetcode.com${submissionRef
+      .split('=')[1]
+      .slice(1, -1)}`;
   } else {
     // for a submission in explore section
     const submissionRef = document.getElementById('result-state');
     submissionURL = submissionRef.href;
   }
 
-  if (submissionURL != undefined) {
-    /* Request for the submission details page */
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        /* received submission details as html reponse. */
-        var doc = new DOMParser().parseFromString(
-          this.responseText,
-          'text/html',
-        );
-        /* the response has a js object called pageData. */
-        /* Pagedata has the details data with code about that submission */
-        var scripts = doc.getElementsByTagName('script');
-        for (var i = 0; i < scripts.length; i++) {
-          var text = scripts[i].innerText;
-          if (text.includes('pageData')) {
-            /* Considering the pageData as text and extract the substring
-            which has the full code */
-            var firstIndex = text.indexOf('submissionCode');
-            var lastIndex = text.indexOf('editCodeUrl');
-            var slicedText = text.slice(firstIndex, lastIndex);
-            /* slicedText has code as like as. (submissionCode: 'Details code'). */
-            /* So finding the index of first and last single inverted coma. */
-            var firstInverted = slicedText.indexOf("'");
-            var lastInverted = slicedText.lastIndexOf("'");
-            /* Extract only the code */
-            var codeUnicoded = slicedText.slice(
-              firstInverted + 1,
-              lastInverted,
-            );
-            /* The code has some unicode. Replacing all unicode with actual characters */
-            var code = codeUnicoded.replace(
-              /\\u[\dA-F]{4}/gi,
-              function (match) {
-                return String.fromCharCode(
-                  parseInt(match.replace(/\\u/g, ''), 16),
-                );
-              },
-            );
+  if (submissionURL === undefined) {
+    console.error('LeetHub: could not find submission URL');
+    return;
+  }
 
-            /*
+  /* Request for the submission details page */
+  const xhttp = new XMLHttpRequest();
+  xhttp.addEventListener('error', function () {
+    console.error(
+      'LeetHub: network error fetching submission details from',
+      submissionURL,
+    );
+  });
+  xhttp.onreadystatechange = function () {
+    if (this.readyState === 4) {
+      if (this.status !== 200) {
+        console.error(
+          `LeetHub: error ${this.status} fetching submission details from`,
+          submissionURL,
+        );
+        return;
+      }
+      /* received submission details as html reponse. */
+      const doc = new DOMParser().parseFromString(
+        this.responseText,
+        'text/html',
+      );
+      /* the response has a js object called pageData. */
+      /* Pagedata has the details data with code about that submission */
+      const scripts = doc.getElementsByTagName('script');
+      for (let i = 0; i < scripts.length; i++) {
+        const text = scripts[i].innerText;
+        if (text.includes('pageData')) {
+          /* Considering the pageData as text and extract the substring
+            which has the full code */
+          const firstIndex = text.indexOf('submissionCode');
+          const lastIndex = text.indexOf('editCodeUrl');
+          let slicedText = text.slice(firstIndex, lastIndex);
+          /* slicedText has code as like as. (submissionCode: 'Details code'). */
+          /* So finding the index of first and last single inverted coma. */
+          const firstInverted = slicedText.indexOf("'");
+          const lastInverted = slicedText.lastIndexOf("'");
+          /* Extract only the code */
+          const codeUnicoded = slicedText.slice(
+            firstInverted + 1,
+            lastInverted,
+          );
+          /* The code has some unicode. Replacing all unicode with actual characters */
+          var code = codeUnicoded.replace(
+            /\\u[\dA-F]{4}/gi,
+            function (match) {
+              return String.fromCharCode(
+                parseInt(match.replace(/\\u/g, ''), 16),
+              );
+            },
+          );
+
+          /*
             for a submisssion in explore section we do not get probStat beforehand
             so, parse statistics from submisson page
             */
-            if (!msg) {
-              slicedText = text.slice(
-                text.indexOf('runtime'),
-                text.indexOf('memory'),
-              );
-              const resultRuntime = slicedText.slice(
-                slicedText.indexOf("'") + 1,
-                slicedText.lastIndexOf("'"),
-              );
-              slicedText = text.slice(
-                text.indexOf('memory'),
-                text.indexOf('total_correct'),
-              );
-              const resultMemory = slicedText.slice(
-                slicedText.indexOf("'") + 1,
-                slicedText.lastIndexOf("'"),
-              );
-              msg = `Time: ${resultRuntime}, Memory: ${resultMemory} - LeetHub`;
-            }
+          if (!msg) {
+            slicedText = text.slice(
+              text.indexOf('runtime'),
+              text.indexOf('memory'),
+            );
+            const resultRuntime = slicedText.slice(
+              slicedText.indexOf("'") + 1,
+              slicedText.lastIndexOf("'"),
+            );
+            slicedText = text.slice(
+              text.indexOf('memory'),
+              text.indexOf('total_correct'),
+            );
+            const resultMemory = slicedText.slice(
+              slicedText.indexOf("'") + 1,
+              slicedText.lastIndexOf("'"),
+            );
+            msg = `Time: ${resultRuntime}, Memory: ${resultMemory} - LeetHub`;
+          }
 
-            if (code != null) {
-              setTimeout(function () {
-                uploadGit(
-                  btoa(unescape(encodeURIComponent(code))),
-                  problemName,
-                  fileName,
-                  msg,
-                  action,
-                  true,
-                  cb,
-                );
-              }, 2000);
-            }
+          if (code != null) {
+            setTimeout(function () {
+              uploadGit(
+                btoa(unescape(encodeURIComponent(code))),
+                problemName,
+                fileName,
+                msg,
+                action,
+                true,
+                cb,
+              );
+            }, 2000);
           }
         }
       }
-    };
+    }
+  };
 
-    xhttp.open('GET', submissionURL, true);
-    xhttp.send();
-  }
+  xhttp.open('GET', submissionURL, true);
+  xhttp.send();
 }
 
 /* Main parser function for the code */
@@ -414,12 +470,12 @@ function getProblemNameSlug() {
   );
   let questionTitle = 'unknown-problem';
   if (checkElem(questionElem)) {
-    let qtitle = document.getElementsByClassName('css-v3d350');
+    const qtitle = document.getElementsByClassName('css-v3d350');
     if (checkElem(qtitle)) {
       questionTitle = qtitle[0].innerHTML;
     }
   } else if (checkElem(questionDescriptionElem)) {
-    let qtitle = document.getElementsByClassName('question-title');
+    const qtitle = document.getElementsByClassName('question-title');
     if (checkElem(qtitle)) {
       questionTitle = qtitle[0].innerText;
     }
@@ -429,7 +485,7 @@ function getProblemNameSlug() {
 
 function addLeadingZeros(title) {
   const maxTitlePrefixLength = 4;
-  var len = title.split('-')[0].length;
+  const len = title.split('-')[0].length;
   if (len < maxTitlePrefixLength) {
     return '0'.repeat(4 - len) + title;
   }
@@ -438,7 +494,7 @@ function addLeadingZeros(title) {
 
 /* Parser function for the question and tags */
 function parseQuestion() {
-  var questionUrl = window.location.href;
+  let questionUrl = window.location.href;
   if (questionUrl.endsWith('/submissions/')) {
     questionUrl = questionUrl.substring(
       0,
@@ -477,7 +533,8 @@ function parseQuestion() {
     // Final formatting of the contents of the README for each problem
     const markdown = `<h2><a href="${questionUrl}">${qtitle}</a></h2><h3>${difficulty}</h3><hr>${qbody}`;
     return markdown;
-  } else if (checkElem(questionDescriptionElem)) {
+  }
+  if (checkElem(questionDescriptionElem)) {
     let questionTitle = document.getElementsByClassName(
       'question-title',
     );
@@ -584,13 +641,13 @@ function getNotesIfAny() {
 }
 
 const loader = setInterval(() => {
-  let code = null;
+  const code = null;
   let probStatement = null;
   let probStats = null;
   let probType;
   const successTag = document.getElementsByClassName('success__3Ai7');
   const resultState = document.getElementById('result-state');
-  var success = false;
+  let success = false;
   // check success tag for a normal problem
   if (
     checkElem(successTag) &&
@@ -689,9 +746,9 @@ const loader = setInterval(() => {
           'upload',
           // callback is called when the code upload to git is a success
           () => {
-            if (uploadState['countdown'])
-              clearTimeout(uploadState['countdown']);
-            delete uploadState['countdown'];
+            if (uploadState.countdown)
+              clearTimeout(uploadState.countdown);
+            delete uploadState.countdown;
             uploadState.uploading = false;
             markUploaded();
           },
@@ -705,8 +762,8 @@ const loader = setInterval(() => {
 /* we will start 10 seconds counter and even after that upload is not complete, then we conclude its failed */
 function startUploadCountDown() {
   uploadState.uploading = true;
-  uploadState['countdown'] = setTimeout(() => {
-    if ((uploadState.uploading = true)) {
+  uploadState.countdown = setTimeout(() => {
+    if (uploadState.uploading === true) {
       // still uploading, then it failed
       uploadState.uploading = false;
       markUploadFailed();
@@ -738,13 +795,13 @@ function insertToAnchorElement(elem) {
       if (target.childNodes.length > 0)
         target.childNodes[0].prepend(elem);
     }
-  } else {
-    if (checkElem(document.getElementsByClassName('action__38Xc'))) {
-      target = document.getElementsByClassName('action__38Xc')[0];
-      elem.className = 'runcode-wrapper__8rXm';
-      if (target.childNodes.length > 0)
-        target.childNodes[0].prepend(elem);
-    }
+  } else if (
+    checkElem(document.getElementsByClassName('action__38Xc'))
+  ) {
+    target = document.getElementsByClassName('action__38Xc')[0];
+    elem.className = 'runcode-wrapper__8rXm';
+    if (target.childNodes.length > 0)
+      target.childNodes[0].prepend(elem);
   }
 }
 
