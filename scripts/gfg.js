@@ -20,8 +20,14 @@ const toKebabCase = (string) => {
 };
 
 function findGfgLanguage() {
-  const ele = document.getElementsByClassName('divider text')[0]
-    .innerText;
+  const elements = document.getElementsByClassName('divider text');
+  if (!elements || elements.length === 0) {
+    console.error(
+      'LeetHub: could not find language element on GFG page',
+    );
+    return null;
+  }
+  const ele = elements[0].innerText;
   const lang = ele.split('(')[0].trim();
   if (lang.length > 0 && languages[lang]) {
     return languages[lang];
@@ -30,19 +36,35 @@ function findGfgLanguage() {
 }
 
 function findTitle() {
-  const ele = document.querySelector('[class^="problems_header_content__title"] > h3')
-    .innerText;
-  if (ele != null) {
-    return ele;
+  const node = document.querySelector(
+    '[class^="problems_header_content__title"] > h3',
+  );
+  if (node && node.innerText) {
+    return node.innerText;
   }
+  console.error('LeetHub: could not find problem title on GFG page');
   return '';
 }
 
 function findDifficulty() {
-  const ele = document.querySelectorAll('[class^="problems_header_description"]')[0].children[0].innerText;
+  const elements = document.querySelectorAll(
+    '[class^="problems_header_description"]',
+  );
+  if (
+    !elements ||
+    elements.length === 0 ||
+    !elements[0].children ||
+    elements[0].children.length === 0
+  ) {
+    console.error(
+      'LeetHub: could not find difficulty element on GFG page',
+    );
+    return '';
+  }
+  const ele = elements[0].children[0].innerText;
 
   if (ele != null) {
-    if (ele.trim() == 'Basic' || ele.trim() === 'School') {
+    if (ele.trim() === 'Basic' || ele.trim() === 'School') {
       return 'Easy';
     }
     return ele;
@@ -51,12 +73,19 @@ function findDifficulty() {
 }
 
 function getProblemStatement() {
-  const ele = document.querySelector('[class^="problems_problem_content"]');
+  const ele = document.querySelector(
+    '[class^="problems_problem_content"]',
+  );
+  if (!ele) {
+    console.error(
+      'LeetHub: could not find problem statement on GFG page',
+    );
+    return '';
+  }
   return `${ele.outerHTML}`;
 }
 
 function getCode() {
-
   const scriptContent = `
   var editor = ace.edit("ace-editor");
   var editorContent = editor.getValue();
@@ -103,14 +132,31 @@ const gfgLoader = setInterval(() => {
       'practice.geeksforgeeks.org/problems',
     )
   ) {
+    const submitBtn = document
+      .evaluate(
+        ".//button[text()='Submit']",
+        document.body,
+        null,
+        XPathResult.ANY_TYPE,
+        null,
+      )
+      .iterateNext();
 
-    const submitBtn = document.evaluate(".//button[text()='Submit']", document.body, null, XPathResult.ANY_TYPE, null).iterateNext();
+    if (!submitBtn) {
+      console.error(
+        'LeetHub: could not find Submit button on GFG page',
+      );
+      return;
+    }
 
     submitBtn.addEventListener('click', function () {
       START_MONITOR = true;
       const submission = setInterval(() => {
-        const output = document.querySelectorAll('[class^="problems_content"]')[0]
-          .innerText;
+        const outputElems = document.querySelectorAll(
+          '[class^="problems_content"]',
+        );
+        if (!outputElems || outputElems.length === 0) return;
+        const output = outputElems[0].innerText;
         if (
           output.includes('Problem Solved Successfully') &&
           START_MONITOR

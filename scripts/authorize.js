@@ -26,12 +26,28 @@ const localAuth = {
    */
   parseAccessCode(url) {
     if (url.match(/\?error=(.+)/)) {
+      const errorMatch = url.match(/\?error=([^&]+)/);
+      console.error(
+        'LeetHub: GitHub OAuth error:',
+        errorMatch ? decodeURIComponent(errorMatch[1]) : 'unknown',
+      );
+      alert(
+        'GitHub authorization was denied or failed. Please try again.',
+      );
       chrome.tabs.getCurrent(function (tab) {
         chrome.tabs.remove(tab.id, function () {});
       });
     } else {
+      const codeMatch = url.match(/\?code=([\w\/\-]+)/);
+      if (!codeMatch) {
+        console.error(
+          'LeetHub: could not extract access code from URL:',
+          url,
+        );
+        return;
+      }
       // eslint-disable-next-line
-      this.requestToken(url.match(/\?code=([\w\/\-]+)/)[1]);
+      this.requestToken(codeMatch[1]);
     }
   },
 
@@ -51,16 +67,41 @@ const localAuth = {
     xhr.addEventListener('readystatechange', function () {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
-          that.finish(
-            xhr.responseText.match(/access_token=([^&]*)/)[1],
+          const tokenMatch = xhr.responseText.match(
+            /access_token=([^&]*)/,
           );
+          if (!tokenMatch) {
+            console.error(
+              'LeetHub: access_token not found in OAuth response',
+            );
+            chrome.runtime.sendMessage({
+              closeWebPage: true,
+              isSuccess: false,
+              error: 'access_token not found in response',
+            });
+            return;
+          }
+          that.finish(tokenMatch[1]);
         } else {
+          console.error(
+            `LeetHub: token request failed with status ${xhr.status}:`,
+            xhr.responseText,
+          );
           chrome.runtime.sendMessage({
             closeWebPage: true,
             isSuccess: false,
+            error: `Token request failed (HTTP ${xhr.status})`,
           });
         }
       }
+    });
+    xhr.addEventListener('error', function () {
+      console.error('LeetHub: network error during token request');
+      chrome.runtime.sendMessage({
+        closeWebPage: true,
+        isSuccess: false,
+        error: 'Network error during token request',
+      });
     });
     xhr.open('POST', this.ACCESS_TOKEN_URL, true);
     xhr.send(data);
@@ -80,7 +121,21 @@ const localAuth = {
     xhr.addEventListener('readystatechange', function () {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
-          const username = JSON.parse(xhr.responseText).login;
+          let username;
+          try {
+            username = JSON.parse(xhr.responseText).login;
+          } catch (e) {
+            console.error(
+              'LeetHub: failed to parse GitHub user response:',
+              e,
+            );
+            chrome.runtime.sendMessage({
+              closeWebPage: true,
+              isSuccess: false,
+              error: 'Failed to parse user profile response',
+            });
+            return;
+          }
           chrome.runtime.sendMessage({
             closeWebPage: true,
             isSuccess: true,
@@ -88,8 +143,26 @@ const localAuth = {
             username,
             KEY: this.KEY,
           });
+        } else {
+          console.error(
+            `LeetHub: GitHub user validation failed (HTTP ${xhr.status}):`,
+            xhr.responseText,
+          );
+          chrome.runtime.sendMessage({
+            closeWebPage: true,
+            isSuccess: false,
+            error: `User validation failed (HTTP ${xhr.status})`,
+          });
         }
       }
+    });
+    xhr.addEventListener('error', function () {
+      console.error('LeetHub: network error validating GitHub user');
+      chrome.runtime.sendMessage({
+        closeWebPage: true,
+        isSuccess: false,
+        error: 'Network error validating user',
+      });
     });
     xhr.open('GET', AUTHENTICATION_URL, true);
     xhr.setRequestHeader('Authorization', `token ${token}`);
