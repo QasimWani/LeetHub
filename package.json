@@ -8,7 +8,13 @@
     "format": "prettier --write **/*.{js,jsx,ts,tsx,css,html}",
     "format-test": "prettier --check **/*.{js,jsx,ts,tsx,css,html}",
     "lint": "eslint **/*.{js,jsx,ts,tsx} --fix",
-    "lint-test": "eslint **/*.{js,jsx,ts,tsx} --color"
+    "lint-test": "eslint **/*.{js,jsx,ts,tsx} --color",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testMatch": ["**/__tests__/**/*.js", "**/*.test.js"]
   },
   "devDependencies": {
     "eslint": "^7.2.0",
@@ -19,7 +25,8 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^4.0.0",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
     "prettier": "^2.2.1"
-  },
-  "dependencies": {}
+  }
 }
