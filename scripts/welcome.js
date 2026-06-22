@@ -1,3 +1,5 @@
+/* global setDisplayMode, githubRequest, displayStats */
+
 const option = () => {
   return $('#type').val();
 };
@@ -59,10 +61,7 @@ const statusCode = (res, status, name) => {
         );
         $('#success').show();
         $('#unlink').show();
-        /* Show new layout */
-        document.getElementById('hook_mode').style.display = 'none';
-        document.getElementById('commit_mode').style.display =
-          'inherit';
+        setDisplayMode('commit');
       });
       /* Set Repo Hook */
       chrome.storage.local.set(
@@ -78,26 +77,23 @@ const statusCode = (res, status, name) => {
 
 const createRepo = (token, name) => {
   const AUTHENTICATION_URL = 'https://api.github.com/user/repos';
-  let data = {
+  const data = {
     name,
     private: true,
     auto_init: true,
     description:
       'Collection of LeetCode questions to ace the coding interview! - Created using [LeetHub](https://github.com/QasimWani/LeetHub)',
   };
-  data = JSON.stringify(data);
 
-  const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
-    if (xhr.readyState === 4) {
-      statusCode(JSON.parse(xhr.responseText), xhr.status, name);
-    }
-  });
-
-  xhr.open('POST', AUTHENTICATION_URL, true);
-  xhr.setRequestHeader('Authorization', `token ${token}`);
-  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-  xhr.send(data);
+  githubRequest(
+    'POST',
+    AUTHENTICATION_URL,
+    token,
+    data,
+    (status, responseText) => {
+      statusCode(JSON.parse(responseText), status, name);
+    },
+  );
 };
 
 /* Status codes for linking of repo */
@@ -145,34 +141,29 @@ const linkStatusCode = (status, name) => {
 const linkRepo = (token, name) => {
   const AUTHENTICATION_URL = `https://api.github.com/repos/${name}`;
 
-  const xhr = new XMLHttpRequest();
-  xhr.addEventListener('readystatechange', function () {
-    if (xhr.readyState === 4) {
-      const res = JSON.parse(xhr.responseText);
-      const bool = linkStatusCode(xhr.status, name);
-      if (xhr.status === 200) {
-        // BUG FIX
+  githubRequest(
+    'GET',
+    AUTHENTICATION_URL,
+    token,
+    null,
+    (status, responseText) => {
+      const res = JSON.parse(responseText);
+      const bool = linkStatusCode(status, name);
+      if (status === 200) {
         if (!bool) {
-          // unable to gain access to repo in commit mode. Must switch to hook mode.
-          /* Set mode type to hook */
           chrome.storage.local.set({ mode_type: 'hook' }, () => {
             console.log(`Error linking ${name} to LeetHub`);
           });
-          /* Set Repo Hook to NONE */
           chrome.storage.local.set({ leethub_hook: null }, () => {
             console.log('Defaulted repo hook to NONE');
           });
-
-          /* Hide accordingly */
-          document.getElementById('hook_mode').style.display =
-            'inherit';
-          document.getElementById('commit_mode').style.display =
-            'none';
+          setDisplayMode('hook');
         } else {
-          /* Change mode type to commit */
-          /* Save repo url to chrome storage */
           chrome.storage.local.set(
-            { mode_type: 'commit', repo: res.html_url },
+            {
+              mode_type: 'commit',
+              repo: res.html_url,
+            },
             () => {
               $('#error').hide();
               $('#success').html(
@@ -182,51 +173,30 @@ const linkRepo = (token, name) => {
               $('#unlink').show();
             },
           );
-          /* Set Repo Hook */
           chrome.storage.local.set(
             { leethub_hook: res.full_name },
             () => {
               console.log('Successfully set new repo hook');
-              /* Get problems solved count */
               chrome.storage.local.get('stats', (psolved) => {
-                const { stats } = psolved;
-                if (stats && stats.solved) {
-                  $('#p_solved').text(stats.solved);
-                  $('#p_solved_easy').text(stats.easy);
-                  $('#p_solved_medium').text(stats.medium);
-                  $('#p_solved_hard').text(stats.hard);
-                }
+                displayStats(psolved.stats);
               });
             },
           );
-          /* Hide accordingly */
-          document.getElementById('hook_mode').style.display = 'none';
-          document.getElementById('commit_mode').style.display =
-            'inherit';
+          setDisplayMode('commit');
         }
       }
-    }
-  });
-
-  xhr.open('GET', AUTHENTICATION_URL, true);
-  xhr.setRequestHeader('Authorization', `token ${token}`);
-  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-  xhr.send();
+    },
+  );
 };
 
 const unlinkRepo = () => {
-  /* Set mode type to hook */
   chrome.storage.local.set({ mode_type: 'hook' }, () => {
     console.log(`Unlinking repo`);
   });
-  /* Set Repo Hook to NONE */
   chrome.storage.local.set({ leethub_hook: null }, () => {
     console.log('Defaulted repo hook to NONE');
   });
-
-  /* Hide accordingly */
-  document.getElementById('hook_mode').style.display = 'inherit';
-  document.getElementById('commit_mode').style.display = 'none';
+  setDisplayMode('hook');
 };
 
 /* Check for value of select tag, Get Started disabled by default */
@@ -318,10 +288,7 @@ chrome.storage.local.get('mode_type', (data) => {
         );
         $('#error').show();
         $('#success').hide();
-        /* Hide accordingly */
-        document.getElementById('hook_mode').style.display =
-          'inherit';
-        document.getElementById('commit_mode').style.display = 'none';
+        setDisplayMode('hook');
       } else {
         /* Get access to repo */
         chrome.storage.local.get('leethub_hook', (repoName) => {
@@ -333,11 +300,7 @@ chrome.storage.local.get('mode_type', (data) => {
             );
             $('#error').show();
             $('#success').hide();
-            /* Hide accordingly */
-            document.getElementById('hook_mode').style.display =
-              'inherit';
-            document.getElementById('commit_mode').style.display =
-              'none';
+            setDisplayMode('hook');
           } else {
             /* Username exists, at least in storage. Confirm this */
             linkRepo(token, hook);
@@ -346,10 +309,8 @@ chrome.storage.local.get('mode_type', (data) => {
       }
     });
 
-    document.getElementById('hook_mode').style.display = 'none';
-    document.getElementById('commit_mode').style.display = 'inherit';
+    setDisplayMode('commit');
   } else {
-    document.getElementById('hook_mode').style.display = 'inherit';
-    document.getElementById('commit_mode').style.display = 'none';
+    setDisplayMode('hook');
   }
 });
